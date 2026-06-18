@@ -8,6 +8,8 @@ Open that link to see the actual product. Because the page is fully self-contain
 you can also just download **`index.html`** and double-click it to open in any
 browser — it works offline, with no server and no internet connection needed.
 
+![DLS Squad Stats — sortable player ratings table](screenshot.png)
+
 ## What's inside
 
 - **59 players**, each rated across 9 attribute columns — `OVR`, `SPE`, `ACC`,
