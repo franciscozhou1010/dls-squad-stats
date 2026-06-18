@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DLS Squad Stats</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d1117; color: #e6edf3; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; padding: 20px 14px; }
+
+h1 { text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #fff; margin-bottom: 10px; padding-bottom: 14px; border-bottom: 1px solid #21262d; }
+
+.legend-strip { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.legend-strip span { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #8b949e; }
+.dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.dot-legend { background: #d4a843; }
+.dot-tots   { background: #c084f5; }
+.dot-wc     { background: #f87171; }
+.dot-std    { background: #f5a623; }
+
+.cat-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.cat { padding: 7px 16px; border-radius: 20px; border: 1.5px solid #30363d; background: #161b22; color: #8b949e; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+.cat:hover { border-color: #58a6ff; color: #58a6ff; }
+.cat.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+
+.sub-tabs { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.sub { padding: 4px 14px; border-radius: 4px; border: 1px solid #30363d; background: transparent; color: #8b949e; font-size: 11px; font-weight: 600; cursor: pointer; }
+.sub:hover { color: #e6edf3; border-color: #8b949e; }
+.sub.active { background: #21262d; border-color: #58a6ff; color: #58a6ff; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.tbl-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #30363d; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead tr { background: #161b22; }
+th { padding: 9px 10px; text-align: right; font-size: 11px; font-weight: 600; color: #8b949e; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; white-space: nowrap; border-bottom: 1px solid #30363d; user-select: none; }
+th:first-child { text-align: left; }
+th:nth-child(2) { text-align: left; }
+th:hover { color: #e6edf3; }
+td { padding: 8px 10px; text-align: right; border-bottom: 0.5px solid #21262d; }
+td:first-child { text-align: left; font-weight: 600; }
+td:nth-child(2) { text-align: left; color: #8b949e; font-size: 11px; }
+.tot { color: #a8d8f0 !important; font-weight: 700 !important; }
+.yr { color: #8b949e; font-size: 11px; font-weight: 400; }
+.count { text-align: right; color: #8b949e; font-size: 11px; margin-top: 6px; }
+
+/* Card row colors */
+tr.r-legend td { background: #1a1200 !important; border-bottom-color: #3d2e00 !important; }
+tr.r-legend td:first-child { color: #d4a843 !important; }
+tr.r-legend:hover td { background: #2a1e00 !important; }
+
+tr.r-tots td { background: #1a0a2e !important; border-bottom-color: #3d1f5e !important; }
+tr.r-tots td:first-child { color: #c084f5 !important; }
+tr.r-tots:hover td { background: #280f42 !important; }
+
+tr.r-wc td { background: #2a0a0a !important; border-bottom-color: #5e1f1f !important; }
+tr.r-wc td:first-child { color: #f87171 !important; }
+tr.r-wc:hover td { background: #3d1010 !important; }
+
+tr.r-standard td { background: #1c1400 !important; border-bottom-color: #2e2000 !important; }
+tr.r-standard td:first-child { color: #f5a623 !important; }
+tr.r-standard:hover td { background: #251b00 !important; }
+
+</style>
+</head>
+<body>
+
+<h1>DLS Squad Stats</h1>
+
+<div class="legend-strip">
+  <span><i class="dot dot-legend"></i>Legend</span>
+  <span><i class="dot dot-tots"></i>TOTS</span>
+  <span><i class="dot dot-wc"></i>WC 2026</span>
+  <span><i class="dot dot-std"></i>Standard</span>
+</div>
+
+<div class="cat-btns">
+  <button class="cat active" onclick="showCat('all')">All Players</button>
+  <button class="cat" onclick="showCat('sp')">Special</button>
+  <button class="cat" onclick="showCat('fw')">Forwards</button>
+  <button class="cat" onclick="showCat('mf')">Midfielders</button>
+  <button class="cat" onclick="showCat('df')">Defenders</button>
+  <button class="cat" onclick="showCat('gk')">Goalkeeper</button>
+</div>
+
+<div id="sec-all" class="section active"><div class="tbl-wrap" id="tbl-all">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-all',0)">Player</th>
+      <th onclick="sortTable('tbl-all',1)">Pos</th>
+      <th onclick="sortTable('tbl-all',2)">OVR</th>
+      <th onclick="sortTable('tbl-all',3)">SPE</th>
+      <th onclick="sortTable('tbl-all',4)">ACC</th>
+      <th onclick="sortTable('tbl-all',5)">STA</th>
+      <th onclick="sortTable('tbl-all',6)">STR</th>
+      <th onclick="sortTable('tbl-all',7)">CON</th>
+      <th onclick="sortTable('tbl-all',8)">PAS</th>
+      <th onclick="sortTable('tbl-all',9)">SHO</th>
+      <th onclick="sortTable('tbl-all',10)">TAC</th>
+      <th onclick="sortTable('tbl-all',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-legend">
+        <td>David Trezeguet <span class='yr'>(2002)</span></td>
+        <td>CF</td>
+        <td>95</td>
+        <td>93</td><td>96</td><td>100</td><td>100</td>
+        <td>99</td><td>89</td><td>100</td><td>33</td>
+        <td class="tot">710</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Kenan Yildiz <span class='yr'>(2026)</span></td>
+        <td>SS</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>100</td><td>83</td>
+        <td>99</td><td>97</td><td>100</td><td>34</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Harry Kane</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>99</td><td>96</td><td>100</td><td>100</td>
+        <td>90</td><td>90</td><td>97</td><td>55</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lamine Yamal</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>99</td><td>100</td><td>99</td><td>86</td>
+        <td>100</td><td>99</td><td>94</td><td>44</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luis Suárez <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>83</td>
+        <td>88</td><td>87</td><td>83</td><td>83</td>
+        <td>84</td><td>76</td><td>92</td><td>33</td>
+        <td class="tot">626</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kylian Mbappé</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>90</td><td>82</td>
+        <td>100</td><td>100</td><td>100</td><td>53</td>
+        <td class="tot">725</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Erling Haaland</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>100</td>
+        <td>91</td><td>89</td><td>100</td><td>49</td>
+        <td class="tot">729</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Mohamed Salah</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>92</td>
+        <td>96</td><td>95</td><td>92</td><td>51</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lionel Messi</td>
+        <td>SS</td>
+        <td>96</td>
+        <td>96</td><td>100</td><td>86</td><td>85</td>
+        <td>100</td><td>95</td><td>99</td><td>60</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Raphinha</td>
+        <td>LW</td>
+        <td>95</td>
+        <td>97</td><td>100</td><td>98</td><td>93</td>
+        <td>92</td><td>93</td><td>94</td><td>59</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Michael Olise</td>
+        <td>RW</td>
+        <td>95</td>
+        <td>100</td><td>100</td><td>99</td><td>79</td>
+        <td>96</td><td>96</td><td>93</td><td>57</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Ousmane Dembélé</td>
+        <td>CF</td>
+        <td>95</td>
+        <td>96</td><td>100</td><td>91</td><td>73</td>
+        <td>100</td><td>100</td><td>100</td><td>59</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Khvicha Kvaratskhelia</td>
+        <td>LW</td>
+        <td>94</td>
+        <td>99</td><td>99</td><td>90</td><td>86</td>
+        <td>95</td><td>93</td><td>91</td><td>48</td>
+        <td class="tot">701</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Cristiano Ronaldo</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>92</td><td>95</td>
+        <td>88</td><td>89</td><td>100</td><td>46</td>
+        <td class="tot">700</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Rayan Cherki <span class='yr'>(2025)</span></td>
+        <td>RW</td>
+        <td>93</td>
+        <td>96</td><td>96</td><td>94</td><td>77</td>
+        <td>100</td><td>98</td><td>98</td><td>38</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Heung-Min Son</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>91</td><td>100</td><td>92</td><td>75</td>
+        <td>98</td><td>94</td><td>95</td><td>62</td>
+        <td class="tot">707</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Marcus Rashford</td>
+        <td>LW</td>
+        <td>90</td>
+        <td>100</td><td>95</td><td>78</td><td>84</td>
+        <td>91</td><td>78</td><td>95</td><td>45</td>
+        <td class="tot">666</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Jonathan David <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>82</td>
+        <td>88</td><td>86</td><td>81</td><td>77</td>
+        <td>81</td><td>77</td><td>84</td><td>30</td>
+        <td class="tot">604</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Tarik Muharemović <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>82</td>
+        <td>78</td><td>70</td><td>79</td><td>90</td>
+        <td>75</td><td>76</td><td>55</td><td>90</td>
+        <td class="tot">613</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Igor Thiago <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>84</td>
+        <td>82</td><td>77</td><td>83</td><td>93</td>
+        <td>84</td><td>75</td><td>93</td><td>37</td>
+        <td class="tot">624</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Achraf Hakimi</td>
+        <td>RB</td>
+        <td>95</td>
+        <td>97</td><td>89</td><td>95</td><td>73</td>
+        <td>100</td><td>97</td><td>85</td><td>96</td>
+        <td class="tot">732</td>
+      </tr>
+      <tr class="r-standard">
+        <td>William Saliba</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>100</td><td>88</td><td>92</td><td>94</td>
+        <td>89</td><td>89</td><td>56</td><td>100</td>
+        <td class="tot">708</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Gabriel</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>93</td><td>100</td><td>100</td>
+        <td>83</td><td>85</td><td>67</td><td>100</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Alessandro Bastoni</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>98</td><td>96</td><td>92</td><td>100</td>
+        <td>87</td><td>85</td><td>52</td><td>96</td>
+        <td class="tot">706</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Nuno Mendes</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>87</td><td>83</td>
+        <td>93</td><td>81</td><td>75</td><td>99</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>João Cancelo</td>
+        <td>RB</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>95</td><td>86</td>
+        <td>87</td><td>93</td><td>83</td><td>84</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luka Vušković <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>93</td><td>84</td><td>96</td><td>100</td>
+        <td>85</td><td>83</td><td>72</td><td>100</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Dean Huijsen <span class='yr'>(2025)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>97</td><td>88</td><td>96</td><td>100</td>
+        <td>85</td><td>86</td><td>53</td><td>98</td>
+        <td class="tot">703</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Virgil Van Dijk</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>98</td><td>100</td><td>100</td>
+        <td>85</td><td>86</td><td>62</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Theo Hernandez</td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>90</td>
+        <td>84</td><td>88</td><td>75</td><td>81</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Éder Militão</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>100</td><td>90</td><td>85</td><td>99</td>
+        <td>83</td><td>82</td><td>59</td><td>100</td>
+        <td class="tot">698</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Antonee Robinson <span class='yr'>(2025)</span></td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>93</td>
+        <td>86</td><td>98</td><td>46</td><td>93</td>
+        <td class="tot">716</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Trent Alexander-Arnold</td>
+        <td>RB</td>
+        <td>92</td>
+        <td>93</td><td>91</td><td>95</td><td>75</td>
+        <td>90</td><td>99</td><td>87</td><td>74</td>
+        <td class="tot">704</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kalidou Koulibaly</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>98</td><td>83</td><td>94</td><td>100</td>
+        <td>84</td><td>81</td><td>66</td><td>91</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lisandro Martínez</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>90</td><td>92</td><td>98</td><td>94</td>
+        <td>82</td><td>83</td><td>52</td><td>94</td>
+        <td class="tot">685</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Raphaël Varane</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>88</td><td>93</td><td>79</td><td>95</td>
+        <td>85</td><td>87</td><td>60</td><td>87</td>
+        <td class="tot">674</td>
+      </tr>
+      <tr class="r-standard">
+        <td>David Raya</td>
+        <td>GK</td>
+        <td>94</td>
+        <td>69</td><td>65</td><td>89</td><td>63</td>
+        <td>61</td><td>66</td><td>94</td><td>51</td>
+        <td class="tot">558</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Yann Sommer</td>
+        <td>GK</td>
+        <td>93</td>
+        <td>60</td><td>57</td><td>91</td><td>63</td>
+        <td>63</td><td>65</td><td>91</td><td>42</td>
+        <td class="tot">532</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Alisson</td>
+        <td>GK</td>
+        <td>94</td>
+        <td>61</td><td>60</td><td>92</td><td>66</td>
+        <td>67</td><td>68</td><td>91</td><td>50</td>
+        <td class="tot">555</td>
+      </tr>
+      <tr class="r-standard">
+        <td>David De Gea</td>
+        <td>GK</td>
+        <td>88</td>
+        <td>59</td><td>58</td><td>91</td><td>56</td>
+        <td>55</td><td>58</td><td>80</td><td>42</td>
+        <td class="tot">499</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Thibaut Courtois</td>
+        <td>GK</td>
+        <td>95</td>
+        <td>61</td><td>58</td><td>89</td><td>69</td>
+        <td>64</td><td>64</td><td>97</td><td>50</td>
+        <td class="tot">552</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Gianluigi Donnarumma</td>
+        <td>GK</td>
+        <td>95</td>
+        <td>58</td><td>55</td><td>95</td><td>68</td>
+        <td>61</td><td>64</td><td>91</td><td>42</td>
+        <td class="tot">534</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Vitinha</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>84</td><td>97</td><td>95</td><td>75</td>
+        <td>100</td><td>100</td><td>83</td><td>90</td>
+        <td class="tot">724</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Valverde</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>99</td><td>91</td><td>100</td><td>90</td>
+        <td>93</td><td>89</td><td>87</td><td>84</td>
+        <td class="tot">733</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Declan Rice</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>94</td><td>80</td><td>98</td><td>92</td>
+        <td>82</td><td>97</td><td>88</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Pedri</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>93</td><td>100</td><td>98</td><td>88</td>
+        <td>93</td><td>96</td><td>80</td><td>80</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Giorgian De Arrascaeta <span class='yr'>(2026)</span></td>
+        <td>AM</td>
+        <td>94</td>
+        <td>94</td><td>97</td><td>94</td><td>79</td>
+        <td>99</td><td>99</td><td>99</td><td>56</td>
+        <td class="tot">717</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Nicolò Barella</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>97</td><td>100</td><td>100</td><td>97</td>
+        <td>86</td><td>90</td><td>73</td><td>76</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Luka Modrić</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>79</td><td>89</td><td>93</td><td>75</td>
+        <td>100</td><td>100</td><td>94</td><td>90</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Toni Kroos</td>
+        <td>CM</td>
+        <td>93</td>
+        <td>75</td><td>74</td><td>92</td><td>82</td>
+        <td>100</td><td>98</td><td>97</td><td>93</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Scott McTominay <span class='yr'>(2025)</span></td>
+        <td>CM</td>
+        <td>94</td>
+        <td>92</td><td>71</td><td>98</td><td>99</td>
+        <td>90</td><td>93</td><td>88</td><td>95</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Casemiro</td>
+        <td>DM</td>
+        <td>93</td>
+        <td>87</td><td>88</td><td>100</td><td>99</td>
+        <td>84</td><td>87</td><td>76</td><td>91</td>
+        <td class="tot">712</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Patrick Berg <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>83</td>
+        <td>70</td><td>71</td><td>93</td><td>75</td>
+        <td>85</td><td>90</td><td>78</td><td>85</td>
+        <td class="tot">647</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Bruno Fernandes</td>
+        <td>AM</td>
+        <td>95</td>
+        <td>84</td><td>87</td><td>96</td><td>85</td>
+        <td>96</td><td>100</td><td>95</td><td>84</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Marcel Desailly <span class='yr'>(1994)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>92</td><td>90</td><td>100</td><td>99</td>
+        <td>92</td><td>86</td><td>52</td><td>100</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kevin De Bruyne</td>
+        <td>AM</td>
+        <td>96</td>
+        <td>93</td><td>95</td><td>99</td><td>91</td>
+        <td>95</td><td>100</td><td>88</td><td>68</td>
+        <td class="tot">729</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Elliot Anderson <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>88</td><td>92</td><td>100</td><td>86</td>
+        <td>99</td><td>98</td><td>70</td><td>88</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Dimarco</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>99</td><td>97</td><td>92</td><td>83</td>
+        <td>85</td><td>94</td><td>82</td><td>87</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Rodri</td>
+        <td>DM</td>
+        <td>96</td>
+        <td>87</td><td>87</td><td>99</td><td>100</td>
+        <td>91</td><td>98</td><td>87</td><td>97</td>
+        <td class="tot">746</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">59 players</div>
+</div></div>
+<div id="sec-sp"  class="section">
+<div class="sub-tabs">
+  <button class="sub active" onclick="showSub('sp','sp-all')">All</button>
+  <button class="sub" onclick="showSub('sp','sp-leg')">Legend</button>
+  <button class="sub" onclick="showSub('sp','sp-tots')">TOTS</button>
+  <button class="sub" onclick="showSub('sp','sp-wc')">WC2026</button>
+</div>
+<div id="sp-all"><div class="tbl-wrap" id="tbl-sp-all">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-sp-all',0)">Player</th>
+      <th onclick="sortTable('tbl-sp-all',1)">Pos</th>
+      <th onclick="sortTable('tbl-sp-all',2)">OVR</th>
+      <th onclick="sortTable('tbl-sp-all',3)">SPE</th>
+      <th onclick="sortTable('tbl-sp-all',4)">ACC</th>
+      <th onclick="sortTable('tbl-sp-all',5)">STA</th>
+      <th onclick="sortTable('tbl-sp-all',6)">STR</th>
+      <th onclick="sortTable('tbl-sp-all',7)">CON</th>
+      <th onclick="sortTable('tbl-sp-all',8)">PAS</th>
+      <th onclick="sortTable('tbl-sp-all',9)">SHO</th>
+      <th onclick="sortTable('tbl-sp-all',10)">TAC</th>
+      <th onclick="sortTable('tbl-sp-all',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-legend">
+        <td>David Trezeguet <span class='yr'>(2002)</span></td>
+        <td>CF</td>
+        <td>95</td>
+        <td>93</td><td>96</td><td>100</td><td>100</td>
+        <td>99</td><td>89</td><td>100</td><td>33</td>
+        <td class="tot">710</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Kenan Yildiz <span class='yr'>(2026)</span></td>
+        <td>SS</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>100</td><td>83</td>
+        <td>99</td><td>97</td><td>100</td><td>34</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luis Suárez <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>83</td>
+        <td>88</td><td>87</td><td>83</td><td>83</td>
+        <td>84</td><td>76</td><td>92</td><td>33</td>
+        <td class="tot">626</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Rayan Cherki <span class='yr'>(2025)</span></td>
+        <td>RW</td>
+        <td>93</td>
+        <td>96</td><td>96</td><td>94</td><td>77</td>
+        <td>100</td><td>98</td><td>98</td><td>38</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Jonathan David <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>82</td>
+        <td>88</td><td>86</td><td>81</td><td>77</td>
+        <td>81</td><td>77</td><td>84</td><td>30</td>
+        <td class="tot">604</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Tarik Muharemović <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>82</td>
+        <td>78</td><td>70</td><td>79</td><td>90</td>
+        <td>75</td><td>76</td><td>55</td><td>90</td>
+        <td class="tot">613</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Igor Thiago <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>84</td>
+        <td>82</td><td>77</td><td>83</td><td>93</td>
+        <td>84</td><td>75</td><td>93</td><td>37</td>
+        <td class="tot">624</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luka Vušković <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>93</td><td>84</td><td>96</td><td>100</td>
+        <td>85</td><td>83</td><td>72</td><td>100</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Dean Huijsen <span class='yr'>(2025)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>97</td><td>88</td><td>96</td><td>100</td>
+        <td>85</td><td>86</td><td>53</td><td>98</td>
+        <td class="tot">703</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Antonee Robinson <span class='yr'>(2025)</span></td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>93</td>
+        <td>86</td><td>98</td><td>46</td><td>93</td>
+        <td class="tot">716</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Giorgian De Arrascaeta <span class='yr'>(2026)</span></td>
+        <td>AM</td>
+        <td>94</td>
+        <td>94</td><td>97</td><td>94</td><td>79</td>
+        <td>99</td><td>99</td><td>99</td><td>56</td>
+        <td class="tot">717</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Scott McTominay <span class='yr'>(2025)</span></td>
+        <td>CM</td>
+        <td>94</td>
+        <td>92</td><td>71</td><td>98</td><td>99</td>
+        <td>90</td><td>93</td><td>88</td><td>95</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Patrick Berg <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>83</td>
+        <td>70</td><td>71</td><td>93</td><td>75</td>
+        <td>85</td><td>90</td><td>78</td><td>85</td>
+        <td class="tot">647</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Marcel Desailly <span class='yr'>(1994)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>92</td><td>90</td><td>100</td><td>99</td>
+        <td>92</td><td>86</td><td>52</td><td>100</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Elliot Anderson <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>88</td><td>92</td><td>100</td><td>86</td>
+        <td>99</td><td>98</td><td>70</td><td>88</td>
+        <td class="tot">721</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">15 players</div>
+</div></div>
+<div id="sp-leg" style="display:none"><div class="tbl-wrap" id="tbl-sp-leg">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-sp-leg',0)">Player</th>
+      <th onclick="sortTable('tbl-sp-leg',1)">Pos</th>
+      <th onclick="sortTable('tbl-sp-leg',2)">OVR</th>
+      <th onclick="sortTable('tbl-sp-leg',3)">SPE</th>
+      <th onclick="sortTable('tbl-sp-leg',4)">ACC</th>
+      <th onclick="sortTable('tbl-sp-leg',5)">STA</th>
+      <th onclick="sortTable('tbl-sp-leg',6)">STR</th>
+      <th onclick="sortTable('tbl-sp-leg',7)">CON</th>
+      <th onclick="sortTable('tbl-sp-leg',8)">PAS</th>
+      <th onclick="sortTable('tbl-sp-leg',9)">SHO</th>
+      <th onclick="sortTable('tbl-sp-leg',10)">TAC</th>
+      <th onclick="sortTable('tbl-sp-leg',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-legend">
+        <td>David Trezeguet <span class='yr'>(2002)</span></td>
+        <td>CF</td>
+        <td>95</td>
+        <td>93</td><td>96</td><td>100</td><td>100</td>
+        <td>99</td><td>89</td><td>100</td><td>33</td>
+        <td class="tot">710</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Marcel Desailly <span class='yr'>(1994)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>92</td><td>90</td><td>100</td><td>99</td>
+        <td>92</td><td>86</td><td>52</td><td>100</td>
+        <td class="tot">711</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">2 players</div>
+</div></div>
+<div id="sp-tots" style="display:none"><div class="tbl-wrap" id="tbl-sp-tots">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-sp-tots',0)">Player</th>
+      <th onclick="sortTable('tbl-sp-tots',1)">Pos</th>
+      <th onclick="sortTable('tbl-sp-tots',2)">OVR</th>
+      <th onclick="sortTable('tbl-sp-tots',3)">SPE</th>
+      <th onclick="sortTable('tbl-sp-tots',4)">ACC</th>
+      <th onclick="sortTable('tbl-sp-tots',5)">STA</th>
+      <th onclick="sortTable('tbl-sp-tots',6)">STR</th>
+      <th onclick="sortTable('tbl-sp-tots',7)">CON</th>
+      <th onclick="sortTable('tbl-sp-tots',8)">PAS</th>
+      <th onclick="sortTable('tbl-sp-tots',9)">SHO</th>
+      <th onclick="sortTable('tbl-sp-tots',10)">TAC</th>
+      <th onclick="sortTable('tbl-sp-tots',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-tots">
+        <td>Kenan Yildiz <span class='yr'>(2026)</span></td>
+        <td>SS</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>100</td><td>83</td>
+        <td>99</td><td>97</td><td>100</td><td>34</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luis Suárez <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>83</td>
+        <td>88</td><td>87</td><td>83</td><td>83</td>
+        <td>84</td><td>76</td><td>92</td><td>33</td>
+        <td class="tot">626</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Rayan Cherki <span class='yr'>(2025)</span></td>
+        <td>RW</td>
+        <td>93</td>
+        <td>96</td><td>96</td><td>94</td><td>77</td>
+        <td>100</td><td>98</td><td>98</td><td>38</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Igor Thiago <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>84</td>
+        <td>82</td><td>77</td><td>83</td><td>93</td>
+        <td>84</td><td>75</td><td>93</td><td>37</td>
+        <td class="tot">624</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luka Vušković <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>93</td><td>84</td><td>96</td><td>100</td>
+        <td>85</td><td>83</td><td>72</td><td>100</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Dean Huijsen <span class='yr'>(2025)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>97</td><td>88</td><td>96</td><td>100</td>
+        <td>85</td><td>86</td><td>53</td><td>98</td>
+        <td class="tot">703</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Antonee Robinson <span class='yr'>(2025)</span></td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>93</td>
+        <td>86</td><td>98</td><td>46</td><td>93</td>
+        <td class="tot">716</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Giorgian De Arrascaeta <span class='yr'>(2026)</span></td>
+        <td>AM</td>
+        <td>94</td>
+        <td>94</td><td>97</td><td>94</td><td>79</td>
+        <td>99</td><td>99</td><td>99</td><td>56</td>
+        <td class="tot">717</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Scott McTominay <span class='yr'>(2025)</span></td>
+        <td>CM</td>
+        <td>94</td>
+        <td>92</td><td>71</td><td>98</td><td>99</td>
+        <td>90</td><td>93</td><td>88</td><td>95</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Patrick Berg <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>83</td>
+        <td>70</td><td>71</td><td>93</td><td>75</td>
+        <td>85</td><td>90</td><td>78</td><td>85</td>
+        <td class="tot">647</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Elliot Anderson <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>88</td><td>92</td><td>100</td><td>86</td>
+        <td>99</td><td>98</td><td>70</td><td>88</td>
+        <td class="tot">721</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">11 players</div>
+</div></div>
+<div id="sp-wc" style="display:none"><div class="tbl-wrap" id="tbl-sp-wc">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-sp-wc',0)">Player</th>
+      <th onclick="sortTable('tbl-sp-wc',1)">Pos</th>
+      <th onclick="sortTable('tbl-sp-wc',2)">OVR</th>
+      <th onclick="sortTable('tbl-sp-wc',3)">SPE</th>
+      <th onclick="sortTable('tbl-sp-wc',4)">ACC</th>
+      <th onclick="sortTable('tbl-sp-wc',5)">STA</th>
+      <th onclick="sortTable('tbl-sp-wc',6)">STR</th>
+      <th onclick="sortTable('tbl-sp-wc',7)">CON</th>
+      <th onclick="sortTable('tbl-sp-wc',8)">PAS</th>
+      <th onclick="sortTable('tbl-sp-wc',9)">SHO</th>
+      <th onclick="sortTable('tbl-sp-wc',10)">TAC</th>
+      <th onclick="sortTable('tbl-sp-wc',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-wc">
+        <td>Jonathan David <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>82</td>
+        <td>88</td><td>86</td><td>81</td><td>77</td>
+        <td>81</td><td>77</td><td>84</td><td>30</td>
+        <td class="tot">604</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Tarik Muharemović <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>82</td>
+        <td>78</td><td>70</td><td>79</td><td>90</td>
+        <td>75</td><td>76</td><td>55</td><td>90</td>
+        <td class="tot">613</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">2 players</div>
+</div></div>
+</div>
+<div id="sec-fw"  class="section">
+<div class="sub-tabs">
+  <button class="sub active" onclick="showSub('fw','fw-all')">All</button>
+  <button class="sub" onclick="showSub('fw','fw-lw')">LW</button>
+  <button class="sub" onclick="showSub('fw','fw-cf')">CF</button>
+  <button class="sub" onclick="showSub('fw','fw-rw')">RW</button>
+  <button class="sub" onclick="showSub('fw','fw-ss')">SS</button>
+</div>
+<div id="fw-all"><div class="tbl-wrap" id="tbl-fw-all">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-fw-all',0)">Player</th>
+      <th onclick="sortTable('tbl-fw-all',1)">Pos</th>
+      <th onclick="sortTable('tbl-fw-all',2)">OVR</th>
+      <th onclick="sortTable('tbl-fw-all',3)">SPE</th>
+      <th onclick="sortTable('tbl-fw-all',4)">ACC</th>
+      <th onclick="sortTable('tbl-fw-all',5)">STA</th>
+      <th onclick="sortTable('tbl-fw-all',6)">STR</th>
+      <th onclick="sortTable('tbl-fw-all',7)">CON</th>
+      <th onclick="sortTable('tbl-fw-all',8)">PAS</th>
+      <th onclick="sortTable('tbl-fw-all',9)">SHO</th>
+      <th onclick="sortTable('tbl-fw-all',10)">TAC</th>
+      <th onclick="sortTable('tbl-fw-all',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-legend">
+        <td>David Trezeguet <span class='yr'>(2002)</span></td>
+        <td>CF</td>
+        <td>95</td>
+        <td>93</td><td>96</td><td>100</td><td>100</td>
+        <td>99</td><td>89</td><td>100</td><td>33</td>
+        <td class="tot">710</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Kenan Yildiz <span class='yr'>(2026)</span></td>
+        <td>SS</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>100</td><td>83</td>
+        <td>99</td><td>97</td><td>100</td><td>34</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Harry Kane</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>99</td><td>96</td><td>100</td><td>100</td>
+        <td>90</td><td>90</td><td>97</td><td>55</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lamine Yamal</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>99</td><td>100</td><td>99</td><td>86</td>
+        <td>100</td><td>99</td><td>94</td><td>44</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luis Suárez <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>83</td>
+        <td>88</td><td>87</td><td>83</td><td>83</td>
+        <td>84</td><td>76</td><td>92</td><td>33</td>
+        <td class="tot">626</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kylian Mbappé</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>90</td><td>82</td>
+        <td>100</td><td>100</td><td>100</td><td>53</td>
+        <td class="tot">725</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Erling Haaland</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>100</td>
+        <td>91</td><td>89</td><td>100</td><td>49</td>
+        <td class="tot">729</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Mohamed Salah</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>92</td>
+        <td>96</td><td>95</td><td>92</td><td>51</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lionel Messi</td>
+        <td>SS</td>
+        <td>96</td>
+        <td>96</td><td>100</td><td>86</td><td>85</td>
+        <td>100</td><td>95</td><td>99</td><td>60</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Raphinha</td>
+        <td>LW</td>
+        <td>95</td>
+        <td>97</td><td>100</td><td>98</td><td>93</td>
+        <td>92</td><td>93</td><td>94</td><td>59</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Michael Olise</td>
+        <td>RW</td>
+        <td>95</td>
+        <td>100</td><td>100</td><td>99</td><td>79</td>
+        <td>96</td><td>96</td><td>93</td><td>57</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Ousmane Dembélé</td>
+        <td>CF</td>
+        <td>95</td>
+        <td>96</td><td>100</td><td>91</td><td>73</td>
+        <td>100</td><td>100</td><td>100</td><td>59</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Khvicha Kvaratskhelia</td>
+        <td>LW</td>
+        <td>94</td>
+        <td>99</td><td>99</td><td>90</td><td>86</td>
+        <td>95</td><td>93</td><td>91</td><td>48</td>
+        <td class="tot">701</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Cristiano Ronaldo</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>92</td><td>95</td>
+        <td>88</td><td>89</td><td>100</td><td>46</td>
+        <td class="tot">700</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Rayan Cherki <span class='yr'>(2025)</span></td>
+        <td>RW</td>
+        <td>93</td>
+        <td>96</td><td>96</td><td>94</td><td>77</td>
+        <td>100</td><td>98</td><td>98</td><td>38</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Heung-Min Son</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>91</td><td>100</td><td>92</td><td>75</td>
+        <td>98</td><td>94</td><td>95</td><td>62</td>
+        <td class="tot">707</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Marcus Rashford</td>
+        <td>LW</td>
+        <td>90</td>
+        <td>100</td><td>95</td><td>78</td><td>84</td>
+        <td>91</td><td>78</td><td>95</td><td>45</td>
+        <td class="tot">666</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Jonathan David <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>82</td>
+        <td>88</td><td>86</td><td>81</td><td>77</td>
+        <td>81</td><td>77</td><td>84</td><td>30</td>
+        <td class="tot">604</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Igor Thiago <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>84</td>
+        <td>82</td><td>77</td><td>83</td><td>93</td>
+        <td>84</td><td>75</td><td>93</td><td>37</td>
+        <td class="tot">624</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">19 players</div>
+</div></div>
+<div id="fw-lw" style="display:none"><div class="tbl-wrap" id="tbl-fw-lw">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-fw-lw',0)">Player</th>
+      <th onclick="sortTable('tbl-fw-lw',1)">Pos</th>
+      <th onclick="sortTable('tbl-fw-lw',2)">OVR</th>
+      <th onclick="sortTable('tbl-fw-lw',3)">SPE</th>
+      <th onclick="sortTable('tbl-fw-lw',4)">ACC</th>
+      <th onclick="sortTable('tbl-fw-lw',5)">STA</th>
+      <th onclick="sortTable('tbl-fw-lw',6)">STR</th>
+      <th onclick="sortTable('tbl-fw-lw',7)">CON</th>
+      <th onclick="sortTable('tbl-fw-lw',8)">PAS</th>
+      <th onclick="sortTable('tbl-fw-lw',9)">SHO</th>
+      <th onclick="sortTable('tbl-fw-lw',10)">TAC</th>
+      <th onclick="sortTable('tbl-fw-lw',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Raphinha</td>
+        <td>LW</td>
+        <td>95</td>
+        <td>97</td><td>100</td><td>98</td><td>93</td>
+        <td>92</td><td>93</td><td>94</td><td>59</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Khvicha Kvaratskhelia</td>
+        <td>LW</td>
+        <td>94</td>
+        <td>99</td><td>99</td><td>90</td><td>86</td>
+        <td>95</td><td>93</td><td>91</td><td>48</td>
+        <td class="tot">701</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Marcus Rashford</td>
+        <td>LW</td>
+        <td>90</td>
+        <td>100</td><td>95</td><td>78</td><td>84</td>
+        <td>91</td><td>78</td><td>95</td><td>45</td>
+        <td class="tot">666</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">3 players</div>
+</div></div>
+<div id="fw-cf" style="display:none"><div class="tbl-wrap" id="tbl-fw-cf">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-fw-cf',0)">Player</th>
+      <th onclick="sortTable('tbl-fw-cf',1)">Pos</th>
+      <th onclick="sortTable('tbl-fw-cf',2)">OVR</th>
+      <th onclick="sortTable('tbl-fw-cf',3)">SPE</th>
+      <th onclick="sortTable('tbl-fw-cf',4)">ACC</th>
+      <th onclick="sortTable('tbl-fw-cf',5)">STA</th>
+      <th onclick="sortTable('tbl-fw-cf',6)">STR</th>
+      <th onclick="sortTable('tbl-fw-cf',7)">CON</th>
+      <th onclick="sortTable('tbl-fw-cf',8)">PAS</th>
+      <th onclick="sortTable('tbl-fw-cf',9)">SHO</th>
+      <th onclick="sortTable('tbl-fw-cf',10)">TAC</th>
+      <th onclick="sortTable('tbl-fw-cf',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-legend">
+        <td>David Trezeguet <span class='yr'>(2002)</span></td>
+        <td>CF</td>
+        <td>95</td>
+        <td>93</td><td>96</td><td>100</td><td>100</td>
+        <td>99</td><td>89</td><td>100</td><td>33</td>
+        <td class="tot">710</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Harry Kane</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>99</td><td>96</td><td>100</td><td>100</td>
+        <td>90</td><td>90</td><td>97</td><td>55</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luis Suárez <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>83</td>
+        <td>88</td><td>87</td><td>83</td><td>83</td>
+        <td>84</td><td>76</td><td>92</td><td>33</td>
+        <td class="tot">626</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kylian Mbappé</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>90</td><td>82</td>
+        <td>100</td><td>100</td><td>100</td><td>53</td>
+        <td class="tot">725</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Erling Haaland</td>
+        <td>CF</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>100</td>
+        <td>91</td><td>89</td><td>100</td><td>49</td>
+        <td class="tot">729</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Ousmane Dembélé</td>
+        <td>CF</td>
+        <td>95</td>
+        <td>96</td><td>100</td><td>91</td><td>73</td>
+        <td>100</td><td>100</td><td>100</td><td>59</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Cristiano Ronaldo</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>92</td><td>95</td>
+        <td>88</td><td>89</td><td>100</td><td>46</td>
+        <td class="tot">700</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Heung-Min Son</td>
+        <td>CF</td>
+        <td>93</td>
+        <td>91</td><td>100</td><td>92</td><td>75</td>
+        <td>98</td><td>94</td><td>95</td><td>62</td>
+        <td class="tot">707</td>
+      </tr>
+      <tr class="r-wc">
+        <td>Jonathan David <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>82</td>
+        <td>88</td><td>86</td><td>81</td><td>77</td>
+        <td>81</td><td>77</td><td>84</td><td>30</td>
+        <td class="tot">604</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Igor Thiago <span class='yr'>(2026)</span></td>
+        <td>CF</td>
+        <td>84</td>
+        <td>82</td><td>77</td><td>83</td><td>93</td>
+        <td>84</td><td>75</td><td>93</td><td>37</td>
+        <td class="tot">624</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">10 players</div>
+</div></div>
+<div id="fw-rw" style="display:none"><div class="tbl-wrap" id="tbl-fw-rw">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-fw-rw',0)">Player</th>
+      <th onclick="sortTable('tbl-fw-rw',1)">Pos</th>
+      <th onclick="sortTable('tbl-fw-rw',2)">OVR</th>
+      <th onclick="sortTable('tbl-fw-rw',3)">SPE</th>
+      <th onclick="sortTable('tbl-fw-rw',4)">ACC</th>
+      <th onclick="sortTable('tbl-fw-rw',5)">STA</th>
+      <th onclick="sortTable('tbl-fw-rw',6)">STR</th>
+      <th onclick="sortTable('tbl-fw-rw',7)">CON</th>
+      <th onclick="sortTable('tbl-fw-rw',8)">PAS</th>
+      <th onclick="sortTable('tbl-fw-rw',9)">SHO</th>
+      <th onclick="sortTable('tbl-fw-rw',10)">TAC</th>
+      <th onclick="sortTable('tbl-fw-rw',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Lamine Yamal</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>99</td><td>100</td><td>99</td><td>86</td>
+        <td>100</td><td>99</td><td>94</td><td>44</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Mohamed Salah</td>
+        <td>RW</td>
+        <td>96</td>
+        <td>100</td><td>100</td><td>100</td><td>92</td>
+        <td>96</td><td>95</td><td>92</td><td>51</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Michael Olise</td>
+        <td>RW</td>
+        <td>95</td>
+        <td>100</td><td>100</td><td>99</td><td>79</td>
+        <td>96</td><td>96</td><td>93</td><td>57</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Rayan Cherki <span class='yr'>(2025)</span></td>
+        <td>RW</td>
+        <td>93</td>
+        <td>96</td><td>96</td><td>94</td><td>77</td>
+        <td>100</td><td>98</td><td>98</td><td>38</td>
+        <td class="tot">697</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">4 players</div>
+</div></div>
+<div id="fw-ss" style="display:none"><div class="tbl-wrap" id="tbl-fw-ss">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-fw-ss',0)">Player</th>
+      <th onclick="sortTable('tbl-fw-ss',1)">Pos</th>
+      <th onclick="sortTable('tbl-fw-ss',2)">OVR</th>
+      <th onclick="sortTable('tbl-fw-ss',3)">SPE</th>
+      <th onclick="sortTable('tbl-fw-ss',4)">ACC</th>
+      <th onclick="sortTable('tbl-fw-ss',5)">STA</th>
+      <th onclick="sortTable('tbl-fw-ss',6)">STR</th>
+      <th onclick="sortTable('tbl-fw-ss',7)">CON</th>
+      <th onclick="sortTable('tbl-fw-ss',8)">PAS</th>
+      <th onclick="sortTable('tbl-fw-ss',9)">SHO</th>
+      <th onclick="sortTable('tbl-fw-ss',10)">TAC</th>
+      <th onclick="sortTable('tbl-fw-ss',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-tots">
+        <td>Kenan Yildiz <span class='yr'>(2026)</span></td>
+        <td>SS</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>100</td><td>83</td>
+        <td>99</td><td>97</td><td>100</td><td>34</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lionel Messi</td>
+        <td>SS</td>
+        <td>96</td>
+        <td>96</td><td>100</td><td>86</td><td>85</td>
+        <td>100</td><td>95</td><td>99</td><td>60</td>
+        <td class="tot">721</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">2 players</div>
+</div></div>
+</div>
+<div id="sec-mf"  class="section">
+<div class="sub-tabs">
+  <button class="sub active" onclick="showSub('mf','mf-all')">All</button>
+  <button class="sub" onclick="showSub('mf','mf-am')">AM</button>
+  <button class="sub" onclick="showSub('mf','mf-cm')">CM</button>
+  <button class="sub" onclick="showSub('mf','mf-dm')">DM</button>
+</div>
+<div id="mf-all"><div class="tbl-wrap" id="tbl-mf-all">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-mf-all',0)">Player</th>
+      <th onclick="sortTable('tbl-mf-all',1)">Pos</th>
+      <th onclick="sortTable('tbl-mf-all',2)">OVR</th>
+      <th onclick="sortTable('tbl-mf-all',3)">SPE</th>
+      <th onclick="sortTable('tbl-mf-all',4)">ACC</th>
+      <th onclick="sortTable('tbl-mf-all',5)">STA</th>
+      <th onclick="sortTable('tbl-mf-all',6)">STR</th>
+      <th onclick="sortTable('tbl-mf-all',7)">CON</th>
+      <th onclick="sortTable('tbl-mf-all',8)">PAS</th>
+      <th onclick="sortTable('tbl-mf-all',9)">SHO</th>
+      <th onclick="sortTable('tbl-mf-all',10)">TAC</th>
+      <th onclick="sortTable('tbl-mf-all',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Vitinha</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>84</td><td>97</td><td>95</td><td>75</td>
+        <td>100</td><td>100</td><td>83</td><td>90</td>
+        <td class="tot">724</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Valverde</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>99</td><td>91</td><td>100</td><td>90</td>
+        <td>93</td><td>89</td><td>87</td><td>84</td>
+        <td class="tot">733</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Declan Rice</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>94</td><td>80</td><td>98</td><td>92</td>
+        <td>82</td><td>97</td><td>88</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Pedri</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>93</td><td>100</td><td>98</td><td>88</td>
+        <td>93</td><td>96</td><td>80</td><td>80</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Giorgian De Arrascaeta <span class='yr'>(2026)</span></td>
+        <td>AM</td>
+        <td>94</td>
+        <td>94</td><td>97</td><td>94</td><td>79</td>
+        <td>99</td><td>99</td><td>99</td><td>56</td>
+        <td class="tot">717</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Nicolò Barella</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>97</td><td>100</td><td>100</td><td>97</td>
+        <td>86</td><td>90</td><td>73</td><td>76</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Luka Modrić</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>79</td><td>89</td><td>93</td><td>75</td>
+        <td>100</td><td>100</td><td>94</td><td>90</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Toni Kroos</td>
+        <td>CM</td>
+        <td>93</td>
+        <td>75</td><td>74</td><td>92</td><td>82</td>
+        <td>100</td><td>98</td><td>97</td><td>93</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Scott McTominay <span class='yr'>(2025)</span></td>
+        <td>CM</td>
+        <td>94</td>
+        <td>92</td><td>71</td><td>98</td><td>99</td>
+        <td>90</td><td>93</td><td>88</td><td>95</td>
+        <td class="tot">726</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Casemiro</td>
+        <td>DM</td>
+        <td>93</td>
+        <td>87</td><td>88</td><td>100</td><td>99</td>
+        <td>84</td><td>87</td><td>76</td><td>91</td>
+        <td class="tot">712</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Patrick Berg <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>83</td>
+        <td>70</td><td>71</td><td>93</td><td>75</td>
+        <td>85</td><td>90</td><td>78</td><td>85</td>
+        <td class="tot">647</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Bruno Fernandes</td>
+        <td>AM</td>
+        <td>95</td>
+        <td>84</td><td>87</td><td>96</td><td>85</td>
+        <td>96</td><td>100</td><td>95</td><td>84</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Marcel Desailly <span class='yr'>(1994)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>92</td><td>90</td><td>100</td><td>99</td>
+        <td>92</td><td>86</td><td>52</td><td>100</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kevin De Bruyne</td>
+        <td>AM</td>
+        <td>96</td>
+        <td>93</td><td>95</td><td>99</td><td>91</td>
+        <td>95</td><td>100</td><td>88</td><td>68</td>
+        <td class="tot">729</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Elliot Anderson <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>88</td><td>92</td><td>100</td><td>86</td>
+        <td>99</td><td>98</td><td>70</td><td>88</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Rodri</td>
+        <td>DM</td>
+        <td>96</td>
+        <td>87</td><td>87</td><td>99</td><td>100</td>
+        <td>91</td><td>98</td><td>87</td><td>97</td>
+        <td class="tot">746</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">16 players</div>
+</div></div>
+<div id="mf-am" style="display:none"><div class="tbl-wrap" id="tbl-mf-am">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-mf-am',0)">Player</th>
+      <th onclick="sortTable('tbl-mf-am',1)">Pos</th>
+      <th onclick="sortTable('tbl-mf-am',2)">OVR</th>
+      <th onclick="sortTable('tbl-mf-am',3)">SPE</th>
+      <th onclick="sortTable('tbl-mf-am',4)">ACC</th>
+      <th onclick="sortTable('tbl-mf-am',5)">STA</th>
+      <th onclick="sortTable('tbl-mf-am',6)">STR</th>
+      <th onclick="sortTable('tbl-mf-am',7)">CON</th>
+      <th onclick="sortTable('tbl-mf-am',8)">PAS</th>
+      <th onclick="sortTable('tbl-mf-am',9)">SHO</th>
+      <th onclick="sortTable('tbl-mf-am',10)">TAC</th>
+      <th onclick="sortTable('tbl-mf-am',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-tots">
+        <td>Giorgian De Arrascaeta <span class='yr'>(2026)</span></td>
+        <td>AM</td>
+        <td>94</td>
+        <td>94</td><td>97</td><td>94</td><td>79</td>
+        <td>99</td><td>99</td><td>99</td><td>56</td>
+        <td class="tot">717</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Bruno Fernandes</td>
+        <td>AM</td>
+        <td>95</td>
+        <td>84</td><td>87</td><td>96</td><td>85</td>
+        <td>96</td><td>100</td><td>95</td><td>84</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kevin De Bruyne</td>
+        <td>AM</td>
+        <td>96</td>
+        <td>93</td><td>95</td><td>99</td><td>91</td>
+        <td>95</td><td>100</td><td>88</td><td>68</td>
+        <td class="tot">729</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">3 players</div>
+</div></div>
+<div id="mf-cm" style="display:none"><div class="tbl-wrap" id="tbl-mf-cm">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-mf-cm',0)">Player</th>
+      <th onclick="sortTable('tbl-mf-cm',1)">Pos</th>
+      <th onclick="sortTable('tbl-mf-cm',2)">OVR</th>
+      <th onclick="sortTable('tbl-mf-cm',3)">SPE</th>
+      <th onclick="sortTable('tbl-mf-cm',4)">ACC</th>
+      <th onclick="sortTable('tbl-mf-cm',5)">STA</th>
+      <th onclick="sortTable('tbl-mf-cm',6)">STR</th>
+      <th onclick="sortTable('tbl-mf-cm',7)">CON</th>
+      <th onclick="sortTable('tbl-mf-cm',8)">PAS</th>
+      <th onclick="sortTable('tbl-mf-cm',9)">SHO</th>
+      <th onclick="sortTable('tbl-mf-cm',10)">TAC</th>
+      <th onclick="sortTable('tbl-mf-cm',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Vitinha</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>84</td><td>97</td><td>95</td><td>75</td>
+        <td>100</td><td>100</td><td>83</td><td>90</td>
+        <td class="tot">724</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Valverde</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>99</td><td>91</td><td>100</td><td>90</td>
+        <td>93</td><td>89</td><td>87</td><td>84</td>
+        <td class="tot">733</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Declan Rice</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>94</td><td>80</td><td>98</td><td>92</td>
+        <td>82</td><td>97</td><td>88</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Pedri</td>
+        <td>CM</td>
+        <td>95</td>
+        <td>93</td><td>100</td><td>98</td><td>88</td>
+        <td>93</td><td>96</td><td>80</td><td>80</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Nicolò Barella</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>97</td><td>100</td><td>100</td><td>97</td>
+        <td>86</td><td>90</td><td>73</td><td>76</td>
+        <td class="tot">719</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Luka Modrić</td>
+        <td>CM</td>
+        <td>94</td>
+        <td>79</td><td>89</td><td>93</td><td>75</td>
+        <td>100</td><td>100</td><td>94</td><td>90</td>
+        <td class="tot">720</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Toni Kroos</td>
+        <td>CM</td>
+        <td>93</td>
+        <td>75</td><td>74</td><td>92</td><td>82</td>
+        <td>100</td><td>98</td><td>97</td><td>93</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Scott McTominay <span class='yr'>(2025)</span></td>
+        <td>CM</td>
+        <td>94</td>
+        <td>92</td><td>71</td><td>98</td><td>99</td>
+        <td>90</td><td>93</td><td>88</td><td>95</td>
+        <td class="tot">726</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">8 players</div>
+</div></div>
+<div id="mf-dm" style="display:none"><div class="tbl-wrap" id="tbl-mf-dm">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-mf-dm',0)">Player</th>
+      <th onclick="sortTable('tbl-mf-dm',1)">Pos</th>
+      <th onclick="sortTable('tbl-mf-dm',2)">OVR</th>
+      <th onclick="sortTable('tbl-mf-dm',3)">SPE</th>
+      <th onclick="sortTable('tbl-mf-dm',4)">ACC</th>
+      <th onclick="sortTable('tbl-mf-dm',5)">STA</th>
+      <th onclick="sortTable('tbl-mf-dm',6)">STR</th>
+      <th onclick="sortTable('tbl-mf-dm',7)">CON</th>
+      <th onclick="sortTable('tbl-mf-dm',8)">PAS</th>
+      <th onclick="sortTable('tbl-mf-dm',9)">SHO</th>
+      <th onclick="sortTable('tbl-mf-dm',10)">TAC</th>
+      <th onclick="sortTable('tbl-mf-dm',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Casemiro</td>
+        <td>DM</td>
+        <td>93</td>
+        <td>87</td><td>88</td><td>100</td><td>99</td>
+        <td>84</td><td>87</td><td>76</td><td>91</td>
+        <td class="tot">712</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Patrick Berg <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>83</td>
+        <td>70</td><td>71</td><td>93</td><td>75</td>
+        <td>85</td><td>90</td><td>78</td><td>85</td>
+        <td class="tot">647</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Marcel Desailly <span class='yr'>(1994)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>92</td><td>90</td><td>100</td><td>99</td>
+        <td>92</td><td>86</td><td>52</td><td>100</td>
+        <td class="tot">711</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Elliot Anderson <span class='yr'>(2026)</span></td>
+        <td>DM</td>
+        <td>94</td>
+        <td>88</td><td>92</td><td>100</td><td>86</td>
+        <td>99</td><td>98</td><td>70</td><td>88</td>
+        <td class="tot">721</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Rodri</td>
+        <td>DM</td>
+        <td>96</td>
+        <td>87</td><td>87</td><td>99</td><td>100</td>
+        <td>91</td><td>98</td><td>87</td><td>97</td>
+        <td class="tot">746</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">5 players</div>
+</div></div>
+</div>
+<div id="sec-df"  class="section">
+<div class="sub-tabs">
+  <button class="sub active" onclick="showSub('df','df-all')">All</button>
+  <button class="sub" onclick="showSub('df','df-lb')">LB</button>
+  <button class="sub" onclick="showSub('df','df-cb')">CB</button>
+  <button class="sub" onclick="showSub('df','df-rb')">RB</button>
+</div>
+<div id="df-all"><div class="tbl-wrap" id="tbl-df-all">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-df-all',0)">Player</th>
+      <th onclick="sortTable('tbl-df-all',1)">Pos</th>
+      <th onclick="sortTable('tbl-df-all',2)">OVR</th>
+      <th onclick="sortTable('tbl-df-all',3)">SPE</th>
+      <th onclick="sortTable('tbl-df-all',4)">ACC</th>
+      <th onclick="sortTable('tbl-df-all',5)">STA</th>
+      <th onclick="sortTable('tbl-df-all',6)">STR</th>
+      <th onclick="sortTable('tbl-df-all',7)">CON</th>
+      <th onclick="sortTable('tbl-df-all',8)">PAS</th>
+      <th onclick="sortTable('tbl-df-all',9)">SHO</th>
+      <th onclick="sortTable('tbl-df-all',10)">TAC</th>
+      <th onclick="sortTable('tbl-df-all',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-wc">
+        <td>Tarik Muharemović <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>82</td>
+        <td>78</td><td>70</td><td>79</td><td>90</td>
+        <td>75</td><td>76</td><td>55</td><td>90</td>
+        <td class="tot">613</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Achraf Hakimi</td>
+        <td>RB</td>
+        <td>95</td>
+        <td>97</td><td>89</td><td>95</td><td>73</td>
+        <td>100</td><td>97</td><td>85</td><td>96</td>
+        <td class="tot">732</td>
+      </tr>
+      <tr class="r-standard">
+        <td>William Saliba</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>100</td><td>88</td><td>92</td><td>94</td>
+        <td>89</td><td>89</td><td>56</td><td>100</td>
+        <td class="tot">708</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Gabriel</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>93</td><td>100</td><td>100</td>
+        <td>83</td><td>85</td><td>67</td><td>100</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Alessandro Bastoni</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>98</td><td>96</td><td>92</td><td>100</td>
+        <td>87</td><td>85</td><td>52</td><td>96</td>
+        <td class="tot">706</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Nuno Mendes</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>87</td><td>83</td>
+        <td>93</td><td>81</td><td>75</td><td>99</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>João Cancelo</td>
+        <td>RB</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>95</td><td>86</td>
+        <td>87</td><td>93</td><td>83</td><td>84</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luka Vušković <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>93</td><td>84</td><td>96</td><td>100</td>
+        <td>85</td><td>83</td><td>72</td><td>100</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Dean Huijsen <span class='yr'>(2025)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>97</td><td>88</td><td>96</td><td>100</td>
+        <td>85</td><td>86</td><td>53</td><td>98</td>
+        <td class="tot">703</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Virgil Van Dijk</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>98</td><td>100</td><td>100</td>
+        <td>85</td><td>86</td><td>62</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Theo Hernandez</td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>90</td>
+        <td>84</td><td>88</td><td>75</td><td>81</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Éder Militão</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>100</td><td>90</td><td>85</td><td>99</td>
+        <td>83</td><td>82</td><td>59</td><td>100</td>
+        <td class="tot">698</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Antonee Robinson <span class='yr'>(2025)</span></td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>93</td>
+        <td>86</td><td>98</td><td>46</td><td>93</td>
+        <td class="tot">716</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Trent Alexander-Arnold</td>
+        <td>RB</td>
+        <td>92</td>
+        <td>93</td><td>91</td><td>95</td><td>75</td>
+        <td>90</td><td>99</td><td>87</td><td>74</td>
+        <td class="tot">704</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kalidou Koulibaly</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>98</td><td>83</td><td>94</td><td>100</td>
+        <td>84</td><td>81</td><td>66</td><td>91</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lisandro Martínez</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>90</td><td>92</td><td>98</td><td>94</td>
+        <td>82</td><td>83</td><td>52</td><td>94</td>
+        <td class="tot">685</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Raphaël Varane</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>88</td><td>93</td><td>79</td><td>95</td>
+        <td>85</td><td>87</td><td>60</td><td>87</td>
+        <td class="tot">674</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Dimarco</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>99</td><td>97</td><td>92</td><td>83</td>
+        <td>85</td><td>94</td><td>82</td><td>87</td>
+        <td class="tot">719</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">18 players</div>
+</div></div>
+<div id="df-lb" style="display:none"><div class="tbl-wrap" id="tbl-df-lb">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-df-lb',0)">Player</th>
+      <th onclick="sortTable('tbl-df-lb',1)">Pos</th>
+      <th onclick="sortTable('tbl-df-lb',2)">OVR</th>
+      <th onclick="sortTable('tbl-df-lb',3)">SPE</th>
+      <th onclick="sortTable('tbl-df-lb',4)">ACC</th>
+      <th onclick="sortTable('tbl-df-lb',5)">STA</th>
+      <th onclick="sortTable('tbl-df-lb',6)">STR</th>
+      <th onclick="sortTable('tbl-df-lb',7)">CON</th>
+      <th onclick="sortTable('tbl-df-lb',8)">PAS</th>
+      <th onclick="sortTable('tbl-df-lb',9)">SHO</th>
+      <th onclick="sortTable('tbl-df-lb',10)">TAC</th>
+      <th onclick="sortTable('tbl-df-lb',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Nuno Mendes</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>100</td><td>100</td><td>87</td><td>83</td>
+        <td>93</td><td>81</td><td>75</td><td>99</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Theo Hernandez</td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>90</td>
+        <td>84</td><td>88</td><td>75</td><td>81</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Antonee Robinson <span class='yr'>(2025)</span></td>
+        <td>LB</td>
+        <td>93</td>
+        <td>100</td><td>100</td><td>100</td><td>93</td>
+        <td>86</td><td>98</td><td>46</td><td>93</td>
+        <td class="tot">716</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Federico Dimarco</td>
+        <td>LB</td>
+        <td>94</td>
+        <td>99</td><td>97</td><td>92</td><td>83</td>
+        <td>85</td><td>94</td><td>82</td><td>87</td>
+        <td class="tot">719</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">4 players</div>
+</div></div>
+<div id="df-cb" style="display:none"><div class="tbl-wrap" id="tbl-df-cb">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-df-cb',0)">Player</th>
+      <th onclick="sortTable('tbl-df-cb',1)">Pos</th>
+      <th onclick="sortTable('tbl-df-cb',2)">OVR</th>
+      <th onclick="sortTable('tbl-df-cb',3)">SPE</th>
+      <th onclick="sortTable('tbl-df-cb',4)">ACC</th>
+      <th onclick="sortTable('tbl-df-cb',5)">STA</th>
+      <th onclick="sortTable('tbl-df-cb',6)">STR</th>
+      <th onclick="sortTable('tbl-df-cb',7)">CON</th>
+      <th onclick="sortTable('tbl-df-cb',8)">PAS</th>
+      <th onclick="sortTable('tbl-df-cb',9)">SHO</th>
+      <th onclick="sortTable('tbl-df-cb',10)">TAC</th>
+      <th onclick="sortTable('tbl-df-cb',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-wc">
+        <td>Tarik Muharemović <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>82</td>
+        <td>78</td><td>70</td><td>79</td><td>90</td>
+        <td>75</td><td>76</td><td>55</td><td>90</td>
+        <td class="tot">613</td>
+      </tr>
+      <tr class="r-standard">
+        <td>William Saliba</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>100</td><td>88</td><td>92</td><td>94</td>
+        <td>89</td><td>89</td><td>56</td><td>100</td>
+        <td class="tot">708</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Gabriel</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>93</td><td>100</td><td>100</td>
+        <td>83</td><td>85</td><td>67</td><td>100</td>
+        <td class="tot">728</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Alessandro Bastoni</td>
+        <td>CB</td>
+        <td>94</td>
+        <td>98</td><td>96</td><td>92</td><td>100</td>
+        <td>87</td><td>85</td><td>52</td><td>96</td>
+        <td class="tot">706</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Luka Vušković <span class='yr'>(2026)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>93</td><td>84</td><td>96</td><td>100</td>
+        <td>85</td><td>83</td><td>72</td><td>100</td>
+        <td class="tot">713</td>
+      </tr>
+      <tr class="r-tots">
+        <td>Dean Huijsen <span class='yr'>(2025)</span></td>
+        <td>CB</td>
+        <td>93</td>
+        <td>97</td><td>88</td><td>96</td><td>100</td>
+        <td>85</td><td>86</td><td>53</td><td>98</td>
+        <td class="tot">703</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Virgil Van Dijk</td>
+        <td>CB</td>
+        <td>95</td>
+        <td>100</td><td>98</td><td>100</td><td>100</td>
+        <td>85</td><td>86</td><td>62</td><td>96</td>
+        <td class="tot">727</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Éder Militão</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>100</td><td>90</td><td>85</td><td>99</td>
+        <td>83</td><td>82</td><td>59</td><td>100</td>
+        <td class="tot">698</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Kalidou Koulibaly</td>
+        <td>CB</td>
+        <td>92</td>
+        <td>98</td><td>83</td><td>94</td><td>100</td>
+        <td>84</td><td>81</td><td>66</td><td>91</td>
+        <td class="tot">697</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Lisandro Martínez</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>90</td><td>92</td><td>98</td><td>94</td>
+        <td>82</td><td>83</td><td>52</td><td>94</td>
+        <td class="tot">685</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Raphaël Varane</td>
+        <td>CB</td>
+        <td>90</td>
+        <td>88</td><td>93</td><td>79</td><td>95</td>
+        <td>85</td><td>87</td><td>60</td><td>87</td>
+        <td class="tot">674</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">11 players</div>
+</div></div>
+<div id="df-rb" style="display:none"><div class="tbl-wrap" id="tbl-df-rb">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-df-rb',0)">Player</th>
+      <th onclick="sortTable('tbl-df-rb',1)">Pos</th>
+      <th onclick="sortTable('tbl-df-rb',2)">OVR</th>
+      <th onclick="sortTable('tbl-df-rb',3)">SPE</th>
+      <th onclick="sortTable('tbl-df-rb',4)">ACC</th>
+      <th onclick="sortTable('tbl-df-rb',5)">STA</th>
+      <th onclick="sortTable('tbl-df-rb',6)">STR</th>
+      <th onclick="sortTable('tbl-df-rb',7)">CON</th>
+      <th onclick="sortTable('tbl-df-rb',8)">PAS</th>
+      <th onclick="sortTable('tbl-df-rb',9)">SHO</th>
+      <th onclick="sortTable('tbl-df-rb',10)">TAC</th>
+      <th onclick="sortTable('tbl-df-rb',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>Achraf Hakimi</td>
+        <td>RB</td>
+        <td>95</td>
+        <td>97</td><td>89</td><td>95</td><td>73</td>
+        <td>100</td><td>97</td><td>85</td><td>96</td>
+        <td class="tot">732</td>
+      </tr>
+      <tr class="r-standard">
+        <td>João Cancelo</td>
+        <td>RB</td>
+        <td>93</td>
+        <td>96</td><td>94</td><td>95</td><td>86</td>
+        <td>87</td><td>93</td><td>83</td><td>84</td>
+        <td class="tot">718</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Trent Alexander-Arnold</td>
+        <td>RB</td>
+        <td>92</td>
+        <td>93</td><td>91</td><td>95</td><td>75</td>
+        <td>90</td><td>99</td><td>87</td><td>74</td>
+        <td class="tot">704</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">3 players</div>
+</div></div>
+</div>
+<div id="sec-gk"  class="section"><div class="tbl-wrap" id="tbl-gk">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr>
+      <th onclick="sortTable('tbl-gk',0)">Player</th>
+      <th onclick="sortTable('tbl-gk',1)">Pos</th>
+      <th onclick="sortTable('tbl-gk',2)">OVR</th>
+      <th onclick="sortTable('tbl-gk',3)">SPE</th>
+      <th onclick="sortTable('tbl-gk',4)">ACC</th>
+      <th onclick="sortTable('tbl-gk',5)">STA</th>
+      <th onclick="sortTable('tbl-gk',6)">STR</th>
+      <th onclick="sortTable('tbl-gk',7)">CON</th>
+      <th onclick="sortTable('tbl-gk',8)">PAS</th>
+      <th onclick="sortTable('tbl-gk',9)">SHO</th>
+      <th onclick="sortTable('tbl-gk',10)">TAC</th>
+      <th onclick="sortTable('tbl-gk',11)">Total</th>
+    </tr></thead>
+    <tbody>      <tr class="r-standard">
+        <td>David Raya</td>
+        <td>GK</td>
+        <td>94</td>
+        <td>69</td><td>65</td><td>89</td><td>63</td>
+        <td>61</td><td>66</td><td>94</td><td>51</td>
+        <td class="tot">558</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Yann Sommer</td>
+        <td>GK</td>
+        <td>93</td>
+        <td>60</td><td>57</td><td>91</td><td>63</td>
+        <td>63</td><td>65</td><td>91</td><td>42</td>
+        <td class="tot">532</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Alisson</td>
+        <td>GK</td>
+        <td>94</td>
+        <td>61</td><td>60</td><td>92</td><td>66</td>
+        <td>67</td><td>68</td><td>91</td><td>50</td>
+        <td class="tot">555</td>
+      </tr>
+      <tr class="r-standard">
+        <td>David De Gea</td>
+        <td>GK</td>
+        <td>88</td>
+        <td>59</td><td>58</td><td>91</td><td>56</td>
+        <td>55</td><td>58</td><td>80</td><td>42</td>
+        <td class="tot">499</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Thibaut Courtois</td>
+        <td>GK</td>
+        <td>95</td>
+        <td>61</td><td>58</td><td>89</td><td>69</td>
+        <td>64</td><td>64</td><td>97</td><td>50</td>
+        <td class="tot">552</td>
+      </tr>
+      <tr class="r-standard">
+        <td>Gianluigi Donnarumma</td>
+        <td>GK</td>
+        <td>95</td>
+        <td>58</td><td>55</td><td>95</td><td>68</td>
+        <td>61</td><td>64</td><td>91</td><td>42</td>
+        <td class="tot">534</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="count">6 players</div>
+</div></div>
+
+<script>
+function showCat(cat) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.cat').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + cat).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showSub(cat, id) {
+  const sec = document.getElementById('sec-' + cat);
+  sec.querySelectorAll('[id^="' + cat + '-"]').forEach(d => d.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  sec.querySelectorAll('.sub').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function sortTable(tid, col) {
+  const tbl = document.getElementById(tid);
+  if (!tbl) return;
+  const tbody = tbl.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const th = tbl.querySelectorAll('th')[col];
+  const asc = th.dataset.asc !== 'true';
+  tbl.querySelectorAll('th').forEach(t => { t.dataset.asc = ''; t.textContent = t.textContent.replace(/ [↑↓]$/, ''); });
+  th.dataset.asc = asc;
+  th.textContent = th.textContent.replace(/ [↑↓]$/, '') + (asc ? ' ↑' : ' ↓');
+  rows.sort((a, b) => {
+    const av = a.cells[col].textContent.trim();
+    const bv = b.cells[col].textContent.trim();
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+    return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+</script>
+</body>
+</html>
