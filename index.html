@@ -85,6 +85,12 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .cmp-table tr.row-tot td { border-top: 1px solid #30363d; font-size: 15px; }
 .cmp-table tr.row-tot .stat-label { color: #a8d8f0; }
 
+/* ===== Live search ===== */
+.search-wrap { display: flex; justify-content: center; margin: 0 0 16px; }
+.search-input { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 9px 16px; border-radius: 20px; width: 320px; max-width: 80vw; outline: none; }
+.search-input:focus { border-color: #58a6ff; }
+.search-input::placeholder { color: #6e7681; }
+
 </style>
 </head>
 <body>
@@ -106,6 +112,10 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <button class="cat" onclick="showCat('df')">Defenders</button>
   <button class="cat" onclick="showCat('gk')">Goalkeeper</button>
   <button class="cat cat-compare" onclick="showCat('compare')">⚔ Compare</button>
+</div>
+
+<div class="search-wrap">
+  <input id="player-search" class="search-input" type="search" placeholder="Search players by name…" autocomplete="off" oninput="liveSearch(this.value)">
 </div>
 
 <div id="sec-compare" class="section">
@@ -606,10 +616,18 @@ tr.r-standard:hover td { background: #251b00 !important; }
         <td>87</td><td>87</td><td>99</td><td>100</td>
         <td>91</td><td>98</td><td>87</td><td>97</td>
         <td class="tot">746</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Rivaldo <span class='yr'>(2002)</span></td>
+        <td>AM</td>
+        <td>95</td>
+        <td>91</td><td>94</td><td>95</td><td>95</td>
+        <td>99</td><td>98</td><td>100</td><td>49</td>
+        <td class="tot">721</td>
       </tr></tbody>
   </table>
   </div>
-  <div class="count">59 players</div>
+  <div class="count">60 players</div>
 </div></div>
 <div id="sec-sp"  class="section">
 <div class="sub-tabs">
@@ -754,10 +772,18 @@ tr.r-standard:hover td { background: #251b00 !important; }
         <td>88</td><td>92</td><td>100</td><td>86</td>
         <td>99</td><td>98</td><td>70</td><td>88</td>
         <td class="tot">721</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Rivaldo <span class='yr'>(2002)</span></td>
+        <td>AM</td>
+        <td>95</td>
+        <td>91</td><td>94</td><td>95</td><td>95</td>
+        <td>99</td><td>98</td><td>100</td><td>49</td>
+        <td class="tot">721</td>
       </tr></tbody>
   </table>
   </div>
-  <div class="count">15 players</div>
+  <div class="count">16 players</div>
 </div></div>
 <div id="sp-leg" style="display:none"><div class="tbl-wrap" id="tbl-sp-leg">
   <div class="tbl-scroll">
@@ -791,10 +817,18 @@ tr.r-standard:hover td { background: #251b00 !important; }
         <td>92</td><td>90</td><td>100</td><td>99</td>
         <td>92</td><td>86</td><td>52</td><td>100</td>
         <td class="tot">711</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Rivaldo <span class='yr'>(2002)</span></td>
+        <td>AM</td>
+        <td>95</td>
+        <td>91</td><td>94</td><td>95</td><td>95</td>
+        <td>99</td><td>98</td><td>100</td><td>49</td>
+        <td class="tot">721</td>
       </tr></tbody>
   </table>
   </div>
-  <div class="count">2 players</div>
+  <div class="count">3 players</div>
 </div></div>
 <div id="sp-tots" style="display:none"><div class="tbl-wrap" id="tbl-sp-tots">
   <div class="tbl-scroll">
@@ -1512,10 +1546,18 @@ tr.r-standard:hover td { background: #251b00 !important; }
         <td>87</td><td>87</td><td>99</td><td>100</td>
         <td>91</td><td>98</td><td>87</td><td>97</td>
         <td class="tot">746</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Rivaldo <span class='yr'>(2002)</span></td>
+        <td>AM</td>
+        <td>95</td>
+        <td>91</td><td>94</td><td>95</td><td>95</td>
+        <td>99</td><td>98</td><td>100</td><td>49</td>
+        <td class="tot">721</td>
       </tr></tbody>
   </table>
   </div>
-  <div class="count">16 players</div>
+  <div class="count">17 players</div>
 </div></div>
 <div id="mf-am" style="display:none"><div class="tbl-wrap" id="tbl-mf-am">
   <div class="tbl-scroll">
@@ -1557,10 +1599,18 @@ tr.r-standard:hover td { background: #251b00 !important; }
         <td>93</td><td>95</td><td>99</td><td>91</td>
         <td>95</td><td>100</td><td>88</td><td>68</td>
         <td class="tot">729</td>
+      </tr>
+      <tr class="r-legend">
+        <td>Rivaldo <span class='yr'>(2002)</span></td>
+        <td>AM</td>
+        <td>95</td>
+        <td>91</td><td>94</td><td>95</td><td>95</td>
+        <td>99</td><td>98</td><td>100</td><td>49</td>
+        <td class="tot">721</td>
       </tr></tbody>
   </table>
   </div>
-  <div class="count">3 players</div>
+  <div class="count">4 players</div>
 </div></div>
 <div id="mf-cm" style="display:none"><div class="tbl-wrap" id="tbl-mf-cm">
   <div class="tbl-scroll">
@@ -2281,6 +2331,30 @@ function renderCompare() {
   });
   const table = '<table class="cmp-table"><thead><tr>' + hA + '<th class="stat-label">STAT</th>' + hB + '</tr></thead><tbody>' + body + '</tbody></table>';
   out.innerHTML = '<div class="cmp-grid"><div><div class="radar-wrap">' + buildRadar(pA, pB) + '</div>' + legend + '</div>' + table + '</div>';
+}
+
+/* ===== Live search ===== */
+function liveSearch(q) {
+  q = (q || '').trim().toLowerCase();
+  if (q) {
+    document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
+    document.querySelectorAll('.cat').forEach(function (b) { b.classList.remove('active'); });
+    document.getElementById('sec-all').classList.add('active');
+    document.querySelector('.cat').classList.add('active');
+  }
+  document.querySelectorAll('.tbl-wrap').forEach(function (wrap) {
+    var rows = wrap.querySelectorAll('tbody tr');
+    var vis = 0;
+    rows.forEach(function (tr) {
+      var cell = tr.cells[0];
+      var name = cell ? cell.textContent.toLowerCase() : '';
+      var show = !q || name.indexOf(q) !== -1;
+      tr.style.display = show ? '' : 'none';
+      if (show) vis++;
+    });
+    var cnt = wrap.querySelector('.count');
+    if (cnt) cnt.textContent = q ? (vis + (vis === 1 ? ' match' : ' matches')) : (rows.length + ' players');
+  });
 }
 </script>
 </body>

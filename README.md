@@ -12,12 +12,14 @@ browser — it works offline, with no server and no internet connection needed.
 
 ## What's inside
 
-- **59 players**, each rated across 9 attribute columns — `OVR`, `SPE`, `ACC`,
+- **60 players**, each rated across 9 attribute columns — `OVR`, `SPE`, `ACC`,
   `STA`, `STR`, `CON`, `PAS`, `SHO`, `TAC` — plus a **Total**.
 - **Card types**, color-coded by row: 🟡 Legend · 🟣 TOTS · 🔴 WC 2026 · 🟠 Standard.
 - **Category filters:** All Players · Special · Forwards · Midfielders · Defenders ·
   Goalkeeper, each with position sub-tabs (CF / LW / RW / SS, CM / AM / DM, CB / LB / RB).
 - **Click any column header to sort** the table by that stat.
+- **Live search** — start typing in the search box to instantly filter the list to
+  players whose name matches.
 - **Compare two players** — the **Compare** tab lets you pick any two players and
   see their stats side by side (the higher value in each row highlighted), plus an
   8-axis *octagram* radar that overlays both players' attributes for an at-a-glance
