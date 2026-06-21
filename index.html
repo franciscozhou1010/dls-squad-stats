@@ -62,6 +62,29 @@ tr.r-standard td { background: #1c1400 !important; border-bottom-color: #2e2000 
 tr.r-standard td:first-child { color: #f5a623 !important; }
 tr.r-standard:hover td { background: #251b00 !important; }
 
+/* ===== Compare feature ===== */
+.cat-compare { border-color: #1f6feb; color: #58a6ff; }
+.cmp-pick { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 2px 0 18px; }
+.cmp-input { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 8px 12px; border-radius: 8px; width: 230px; max-width: 42vw; outline: none; }
+.cmp-input:focus { border-color: #58a6ff; }
+.cmp-input::placeholder { color: #6e7681; }
+.cmp-vs { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #8b949e; }
+.cmp-hint { text-align: center; color: #6e7681; font-size: 12px; padding: 34px 10px; }
+.cmp-grid { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+.radar { max-width: 92vw; height: auto; }
+.radar-legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+.radar-legend span { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; color: #e6edf3; }
+.radar-legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.cmp-table { border-collapse: collapse; min-width: 260px; }
+.cmp-table th, .cmp-table td { padding: 7px 16px; font-size: 14px; border-bottom: 0.5px solid #21262d; text-align: center; }
+.cmp-table thead th { font-weight: 700; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+.cmp-table thead .sub-pos { font-size: 10px; font-weight: 500; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.cmp-table .stat-label { color: #8b949e; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+.cmp-table .win { color: #3fb950; font-weight: 700; }
+.cmp-table .lose { color: #6e7681; }
+.cmp-table tr.row-tot td { border-top: 1px solid #30363d; font-size: 15px; }
+.cmp-table tr.row-tot .stat-label { color: #a8d8f0; }
+
 </style>
 </head>
 <body>
@@ -82,6 +105,17 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <button class="cat" onclick="showCat('mf')">Midfielders</button>
   <button class="cat" onclick="showCat('df')">Defenders</button>
   <button class="cat" onclick="showCat('gk')">Goalkeeper</button>
+  <button class="cat cat-compare" onclick="showCat('compare')">⚔ Compare</button>
+</div>
+
+<div id="sec-compare" class="section">
+  <div class="cmp-pick">
+    <input id="cmp-a" class="cmp-input" list="cmp-list" placeholder="Search player 1…" autocomplete="off" oninput="renderCompare()">
+    <span class="cmp-vs">VS</span>
+    <input id="cmp-b" class="cmp-input" list="cmp-list" placeholder="Search player 2…" autocomplete="off" oninput="renderCompare()">
+    <datalist id="cmp-list"></datalist>
+  </div>
+  <div id="cmp-out"></div>
 </div>
 
 <div id="sec-all" class="section active"><div class="tbl-wrap" id="tbl-all">
@@ -2159,6 +2193,94 @@ function sortTable(tid, col) {
     return asc ? av.localeCompare(bv) : bv.localeCompare(av);
   });
   rows.forEach(r => tbody.appendChild(r));
+}
+
+/* ===== Compare feature ===== */
+const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
+const COLOR_A = '#58a6ff', COLOR_B = '#f5a623';
+const players = [];
+
+(function initCompare() {
+  const CARD = { 'r-legend':'Legend', 'r-tots':'TOTS', 'r-wc':'WC 2026', 'r-standard':'Standard' };
+  document.querySelectorAll('#tbl-all tbody tr').forEach(tr => {
+    const c = tr.cells; if (c.length < 12) return;
+    const cls = Array.from(tr.classList).find(x => x.indexOf('r-') === 0) || '';
+    const stats = {};
+    STAT_KEYS.forEach((k, i) => stats[k] = parseInt(c[3 + i].textContent, 10) || 0);
+    players.push({
+      name: c[0].textContent.replace(/\s+/g, ' ').trim(),
+      pos: c[1].textContent.trim(),
+      ovr: parseInt(c[2].textContent, 10) || 0,
+      stats: stats,
+      total: parseInt(c[11].textContent, 10) || 0,
+      cardType: CARD[cls] || ''
+    });
+  });
+  const cnt = {};
+  players.forEach(p => cnt[p.name] = (cnt[p.name] || 0) + 1);
+  players.forEach(p => p.label = cnt[p.name] > 1 ? p.name + ' · ' + p.cardType : p.name);
+  const dl = document.getElementById('cmp-list');
+  players.slice().sort((a, b) => a.label.localeCompare(b.label)).forEach(p => {
+    const o = document.createElement('option'); o.value = p.label; dl.appendChild(o);
+  });
+  renderCompare();
+})();
+
+function findByLabel(v) { v = (v || '').trim(); return players.find(p => p.label === v) || null; }
+
+function radarPoint(cx, cy, R, frac, i, n) {
+  const a = (-90 + i * (360 / n)) * Math.PI / 180;
+  return [cx + R * frac * Math.cos(a), cy + R * frac * Math.sin(a)];
+}
+function polyPath(cx, cy, R, fracs) {
+  const n = fracs.length;
+  return fracs.map((f, i) => { const pt = radarPoint(cx, cy, R, f, i, n); return (i ? 'L' : 'M') + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1); }).join(' ') + ' Z';
+}
+function buildRadar(pA, pB) {
+  const n = STAT_KEYS.length, cx = 170, cy = 160, R = 110, lr = R + 26;
+  let g = '';
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    g += '<path d="' + polyPath(cx, cy, R, Array(n).fill(f)) + '" fill="none" stroke="#30363d" stroke-width="' + (f === 1 ? 1.2 : 0.7) + '"/>';
+  });
+  for (let i = 0; i < n; i++) {
+    const p1 = radarPoint(cx, cy, R, 1, i, n);
+    g += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p1[0].toFixed(1) + '" y2="' + p1[1].toFixed(1) + '" stroke="#30363d" stroke-width="0.7"/>';
+    const pl = radarPoint(cx, cy, lr, 1, i, n);
+    const anchor = Math.abs(pl[0] - cx) < 2 ? 'middle' : (pl[0] > cx ? 'start' : 'end');
+    g += '<text x="' + pl[0].toFixed(1) + '" y="' + (pl[1] + 4).toFixed(1) + '" text-anchor="' + anchor + '" font-size="11" font-weight="600" fill="#8b949e">' + STAT_KEYS[i] + '</text>';
+  }
+  function poly(p, color) {
+    if (!p) return '';
+    const fracs = STAT_KEYS.map(k => Math.max(0, Math.min(1, p.stats[k] / 100)));
+    let dots = '';
+    fracs.forEach((f, i) => { const pt = radarPoint(cx, cy, R, f, i, n); dots += '<circle cx="' + pt[0].toFixed(1) + '" cy="' + pt[1].toFixed(1) + '" r="2.6" fill="' + color + '"/>'; });
+    return '<path d="' + polyPath(cx, cy, R, fracs) + '" fill="' + color + '" fill-opacity="0.18" stroke="' + color + '" stroke-width="2" stroke-linejoin="round"/>' + dots;
+  }
+  return '<svg class="radar" viewBox="0 0 340 314" width="340" height="314" xmlns="http://www.w3.org/2000/svg">' + g + poly(pA, COLOR_A) + poly(pB, COLOR_B) + '</svg>';
+}
+function renderCompare() {
+  const pA = findByLabel(document.getElementById('cmp-a').value);
+  const pB = findByLabel(document.getElementById('cmp-b').value);
+  const out = document.getElementById('cmp-out');
+  if (!pA && !pB) { out.innerHTML = '<div class="cmp-hint">Type or pick two player names above to see their stats side by side and overlaid on the octagram.</div>'; return; }
+  let legend = '<div class="radar-legend">';
+  if (pA) legend += '<span><i class="sw" style="background:' + COLOR_A + '"></i>' + pA.label + '</span>';
+  if (pB) legend += '<span><i class="sw" style="background:' + COLOR_B + '"></i>' + pB.label + '</span>';
+  legend += '</div>';
+  const rows = [['OVR', p => p.ovr]].concat(STAT_KEYS.map(k => [k, p => p.stats[k]])).concat([['Total', p => p.total]]);
+  const hA = '<th style="color:' + (pA ? COLOR_A : '#6e7681') + '">' + (pA ? pA.name : '—') + '<div class="sub-pos">' + (pA ? pA.pos + ' · ' + pA.cardType : '&nbsp;') + '</div></th>';
+  const hB = '<th style="color:' + (pB ? COLOR_B : '#6e7681') + '">' + (pB ? pB.name : '—') + '<div class="sub-pos">' + (pB ? pB.pos + ' · ' + pB.cardType : '&nbsp;') + '</div></th>';
+  let body = '';
+  rows.forEach(r => {
+    const label = r[0], acc = r[1];
+    const va = pA ? acc(pA) : null, vb = pB ? acc(pB) : null;
+    const both = va != null && vb != null;
+    const aCls = both ? (va > vb ? 'win' : (va < vb ? 'lose' : '')) : '';
+    const bCls = both ? (vb > va ? 'win' : (vb < va ? 'lose' : '')) : '';
+    body += '<tr class="' + (label === 'Total' ? 'row-tot' : '') + '"><td class="' + aCls + '">' + (va != null ? va : '–') + '</td><td class="stat-label">' + label + '</td><td class="' + bCls + '">' + (vb != null ? vb : '–') + '</td></tr>';
+  });
+  const table = '<table class="cmp-table"><thead><tr>' + hA + '<th class="stat-label">STAT</th>' + hB + '</tr></thead><tbody>' + body + '</tbody></table>';
+  out.innerHTML = '<div class="cmp-grid"><div><div class="radar-wrap">' + buildRadar(pA, pB) + '</div>' + legend + '</div>' + table + '</div>';
 }
 </script>
 </body>
