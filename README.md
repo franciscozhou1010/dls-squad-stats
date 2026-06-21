@@ -23,6 +23,8 @@ browser — it works offline, with no server and no internet connection needed.
   8-axis *octagram* radar that overlays both players' attributes for an at-a-glance
   shape comparison.
 
+![Compare two players — side-by-side stats with the octagram radar overlay](compare.png)
+
 ## Tech
 
 - One file: `index.html` — plain HTML, CSS, and vanilla JavaScript.
