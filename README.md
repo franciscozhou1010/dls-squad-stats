@@ -24,12 +24,18 @@ browser — it works offline, with no server and no internet connection needed.
   see their stats side by side (the higher value in each row highlighted), plus an
   8-axis *octagram* radar that overlays both players' attributes for an at-a-glance
   shape comparison.
+- **Goalkeepers** have their own table — shown beneath the outfield players on
+  *All Players*, and on the *Goalkeeper* tab — with keeper-specific `GKR` / `GKH`
+  columns in place of `STA` / `SHO`.
 
 ![Compare two players — side-by-side stats with the octagram radar overlay](compare.png)
 
 ## Tech
 
 - One file: `index.html` — plain HTML, CSS, and vanilla JavaScript.
+- **Single data source** — every player is defined once in a `PLAYERS` list near the
+  bottom of the file; the page builds all tables, counts, search, and compare from it.
+  Adding a player is a one-line change.
 - **No external dependencies** — no CDN, no web fonts, no build step, no backend.
   All data, styling, and interactivity are inline, so it renders identically
   whether served online or opened straight from disk.
