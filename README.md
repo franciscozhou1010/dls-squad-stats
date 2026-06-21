@@ -12,7 +12,7 @@ browser — it works offline, with no server and no internet connection needed.
 
 ## What's inside
 
-- **60 players**, each rated across 9 attribute columns — `OVR`, `SPE`, `ACC`,
+- **73 players**, each rated across 9 attribute columns — `OVR`, `SPE`, `ACC`,
   `STA`, `STR`, `CON`, `PAS`, `SHO`, `TAC` — plus a **Total**.
 - **Card types**, color-coded by row: 🟡 Legend · 🟣 TOTS · 🔴 WC 2026 · 🟠 Standard.
 - **Category filters:** All Players · Special · Forwards · Midfielders · Defenders ·
