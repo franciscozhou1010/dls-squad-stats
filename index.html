@@ -136,6 +136,23 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .pr-ovr { font-weight: 800; width: 26px; text-align: center; }
 .pr-name { flex: 1; }
 .pr-pos { font-size: 11px; color: #8b949e; }
+.detail { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 16px; }
+.detail-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; width: 520px; max-width: 94vw; max-height: 88vh; overflow: auto; }
+.detail-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 14px 16px; border-bottom: 1px solid #30363d; }
+.detail-name { font-size: 18px; font-weight: 800; color: #fff; }
+.detail-sub { font-size: 12px; color: #8b949e; margin-top: 3px; }
+.detail-body { display: flex; gap: 18px; padding: 16px; flex-wrap: wrap; align-items: center; justify-content: center; }
+.detail-radar { flex: 0 0 auto; }
+.detail-radar svg { width: 240px; height: auto; max-width: 62vw; }
+.detail-info { flex: 1 1 240px; min-width: 220px; }
+.detail-bio { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13px; margin-bottom: 14px; }
+.detail-bio .k { color: #8b949e; }
+.detail-bio .v { color: #e6edf3; font-weight: 600; }
+.detail-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 4px 18px; }
+.detail-stat { display: flex; justify-content: space-between; border-bottom: 0.5px solid #21262d; padding: 4px 0; }
+.detail-stat .sk { color: #8b949e; font-weight: 600; font-size: 11px; letter-spacing: .5px; }
+.detail-stat .sv { color: #e6edf3; font-weight: 700; font-size: 13px; }
+.detail-total { margin-top: 10px; text-align: right; font-size: 13px; color: #a8d8f0; }
 </style>
 </head>
 <body>
@@ -419,81 +436,94 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <div class="count"></div>
 </div></div>
 
+<div id="detail-modal" class="detail" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-box">
+    <div class="detail-head">
+      <div><div class="detail-name" id="detail-name"></div><div class="detail-sub" id="detail-sub"></div></div>
+      <span class="picker-x" onclick="closeDetail()">✕</span>
+    </div>
+    <div class="detail-body">
+      <div class="detail-radar" id="detail-radar"></div>
+      <div class="detail-info" id="detail-info"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const PLAYERS = [
-  {"name": "David Trezeguet", "year": "2002", "pos": "CF", "ovr": 95, "card": "legend", "st": [93, 96, 100, 100, 99, 89, 100, 33]},
-  {"name": "Kenan Yildiz", "year": "2026", "pos": "SS", "ovr": 94, "card": "tots", "st": [100, 100, 100, 83, 99, 97, 100, 34]},
-  {"name": "Harry Kane", "year": null, "pos": "CF", "ovr": 96, "card": "standard", "st": [99, 96, 100, 100, 90, 90, 97, 55]},
-  {"name": "Lamine Yamal", "year": null, "pos": "RW", "ovr": 96, "card": "standard", "st": [99, 100, 99, 86, 100, 99, 94, 44]},
-  {"name": "Luis Suárez", "year": "2026", "pos": "CF", "ovr": 83, "card": "tots", "st": [88, 87, 83, 83, 84, 76, 92, 33]},
-  {"name": "Kylian Mbappé", "year": null, "pos": "CF", "ovr": 96, "card": "standard", "st": [100, 100, 90, 82, 100, 100, 100, 53]},
-  {"name": "Erling Haaland", "year": null, "pos": "CF", "ovr": 96, "card": "standard", "st": [100, 100, 100, 100, 91, 89, 100, 49]},
-  {"name": "Mohamed Salah", "year": null, "pos": "RW", "ovr": 96, "card": "standard", "st": [100, 100, 100, 92, 96, 95, 92, 51]},
-  {"name": "Lionel Messi", "year": null, "pos": "SS", "ovr": 96, "card": "standard", "st": [96, 100, 86, 85, 100, 95, 99, 60]},
-  {"name": "Raphinha", "year": null, "pos": "LW", "ovr": 95, "card": "standard", "st": [97, 100, 98, 93, 92, 93, 94, 59]},
-  {"name": "Michael Olise", "year": null, "pos": "RW", "ovr": 95, "card": "standard", "st": [100, 100, 99, 79, 96, 96, 93, 57]},
-  {"name": "Ousmane Dembélé", "year": null, "pos": "CF", "ovr": 95, "card": "standard", "st": [96, 100, 91, 73, 100, 100, 100, 59]},
-  {"name": "Khvicha Kvaratskhelia", "year": null, "pos": "LW", "ovr": 94, "card": "standard", "st": [99, 99, 90, 86, 95, 93, 91, 48]},
-  {"name": "Cristiano Ronaldo", "year": null, "pos": "CF", "ovr": 93, "card": "standard", "st": [96, 94, 92, 95, 88, 89, 100, 46]},
-  {"name": "Rayan Cherki", "year": "2025", "pos": "RW", "ovr": 93, "card": "tots", "st": [96, 96, 94, 77, 100, 98, 98, 38]},
-  {"name": "Heung-Min Son", "year": null, "pos": "CF", "ovr": 93, "card": "standard", "st": [91, 100, 92, 75, 98, 94, 95, 62]},
-  {"name": "Marcus Rashford", "year": null, "pos": "LW", "ovr": 90, "card": "standard", "st": [100, 95, 78, 84, 91, 78, 95, 45]},
-  {"name": "Jonathan David", "year": "2026", "pos": "CF", "ovr": 82, "card": "wc", "st": [88, 86, 81, 77, 81, 77, 84, 30]},
-  {"name": "Tarik Muharemović", "year": "2026", "pos": "CB", "ovr": 82, "card": "wc", "st": [78, 70, 79, 90, 75, 76, 55, 90]},
-  {"name": "Igor Thiago", "year": "2026", "pos": "CF", "ovr": 84, "card": "tots", "st": [82, 77, 83, 93, 84, 75, 93, 37]},
-  {"name": "Achraf Hakimi", "year": null, "pos": "RB", "ovr": 95, "card": "standard", "st": [97, 89, 95, 73, 100, 97, 85, 96]},
-  {"name": "William Saliba", "year": null, "pos": "CB", "ovr": 94, "card": "standard", "st": [100, 88, 92, 94, 89, 89, 56, 100]},
-  {"name": "Gabriel", "year": null, "pos": "CB", "ovr": 95, "card": "standard", "st": [100, 93, 100, 100, 83, 85, 67, 100]},
-  {"name": "Alessandro Bastoni", "year": null, "pos": "CB", "ovr": 94, "card": "standard", "st": [98, 96, 92, 100, 87, 85, 52, 96]},
-  {"name": "Nuno Mendes", "year": null, "pos": "LB", "ovr": 94, "card": "standard", "st": [100, 100, 87, 83, 93, 81, 75, 99]},
-  {"name": "João Cancelo", "year": null, "pos": "RB", "ovr": 93, "card": "standard", "st": [96, 94, 95, 86, 87, 93, 83, 84]},
-  {"name": "Luka Vušković", "year": "2026", "pos": "CB", "ovr": 93, "card": "tots", "st": [93, 84, 96, 100, 85, 83, 72, 100]},
-  {"name": "Dean Huijsen", "year": "2025", "pos": "CB", "ovr": 93, "card": "tots", "st": [97, 88, 96, 100, 85, 86, 53, 98]},
-  {"name": "Virgil Van Dijk", "year": null, "pos": "CB", "ovr": 95, "card": "standard", "st": [100, 98, 100, 100, 85, 86, 62, 96]},
-  {"name": "Theo Hernandez", "year": null, "pos": "LB", "ovr": 93, "card": "standard", "st": [100, 100, 100, 90, 84, 88, 75, 81]},
-  {"name": "Éder Militão", "year": null, "pos": "CB", "ovr": 92, "card": "standard", "st": [100, 90, 85, 99, 83, 82, 59, 100]},
-  {"name": "Antonee Robinson", "year": "2025", "pos": "LB", "ovr": 93, "card": "tots", "st": [100, 100, 100, 93, 86, 98, 46, 93]},
-  {"name": "Trent Alexander-Arnold", "year": null, "pos": "RB", "ovr": 92, "card": "standard", "st": [93, 91, 95, 75, 90, 99, 87, 74]},
-  {"name": "Kalidou Koulibaly", "year": null, "pos": "CB", "ovr": 92, "card": "standard", "st": [98, 83, 94, 100, 84, 81, 66, 91]},
-  {"name": "Lisandro Martínez", "year": null, "pos": "CB", "ovr": 90, "card": "standard", "st": [90, 92, 98, 94, 82, 83, 52, 94]},
-  {"name": "Raphaël Varane", "year": null, "pos": "CB", "ovr": 90, "card": "standard", "st": [88, 93, 79, 95, 85, 87, 60, 87]},
-  {"name": "David Raya", "year": null, "pos": "GK", "ovr": 94, "card": "standard", "st": [69, 65, 89, 63, 61, 66, 94, 51]},
-  {"name": "Yann Sommer", "year": null, "pos": "GK", "ovr": 93, "card": "standard", "st": [60, 57, 91, 63, 63, 65, 91, 42]},
-  {"name": "Alisson", "year": null, "pos": "GK", "ovr": 94, "card": "standard", "st": [61, 60, 92, 66, 67, 68, 91, 50]},
-  {"name": "David De Gea", "year": null, "pos": "GK", "ovr": 88, "card": "standard", "st": [59, 58, 91, 56, 55, 58, 80, 42]},
-  {"name": "Thibaut Courtois", "year": null, "pos": "GK", "ovr": 95, "card": "standard", "st": [61, 58, 89, 69, 64, 64, 97, 50]},
-  {"name": "Gianluigi Donnarumma", "year": null, "pos": "GK", "ovr": 95, "card": "standard", "st": [58, 55, 95, 68, 61, 64, 91, 42]},
-  {"name": "Vitinha", "year": null, "pos": "CM", "ovr": 95, "card": "standard", "st": [84, 97, 95, 75, 100, 100, 83, 90]},
-  {"name": "Federico Valverde", "year": null, "pos": "CM", "ovr": 95, "card": "standard", "st": [99, 91, 100, 90, 93, 89, 87, 84]},
-  {"name": "Declan Rice", "year": null, "pos": "CM", "ovr": 94, "card": "standard", "st": [94, 80, 98, 92, 82, 97, 88, 96]},
-  {"name": "Pedri", "year": null, "pos": "CM", "ovr": 95, "card": "standard", "st": [93, 100, 98, 88, 93, 96, 80, 80]},
-  {"name": "Giorgian De Arrascaeta", "year": "2026", "pos": "AM", "ovr": 94, "card": "tots", "st": [94, 97, 94, 79, 99, 99, 99, 56]},
-  {"name": "Nicolò Barella", "year": null, "pos": "CM", "ovr": 94, "card": "standard", "st": [97, 100, 100, 97, 86, 90, 73, 76]},
-  {"name": "Luka Modrić", "year": null, "pos": "CM", "ovr": 94, "card": "standard", "st": [79, 89, 93, 75, 100, 100, 94, 90]},
-  {"name": "Toni Kroos", "year": null, "pos": "CM", "ovr": 93, "card": "standard", "st": [75, 74, 92, 82, 100, 98, 97, 93]},
-  {"name": "Scott McTominay", "year": "2025", "pos": "CM", "ovr": 94, "card": "tots", "st": [92, 71, 98, 99, 90, 93, 88, 95]},
-  {"name": "Casemiro", "year": null, "pos": "DM", "ovr": 93, "card": "standard", "st": [87, 88, 100, 99, 84, 87, 76, 91]},
-  {"name": "Patrick Berg", "year": "2026", "pos": "DM", "ovr": 83, "card": "tots", "st": [70, 71, 93, 75, 85, 90, 78, 85]},
-  {"name": "Bruno Fernandes", "year": null, "pos": "AM", "ovr": 95, "card": "standard", "st": [84, 87, 96, 85, 96, 100, 95, 84]},
-  {"name": "Marcel Desailly", "year": "1994", "pos": "DM", "ovr": 94, "card": "legend", "st": [92, 90, 100, 99, 92, 86, 52, 100]},
-  {"name": "Kevin De Bruyne", "year": null, "pos": "AM", "ovr": 96, "card": "standard", "st": [93, 95, 99, 91, 95, 100, 88, 68]},
-  {"name": "Elliot Anderson", "year": "2026", "pos": "DM", "ovr": 94, "card": "tots", "st": [88, 92, 100, 86, 99, 98, 70, 88]},
-  {"name": "Federico Dimarco", "year": null, "pos": "LB", "ovr": 94, "card": "standard", "st": [99, 97, 92, 83, 85, 94, 82, 87]},
-  {"name": "Rodri", "year": null, "pos": "DM", "ovr": 96, "card": "standard", "st": [87, 87, 99, 100, 91, 98, 87, 97]},
-  {"name": "Rivaldo", "year": "2002", "pos": "AM", "ovr": 95, "card": "legend", "st": [91, 94, 95, 95, 99, 98, 100, 49]},
-  {"name": "Nico Williams", "year": "2026", "pos": "LW", "ovr": 82, "card": "wc", "st": [90, 93, 79, 61, 89, 79, 77, 36]},
-  {"name": "Iliman Ndiaye", "year": "2026", "pos": "RW", "ovr": 82, "card": "wc", "st": [84, 87, 79, 67, 87, 76, 80, 45]},
-  {"name": "Yoane Wissa", "year": "2026", "pos": "CF", "ovr": 82, "card": "wc", "st": [87, 89, 79, 73, 81, 77, 85, 34]},
-  {"name": "Alexander Sørloth", "year": "2026", "pos": "CF", "ovr": 82, "card": "wc", "st": [81, 72, 79, 92, 83, 75, 88, 31]},
-  {"name": "Takefusa Kubo", "year": "2026", "pos": "RW", "ovr": 82, "card": "wc", "st": [83, 88, 76, 64, 87, 79, 79, 52]},
-  {"name": "Kang-in Lee", "year": "2026", "pos": "AM", "ovr": 82, "card": "wc", "st": [79, 87, 80, 63, 85, 86, 77, 55]},
-  {"name": "Jackson Irvine", "year": "2026", "pos": "CM", "ovr": 82, "card": "wc", "st": [79, 70, 93, 83, 77, 79, 70, 80]},
-  {"name": "Richard Ríos", "year": "2026", "pos": "DM", "ovr": 82, "card": "wc", "st": [77, 77, 85, 77, 84, 79, 61, 77]},
-  {"name": "Abdukodir Khusanov", "year": "2026", "pos": "CB", "ovr": 82, "card": "wc", "st": [92, 80, 74, 81, 75, 77, 45, 83]},
-  {"name": "Arda Güler", "year": "2026", "pos": "AM", "ovr": 82, "card": "wc", "st": [77, 84, 79, 57, 87, 88, 80, 62]},
-  {"name": "Piero Hincapié", "year": "2026", "pos": "CB", "ovr": 82, "card": "wc", "st": [86, 76, 81, 82, 76, 78, 47, 86]},
-  {"name": "Rayan Aït-Nouri", "year": "2026", "pos": "LB", "ovr": 82, "card": "wc", "st": [86, 84, 81, 64, 82, 80, 59, 77]},
-  {"name": "Ronwen Williams", "year": "2026", "pos": "GK", "ovr": 82, "card": "wc", "st": [61, 59, 80, 60, 59, 61, 78, 49]}
+  {"name":"David Trezeguet","year":"2002","pos":"CF","ovr":95,"card":"legend","st":[93,96,100,100,99,89,100,33],"club":"","nat":"France","hgt":190,"foot":"B"},
+  {"name":"Kenan Yildiz","year":"2026","pos":"SS","ovr":94,"card":"tots","st":[100,100,100,83,99,97,100,34],"club":"Juventus","nat":"Turkey","hgt":187,"foot":"B"},
+  {"name":"Harry Kane","year":null,"pos":"CF","ovr":96,"card":"standard","st":[99,96,100,100,90,90,97,55],"club":"","nat":"England","hgt":188,"foot":"R"},
+  {"name":"Lamine Yamal","year":null,"pos":"RW","ovr":96,"card":"standard","st":[99,100,99,86,100,99,94,44],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
+  {"name":"Luis Suárez","year":"2026","pos":"CF","ovr":83,"card":"tots","st":[88,87,83,83,84,76,92,33],"club":"","nat":"Uruguay","hgt":182,"foot":"R"},
+  {"name":"Kylian Mbappé","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,90,82,100,100,100,53],"club":"Real Madrid","nat":"France","hgt":178,"foot":"R"},
+  {"name":"Erling Haaland","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,100,91,89,100,49],"club":"Man City","nat":"Norway","hgt":195,"foot":"L"},
+  {"name":"Mohamed Salah","year":null,"pos":"RW","ovr":96,"card":"standard","st":[100,100,100,92,96,95,92,51],"club":"Liverpool","nat":"Egypt","hgt":175,"foot":"L"},
+  {"name":"Lionel Messi","year":null,"pos":"SS","ovr":96,"card":"standard","st":[96,100,86,85,100,95,99,60],"club":"","nat":"Argentina","hgt":170,"foot":"L"},
+  {"name":"Raphinha","year":null,"pos":"LW","ovr":95,"card":"standard","st":[97,100,98,93,92,93,94,59],"club":"Barcelona","nat":"Brazil","hgt":176,"foot":"L"},
+  {"name":"Michael Olise","year":null,"pos":"RW","ovr":95,"card":"standard","st":[100,100,99,79,96,96,93,57],"club":"","nat":"France","hgt":184,"foot":"L"},
+  {"name":"Ousmane Dembélé","year":null,"pos":"CF","ovr":95,"card":"standard","st":[96,100,91,73,100,100,100,59],"club":"Paris SG","nat":"France","hgt":178,"foot":"B"},
+  {"name":"Khvicha Kvaratskhelia","year":null,"pos":"LW","ovr":94,"card":"standard","st":[99,99,90,86,95,93,91,48],"club":"Paris SG","nat":"Georgia","hgt":183,"foot":"B"},
+  {"name":"Cristiano Ronaldo","year":null,"pos":"CF","ovr":93,"card":"standard","st":[96,94,92,95,88,89,100,46],"club":"","nat":"Portugal","hgt":187,"foot":"B"},
+  {"name":"Rayan Cherki","year":"2025","pos":"RW","ovr":93,"card":"tots","st":[96,96,94,77,100,98,98,38],"club":"Man City","nat":"France","hgt":177,"foot":"B"},
+  {"name":"Heung-Min Son","year":null,"pos":"CF","ovr":93,"card":"standard","st":[91,100,92,75,98,94,95,62],"club":"","nat":"South Korea","hgt":184,"foot":"B"},
+  {"name":"Marcus Rashford","year":null,"pos":"LW","ovr":90,"card":"standard","st":[100,95,78,84,91,78,95,45],"club":"Barcelona","nat":"England","hgt":185,"foot":"R"},
+  {"name":"Jonathan David","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[88,86,81,77,81,77,84,30],"club":"Juventus","nat":"Canada","hgt":175,"foot":"B"},
+  {"name":"Tarik Muharemović","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[78,70,79,90,75,76,55,90],"club":"Sassuolo","nat":"Bosnia & Herzegovina","hgt":187,"foot":"L"},
+  {"name":"Igor Thiago","year":"2026","pos":"CF","ovr":84,"card":"tots","st":[82,77,83,93,84,75,93,37],"club":"Brentford","nat":"Brazil","hgt":188,"foot":"R"},
+  {"name":"Achraf Hakimi","year":null,"pos":"RB","ovr":95,"card":"standard","st":[97,89,95,73,100,97,85,96],"club":"Paris SG","nat":"Morocco","hgt":181,"foot":"R"},
+  {"name":"William Saliba","year":null,"pos":"CB","ovr":94,"card":"standard","st":[100,88,92,94,89,89,56,100],"club":"Arsenal","nat":"France","hgt":192,"foot":"R"},
+  {"name":"Gabriel","year":null,"pos":"CB","ovr":95,"card":"standard","st":[100,93,100,100,83,85,67,100],"club":"Arsenal","nat":"Brazil","hgt":190,"foot":"L"},
+  {"name":"Alessandro Bastoni","year":null,"pos":"CB","ovr":94,"card":"standard","st":[98,96,92,100,87,85,52,96],"club":"Inter Milan","nat":"Italy","hgt":190,"foot":"L"},
+  {"name":"Nuno Mendes","year":null,"pos":"LB","ovr":94,"card":"standard","st":[100,100,87,83,93,81,75,99],"club":"Paris SG","nat":"Portugal","hgt":180,"foot":"L"},
+  {"name":"João Cancelo","year":null,"pos":"RB","ovr":93,"card":"standard","st":[96,94,95,86,87,93,83,84],"club":"Barcelona","nat":"Portugal","hgt":182,"foot":"R"},
+  {"name":"Luka Vušković","year":"2026","pos":"CB","ovr":93,"card":"tots","st":[93,84,96,100,85,83,72,100],"club":"","nat":"Croatia","hgt":193,"foot":"R"},
+  {"name":"Dean Huijsen","year":"2025","pos":"CB","ovr":93,"card":"tots","st":[97,88,96,100,85,86,53,98],"club":"Real Madrid","nat":"Spain","hgt":195,"foot":"B"},
+  {"name":"Virgil Van Dijk","year":null,"pos":"CB","ovr":95,"card":"standard","st":[100,98,100,100,85,86,62,96],"club":"Liverpool","nat":"Netherlands","hgt":193,"foot":"R"},
+  {"name":"Theo Hernandez","year":null,"pos":"LB","ovr":93,"card":"standard","st":[100,100,100,90,84,88,75,81],"club":"","nat":"France","hgt":184,"foot":"L"},
+  {"name":"Éder Militão","year":null,"pos":"CB","ovr":92,"card":"standard","st":[100,90,85,99,83,82,59,100],"club":"Real Madrid","nat":"Brazil","hgt":186,"foot":"R"},
+  {"name":"Antonee Robinson","year":"2025","pos":"LB","ovr":93,"card":"tots","st":[100,100,100,93,86,98,46,93],"club":"Fulham","nat":"USA","hgt":183,"foot":"L"},
+  {"name":"Trent Alexander-Arnold","year":null,"pos":"RB","ovr":92,"card":"standard","st":[93,91,95,75,90,99,87,74],"club":"Real Madrid","nat":"England","hgt":180,"foot":"R"},
+  {"name":"Kalidou Koulibaly","year":null,"pos":"CB","ovr":92,"card":"standard","st":[98,83,94,100,84,81,66,91],"club":"Chelsea","nat":"Senegal","hgt":186,"foot":"R"},
+  {"name":"Lisandro Martínez","year":null,"pos":"CB","ovr":90,"card":"standard","st":[90,92,98,94,82,83,52,94],"club":"Man United","nat":"Argentina","hgt":175,"foot":"L"},
+  {"name":"Raphaël Varane","year":null,"pos":"CB","ovr":90,"card":"standard","st":[88,93,79,95,85,87,60,87],"club":"Man United","nat":"France","hgt":191,"foot":"R"},
+  {"name":"David Raya","year":null,"pos":"GK","ovr":94,"card":"standard","st":[69,65,89,63,61,66,94,51],"club":"Arsenal","nat":"Spain","hgt":183,"foot":"R"},
+  {"name":"Yann Sommer","year":null,"pos":"GK","ovr":93,"card":"standard","st":[60,57,91,63,63,65,91,42],"club":"Inter Milan","nat":"Switzerland","hgt":183,"foot":"R"},
+  {"name":"Alisson","year":null,"pos":"GK","ovr":94,"card":"standard","st":[61,60,92,66,67,68,91,50],"club":"Liverpool","nat":"Brazil","hgt":193,"foot":"R"},
+  {"name":"David De Gea","year":null,"pos":"GK","ovr":88,"card":"standard","st":[59,58,91,56,55,58,80,42],"club":"Fiorentina","nat":"Spain","hgt":192,"foot":"R"},
+  {"name":"Thibaut Courtois","year":null,"pos":"GK","ovr":95,"card":"standard","st":[61,58,89,69,64,64,97,50],"club":"Real Madrid","nat":"Belgium","hgt":200,"foot":"L"},
+  {"name":"Gianluigi Donnarumma","year":null,"pos":"GK","ovr":95,"card":"standard","st":[58,55,95,68,61,64,91,42],"club":"Man City","nat":"Italy","hgt":196,"foot":"R"},
+  {"name":"Vitinha","year":null,"pos":"CM","ovr":95,"card":"standard","st":[84,97,95,75,100,100,83,90],"club":"Genoa","nat":"Portugal","hgt":178,"foot":"R"},
+  {"name":"Federico Valverde","year":null,"pos":"CM","ovr":95,"card":"standard","st":[99,91,100,90,93,89,87,84],"club":"Real Madrid","nat":"Uruguay","hgt":182,"foot":"R"},
+  {"name":"Declan Rice","year":null,"pos":"CM","ovr":94,"card":"standard","st":[94,80,98,92,82,97,88,96],"club":"Arsenal","nat":"England","hgt":188,"foot":"R"},
+  {"name":"Pedri","year":null,"pos":"CM","ovr":95,"card":"standard","st":[93,100,98,88,93,96,80,80],"club":"Barcelona","nat":"Spain","hgt":174,"foot":"R"},
+  {"name":"Giorgian De Arrascaeta","year":"2026","pos":"AM","ovr":94,"card":"tots","st":[94,97,94,79,99,99,99,56],"club":"","nat":"Uruguay","hgt":174,"foot":"R"},
+  {"name":"Nicolò Barella","year":null,"pos":"CM","ovr":94,"card":"standard","st":[97,100,100,97,86,90,73,76],"club":"Inter Milan","nat":"Italy","hgt":175,"foot":"R"},
+  {"name":"Luka Modrić","year":null,"pos":"CM","ovr":94,"card":"standard","st":[79,89,93,75,100,100,94,90],"club":"AC Milan","nat":"Croatia","hgt":172,"foot":"B"},
+  {"name":"Toni Kroos","year":null,"pos":"CM","ovr":93,"card":"standard","st":[75,74,92,82,100,98,97,93],"club":"Real Madrid","nat":"Germany","hgt":183,"foot":"B"},
+  {"name":"Scott McTominay","year":"2025","pos":"CM","ovr":94,"card":"tots","st":[92,71,98,99,90,93,88,95],"club":"Napoli","nat":"Scotland","hgt":193,"foot":"R"},
+  {"name":"Casemiro","year":null,"pos":"DM","ovr":93,"card":"standard","st":[87,88,100,99,84,87,76,91],"club":"Man United","nat":"Brazil","hgt":185,"foot":"R"},
+  {"name":"Patrick Berg","year":"2026","pos":"DM","ovr":83,"card":"tots","st":[70,71,93,75,85,90,78,85],"club":"","nat":"Norway","hgt":178,"foot":"R"},
+  {"name":"Bruno Fernandes","year":null,"pos":"AM","ovr":95,"card":"standard","st":[84,87,96,85,96,100,95,84],"club":"Man United","nat":"Portugal","hgt":179,"foot":"R"},
+  {"name":"Marcel Desailly","year":"1994","pos":"DM","ovr":94,"card":"legend","st":[92,90,100,99,92,86,52,100],"club":"","nat":"France","hgt":188,"foot":"R"},
+  {"name":"Kevin De Bruyne","year":null,"pos":"AM","ovr":96,"card":"standard","st":[93,95,99,91,95,100,88,68],"club":"Napoli","nat":"Belgium","hgt":181,"foot":"R"},
+  {"name":"Elliot Anderson","year":"2026","pos":"DM","ovr":94,"card":"tots","st":[88,92,100,86,99,98,70,88],"club":"","nat":"England","hgt":179,"foot":"R"},
+  {"name":"Federico Dimarco","year":null,"pos":"LB","ovr":94,"card":"standard","st":[99,97,92,83,85,94,82,87],"club":"Inter Milan","nat":"Italy","hgt":175,"foot":"L"},
+  {"name":"Rodri","year":null,"pos":"DM","ovr":96,"card":"standard","st":[87,87,99,100,91,98,87,97],"club":"Man City","nat":"Spain","hgt":191,"foot":"R"},
+  {"name":"Rivaldo","year":"2002","pos":"AM","ovr":95,"card":"legend","st":[91,94,95,95,99,98,100,49],"club":"","nat":"Brazil","hgt":186,"foot":"L"},
+  {"name":"Nico Williams","year":"2026","pos":"LW","ovr":82,"card":"wc","st":[90,93,79,61,89,79,77,36],"club":"Athletic Bilbao","nat":"Spain","hgt":181,"foot":"R"},
+  {"name":"Iliman Ndiaye","year":"2026","pos":"RW","ovr":82,"card":"wc","st":[84,87,79,67,87,76,80,45],"club":"Everton","nat":"Senegal","hgt":180,"foot":"R"},
+  {"name":"Yoane Wissa","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[87,89,79,73,81,77,85,34],"club":"Newcastle","nat":"DR Congo","hgt":180,"foot":"R"},
+  {"name":"Alexander Sørloth","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[81,72,79,92,83,75,88,31],"club":"Atletico Madrid","nat":"Norway","hgt":195,"foot":"L"},
+  {"name":"Takefusa Kubo","year":"2026","pos":"RW","ovr":82,"card":"wc","st":[83,88,76,64,87,79,79,52],"club":"Real Sociedad","nat":"Japan","hgt":173,"foot":"L"},
+  {"name":"Kang-in Lee","year":"2026","pos":"AM","ovr":82,"card":"wc","st":[79,87,80,63,85,86,77,55],"club":"Paris SG","nat":"South Korea","hgt":173,"foot":"L"},
+  {"name":"Jackson Irvine","year":"2026","pos":"CM","ovr":82,"card":"wc","st":[79,70,93,83,77,79,70,80],"club":"","nat":"Australia","hgt":189,"foot":"R"},
+  {"name":"Richard Ríos","year":"2026","pos":"DM","ovr":82,"card":"wc","st":[77,77,85,77,84,79,61,77],"club":"Benfica","nat":"Colombia","hgt":185,"foot":"R"},
+  {"name":"Abdukodir Khusanov","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[92,80,74,81,75,77,45,83],"club":"Man City","nat":"Uzbekistan","hgt":186,"foot":"R"},
+  {"name":"Arda Güler","year":"2026","pos":"AM","ovr":82,"card":"wc","st":[77,84,79,57,87,88,80,62],"club":"Real Madrid","nat":"Turkey","hgt":176,"foot":"L"},
+  {"name":"Piero Hincapié","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[86,76,81,82,76,78,47,86],"club":"Arsenal","nat":"Ecuador","hgt":184,"foot":"L"},
+  {"name":"Rayan Aït-Nouri","year":"2026","pos":"LB","ovr":82,"card":"wc","st":[86,84,81,64,82,80,59,77],"club":"Man City","nat":"Algeria","hgt":180,"foot":"L"},
+  {"name":"Ronwen Williams","year":"2026","pos":"GK","ovr":82,"card":"wc","st":[61,59,80,60,59,61,78,49],"club":"","nat":"South Africa","hgt":184,"foot":"R"}
 ];
 
 const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
@@ -528,7 +558,8 @@ const GK_TABLES = {'tbl-all-gk':1, 'tbl-gk':1};
 function totalOf(p){ return p.st.reduce(function(a,b){return a+b;}, 0); }
 function displayName(p){ return p.name + (p.year ? " <span class='yr'>(" + p.year + ")</span>" : ""); }
 function rowHTML(p){
-  return '<tr class="r-' + p.card + '"><td>' + displayName(p) + '</td><td>' + p.pos + '</td><td>' + p.ovr + '</td>'
+  return '<tr class="r-' + p.card + '" style="cursor:pointer" onclick="openDetail(' + PLAYERS.indexOf(p) + ')">'
+    + '<td>' + displayName(p) + '</td><td>' + p.pos + '</td><td>' + p.ovr + '</td>'
     + p.st.map(function(s){ return '<td>' + s + '</td>'; }).join('')
     + '<td class="tot">' + totalOf(p) + '</td></tr>';
 }
@@ -905,6 +936,40 @@ function choosePick(playerIdx){
 function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
 function resetXI(){ overrides = {}; renderXI(); }
 function changeFormation(){ overrides = {}; renderXI(); }
+
+/* ===== Player detail (click any player) ===== */
+var NAT_FLAG = {
+  'Algeria':'🇩🇿','Argentina':'🇦🇷','Australia':'🇦🇺','Belgium':'🇧🇪','Bosnia & Herzegovina':'🇧🇦',
+  'Brazil':'🇧🇷','Canada':'🇨🇦','Colombia':'🇨🇴','Croatia':'🇭🇷','DR Congo':'🇨🇩','Ecuador':'🇪🇨',
+  'Egypt':'🇪🇬','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Italy':'🇮🇹',
+  'Japan':'🇯🇵','Morocco':'🇲🇦','Netherlands':'🇳🇱','Norway':'🇳🇴','Portugal':'🇵🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Senegal':'🇸🇳','South Africa':'🇿🇦','South Korea':'🇰🇷','Spain':'🇪🇸','Switzerland':'🇨🇭',
+  'Turkey':'🇹🇷','USA':'🇺🇸','Uruguay':'🇺🇾','Uzbekistan':'🇺🇿'
+};
+function footFull(f){ return {L:'Left', R:'Right', B:'Both'}[f] || f || '—'; }
+function openDetail(idx){
+  var p = PLAYERS[idx]; if(!p) return;
+  var col = CARD_COLOR[p.card];
+  var labels = STAT_KEYS.slice();
+  if(p.pos === 'GK'){ labels[2] = 'GKR'; labels[6] = 'GKH'; }
+  var stats = {}; STAT_KEYS.forEach(function(k, i){ stats[k] = p.st[i]; });
+  document.getElementById('detail-name').innerHTML = displayName(p);
+  document.getElementById('detail-sub').innerHTML =
+    '<b style="color:' + col + '">' + p.ovr + ' OVR</b> · ' + p.pos + ' · <span style="color:' + col + '">' + CARD_LABEL[p.card] + '</span>';
+  document.getElementById('detail-radar').innerHTML = buildRadar({ stats: stats }, null);
+  var bio = '<div class="detail-bio">'
+    + '<span class="k">Club</span><span class="v">' + (p.club || '—') + '</span>'
+    + '<span class="k">Nation</span><span class="v">' + ((NAT_FLAG[p.nat] || '') + ' ' + (p.nat || '—')).trim() + '</span>'
+    + '<span class="k">Height</span><span class="v">' + (p.hgt ? p.hgt + ' cm' : '—') + '</span>'
+    + '<span class="k">Foot</span><span class="v">' + footFull(p.foot) + '</span></div>';
+  var total = p.st.reduce(function(a, b){ return a + b; }, 0);
+  var statsHtml = '<div class="detail-stats">'
+    + labels.map(function(k, i){ return '<div class="detail-stat"><span class="sk">' + k + '</span><span class="sv">' + p.st[i] + '</span></div>'; }).join('')
+    + '</div><div class="detail-total">Total <b>' + total + '</b></div>';
+  document.getElementById('detail-info').innerHTML = bio + statsHtml;
+  document.getElementById('detail-modal').style.display = 'flex';
+}
+function closeDetail(){ document.getElementById('detail-modal').style.display = 'none'; }
 function initXI(){
   document.getElementById('formation-select').innerHTML =
     FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');

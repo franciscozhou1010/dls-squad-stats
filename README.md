@@ -18,6 +18,8 @@ browser — it works offline, with no server and no internet connection needed.
 - **Category filters:** All Players · Special · Forwards · Midfielders · Defenders ·
   Goalkeeper, each with position sub-tabs (CF / LW / RW / SS, CM / AM / DM, CB / LB / RB).
 - **Click any column header to sort** the table by that stat.
+- **Click any player** to open a detail card — club, nationality (with flag), height
+  and preferred foot, alongside their octagram radar and full stat list.
 - **Live search** — start typing in the search box to instantly filter the list to
   players whose name matches.
 - **Compare two players** — the **Compare** tab lets you pick any two players and
