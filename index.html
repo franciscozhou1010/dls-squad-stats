@@ -641,17 +641,56 @@ function liveSearch(q){
 /* ===== Best XI ===== */
 var FORMATIONS = [
   { id:'433_2dm1am', name:'4-3-3  (2 DM · 1 AM)', slots:[
-    {slot:'ST', pos:['CF','SS'], x:50, y:12},
-    {slot:'LW', pos:['LW'],      x:20, y:21},
-    {slot:'RW', pos:['RW'],      x:80, y:21},
-    {slot:'AM', pos:['AM'],      x:50, y:37},
-    {slot:'DM', pos:['DM'],      x:36, y:53},
-    {slot:'DM', pos:['DM'],      x:64, y:53},
-    {slot:'LB', pos:['LB'],      x:14, y:70},
-    {slot:'CB', pos:['CB'],      x:38, y:74},
-    {slot:'CB', pos:['CB'],      x:62, y:74},
-    {slot:'RB', pos:['RB'],      x:86, y:70},
-    {slot:'GK', pos:['GK'],      x:50, y:90}
+    {slot:'ST', pos:['CF','SS'], flex:['LW','RW'], x:50, y:12},
+    {slot:'LW', pos:['LW'], flex:['SS','CF'], x:20, y:21},
+    {slot:'RW', pos:['RW'], flex:['SS','CF'], x:80, y:21},
+    {slot:'AM', pos:['AM'], flex:['CM','SS'], x:50, y:37},
+    {slot:'DM', pos:['DM'], flex:['CM'], x:36, y:53},
+    {slot:'DM', pos:['DM'], flex:['CM'], x:64, y:53},
+    {slot:'LB', pos:['LB'], flex:['CB'], x:14, y:70},
+    {slot:'CB', pos:['CB'], x:38, y:74},
+    {slot:'CB', pos:['CB'], x:62, y:74},
+    {slot:'RB', pos:['RB'], flex:['CB'], x:86, y:70},
+    {slot:'GK', pos:['GK'], x:50, y:90}
+  ]},
+  { id:'4231', name:'4-2-3-1', slots:[
+    {slot:'ST', pos:['CF'], flex:['SS'], x:50, y:12},
+    {slot:'LW', pos:['LW'], flex:['SS','AM'], x:18, y:28},
+    {slot:'AM', pos:['AM'], flex:['CM','SS'], x:50, y:33},
+    {slot:'RW', pos:['RW'], flex:['SS','AM'], x:82, y:28},
+    {slot:'DM', pos:['DM'], flex:['CM'], x:36, y:52},
+    {slot:'DM', pos:['DM'], flex:['CM'], x:64, y:52},
+    {slot:'LB', pos:['LB'], flex:['CB'], x:14, y:71},
+    {slot:'CB', pos:['CB'], x:38, y:75},
+    {slot:'CB', pos:['CB'], x:62, y:75},
+    {slot:'RB', pos:['RB'], flex:['CB'], x:86, y:71},
+    {slot:'GK', pos:['GK'], x:50, y:90}
+  ]},
+  { id:'442', name:'4-4-2', slots:[
+    {slot:'ST', pos:['CF'], flex:['SS'], x:36, y:14},
+    {slot:'ST', pos:['CF'], flex:['SS'], x:64, y:14},
+    {slot:'LM', pos:['LW'], flex:['AM','CM'], x:12, y:47},
+    {slot:'CM', pos:['CM'], flex:['DM','AM'], x:38, y:49},
+    {slot:'CM', pos:['CM'], flex:['DM','AM'], x:62, y:49},
+    {slot:'RM', pos:['RW'], flex:['AM','CM'], x:88, y:47},
+    {slot:'LB', pos:['LB'], flex:['CB'], x:14, y:72},
+    {slot:'CB', pos:['CB'], x:38, y:76},
+    {slot:'CB', pos:['CB'], x:62, y:76},
+    {slot:'RB', pos:['RB'], flex:['CB'], x:86, y:72},
+    {slot:'GK', pos:['GK'], x:50, y:90}
+  ]},
+  { id:'352', name:'3-5-2', slots:[
+    {slot:'ST', pos:['CF'], flex:['SS'], x:38, y:13},
+    {slot:'ST', pos:['CF'], flex:['SS'], x:62, y:13},
+    {slot:'AM', pos:['AM'], flex:['CM','SS'], x:50, y:34},
+    {slot:'LWB', pos:['LB'], flex:['LW','CB'], x:10, y:47},
+    {slot:'CM', pos:['CM'], flex:['DM','AM'], x:34, y:52},
+    {slot:'CM', pos:['CM'], flex:['DM','AM'], x:66, y:52},
+    {slot:'RWB', pos:['RB'], flex:['RW','CB'], x:90, y:47},
+    {slot:'CB', pos:['CB'], x:28, y:76},
+    {slot:'CB', pos:['CB'], x:50, y:78},
+    {slot:'CB', pos:['CB'], x:72, y:76},
+    {slot:'GK', pos:['GK'], x:50, y:90}
   ]}
 ];
 var CARD_COLOR = {legend:'#d4a843', tots:'#c084f5', wc:'#f87171', standard:'#f5a623'};
@@ -663,11 +702,14 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
+function bestFor(posList, used){
+  var cand = PLAYERS.filter(function(p){ return posList.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
+    .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
+  return cand[0] || null;
+}
 function pickXI(slots, used){
   return slots.map(function(s){
-    var cand = PLAYERS.filter(function(p){ return s.pos.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
-      .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
-    var pick = cand[0] || null;
+    var pick = bestFor(s.pos, used) || (s.flex ? bestFor(s.flex, used) : null);
     if(pick) used.push(pick);
     return { slot:s.slot, x:s.x, y:s.y, player:pick };
   });
