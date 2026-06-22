@@ -102,7 +102,9 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .xi-select { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 8px 12px; border-radius: 8px; outline: none; cursor: pointer; }
 .xi-select:focus { border-color: #58a6ff; }
 .xi-summary { text-align: center; color: #e6edf3; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
-.pitch { position: relative; width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 68/98; background: repeating-linear-gradient(#1a5631 0 9.09%, #175430 9.09% 18.18%); border: 2px solid rgba(255,255,255,.22); border-radius: 10px; overflow: hidden; }
+.xi-layout { display: flex; gap: 24px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+.bench-side { flex: 0 0 auto; }
+.pitch { position: relative; flex: 0 1 480px; width: 480px; max-width: 100%; aspect-ratio: 68/98; background: repeating-linear-gradient(#1a5631 0 9.09%, #175430 9.09% 18.18%); border: 2px solid rgba(255,255,255,.22); border-radius: 10px; overflow: hidden; }
 .pitch .line { position: absolute; border: 1.5px solid rgba(255,255,255,.18); box-sizing: border-box; }
 .pitch .halfway { left: 0; right: 0; top: 50%; height: 0; border-width: 1.5px 0 0 0; }
 .pitch .circle { left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; }
@@ -113,9 +115,9 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .chip-pos { display: block; font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: #8b949e; }
 .chip-ovr { display: block; font-size: 15px; font-weight: 800; line-height: 1.1; }
 .chip-name { display: block; font-size: 9.5px; color: #e6edf3; line-height: 1.15; margin-top: 1px; word-break: break-word; }
-.bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 20px 0 10px; }
-.bench { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 680px; margin: 0 auto; }
-.bench-chip { width: 74px; background: #161b22; border: 1.5px solid #30363d; border-radius: 8px; padding: 4px 3px 5px; text-align: center; }
+.bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 0 0 10px; }
+.bench { display: flex; flex-direction: column; gap: 8px; }
+.bench-chip { width: 96px; background: #161b22; border: 1.5px solid #30363d; border-radius: 8px; padding: 5px 4px 6px; text-align: center; }
 </style>
 </head>
 <body>
@@ -160,15 +162,19 @@ tr.r-standard:hover td { background: #251b00 !important; }
     <select id="formation-select" class="xi-select" onchange="renderXI()"></select>
   </div>
   <div class="xi-summary" id="xi-summary"></div>
-  <div class="pitch">
-    <div class="line halfway"></div>
-    <div class="line circle"></div>
-    <div class="line box-top"></div>
-    <div class="line box-bot"></div>
-    <div id="xi-pitch"></div>
+  <div class="xi-layout">
+    <div class="pitch">
+      <div class="line halfway"></div>
+      <div class="line circle"></div>
+      <div class="line box-top"></div>
+      <div class="line box-bot"></div>
+      <div id="xi-pitch"></div>
+    </div>
+    <div class="bench-side">
+      <h2 class="bench-head">Substitutes</h2>
+      <div class="bench" id="xi-bench"></div>
+    </div>
   </div>
-  <h2 class="bench-head">Substitutes</h2>
-  <div class="bench" id="xi-bench"></div>
 </div>
 
 <div id="sec-all" class="section active">
@@ -709,7 +715,7 @@ function renderXI(){
       + '<span class="chip-name">' + shortName(p) + '</span></div>';
   }).join('');
   var picked = xi.filter(function(s){ return s.player; });
-  var avg = picked.length ? Math.round(picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length) : 0;
+  var avg = picked.length ? (picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length).toFixed(1) : '0.0';
   document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8';
 }
 function initXI(){
