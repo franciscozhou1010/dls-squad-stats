@@ -94,6 +94,25 @@ tr.r-standard:hover td { background: #251b00 !important; }
 
 /* ===== GK sub-table heading (All Players view) ===== */
 .gk-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 24px 0 10px; }
+
+/* ===== Best XI ===== */
+.cat-xi { border-color: #2ea043; color: #3fb950; }
+.xi-controls { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.xi-label { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
+.xi-select { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 8px 12px; border-radius: 8px; outline: none; cursor: pointer; }
+.xi-select:focus { border-color: #58a6ff; }
+.xi-summary { text-align: center; color: #e6edf3; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.pitch { position: relative; width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 68/98; background: repeating-linear-gradient(#1a5631 0 9.09%, #175430 9.09% 18.18%); border: 2px solid rgba(255,255,255,.22); border-radius: 10px; overflow: hidden; }
+.pitch .line { position: absolute; border: 1.5px solid rgba(255,255,255,.18); box-sizing: border-box; }
+.pitch .halfway { left: 0; right: 0; top: 50%; height: 0; border-width: 1.5px 0 0 0; }
+.pitch .circle { left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; }
+.pitch .box-top { left: 50%; top: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 0 1.5px 1.5px 1.5px; border-radius: 0 0 6px 6px; }
+.pitch .box-bot { left: 50%; bottom: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 1.5px 1.5px 0 1.5px; border-radius: 6px 6px 0 0; }
+#xi-pitch { position: absolute; inset: 0; }
+.chip { position: absolute; transform: translate(-50%,-50%); width: 74px; background: rgba(13,17,23,.9); border: 1.5px solid #30363d; border-radius: 8px; padding: 4px 3px 5px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.45); }
+.chip-pos { display: block; font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: #8b949e; }
+.chip-ovr { display: block; font-size: 15px; font-weight: 800; line-height: 1.1; }
+.chip-name { display: block; font-size: 9.5px; color: #e6edf3; line-height: 1.15; margin-top: 1px; word-break: break-word; }
 </style>
 </head>
 <body>
@@ -115,6 +134,7 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <button class="cat" onclick="showCat('df')">Defenders</button>
   <button class="cat" onclick="showCat('gk')">Goalkeeper</button>
   <button class="cat cat-compare" onclick="showCat('compare')">⚔ Compare</button>
+  <button class="cat cat-xi" onclick="showCat('xi')">★ Best XI</button>
 </div>
 
 <div class="search-wrap">
@@ -129,6 +149,21 @@ tr.r-standard:hover td { background: #251b00 !important; }
     <datalist id="cmp-list"></datalist>
   </div>
   <div id="cmp-out"></div>
+</div>
+
+<div id="sec-xi" class="section">
+  <div class="xi-controls">
+    <span class="xi-label">Formation</span>
+    <select id="formation-select" class="xi-select" onchange="renderXI()"></select>
+  </div>
+  <div class="xi-summary" id="xi-summary"></div>
+  <div class="pitch">
+    <div class="line halfway"></div>
+    <div class="line circle"></div>
+    <div class="line box-top"></div>
+    <div class="line box-bot"></div>
+    <div id="xi-pitch"></div>
+  </div>
 </div>
 
 <div id="sec-all" class="section active">
@@ -592,9 +627,69 @@ function liveSearch(q){
   });
 }
 
+/* ===== Best XI ===== */
+var FORMATIONS = [
+  { id:'433_2dm1am', name:'4-3-3  (2 DM · 1 AM)', slots:[
+    {slot:'ST', pos:['CF','SS'], x:50, y:12},
+    {slot:'LW', pos:['LW'],      x:20, y:21},
+    {slot:'RW', pos:['RW'],      x:80, y:21},
+    {slot:'AM', pos:['AM'],      x:50, y:37},
+    {slot:'DM', pos:['DM'],      x:36, y:53},
+    {slot:'DM', pos:['DM'],      x:64, y:53},
+    {slot:'LB', pos:['LB'],      x:14, y:70},
+    {slot:'CB', pos:['CB'],      x:38, y:74},
+    {slot:'CB', pos:['CB'],      x:62, y:74},
+    {slot:'RB', pos:['RB'],      x:86, y:70},
+    {slot:'GK', pos:['GK'],      x:50, y:90}
+  ]}
+];
+var CARD_COLOR = {legend:'#d4a843', tots:'#c084f5', wc:'#f87171', standard:'#f5a623'};
+var NAME_PARTICLES = ['Van','van','De','de','Da','da','Di','di','Del','del','Dos','dos','El'];
+
+function shortName(p){
+  var parts = p.name.split(' ');
+  if(parts.length === 1) return p.name;
+  var last = parts[parts.length-1], prev = parts[parts.length-2];
+  return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
+}
+function pickXI(slots){
+  var used = [];
+  return slots.map(function(s){
+    var cand = PLAYERS.filter(function(p){ return s.pos.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
+      .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
+    var pick = cand[0] || null;
+    if(pick) used.push(pick);
+    return { slot:s.slot, x:s.x, y:s.y, player:pick };
+  });
+}
+function renderXI(){
+  var sel = document.getElementById('formation-select');
+  var f = FORMATIONS.filter(function(x){ return x.id === sel.value; })[0] || FORMATIONS[0];
+  var xi = pickXI(f.slots);
+  document.getElementById('xi-pitch').innerHTML = xi.map(function(s){
+    var p = s.player;
+    var col = p ? CARD_COLOR[p.card] : '#30363d';
+    var nm  = p ? shortName(p) : '—';
+    var ovr = p ? p.ovr : '';
+    return '<div class="chip" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '">'
+      + '<span class="chip-pos">' + s.slot + '</span>'
+      + '<span class="chip-ovr" style="color:' + col + '">' + ovr + '</span>'
+      + '<span class="chip-name">' + nm + '</span></div>';
+  }).join('');
+  var picked = xi.filter(function(s){ return s.player; });
+  var avg = picked.length ? Math.round(picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length) : 0;
+  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  ' + picked.length + '/11 filled';
+}
+function initXI(){
+  document.getElementById('formation-select').innerHTML =
+    FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');
+  renderXI();
+}
+
 /* ===== initial paint ===== */
 render();
 renderCompare();
+initXI();
 
 </script>
 </body>
