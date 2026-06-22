@@ -791,11 +791,30 @@ var overrides = {};   // slot index -> locked-in player
 var pickerIdx = null;
 function pickXI(slots, used){
   var result = slots.map(function(s, i){ return { slot:s.slot, x:s.x, y:s.y, idx:i, locked:false, player:null }; });
-  result.forEach(function(r){               // pass 1: place locked/overridden players
+  // pass 0: locked / manually-overridden players
+  result.forEach(function(r){
     var ov = overrides[r.idx];
     if(ov && used.indexOf(ov) < 0){ r.player = ov; r.locked = true; used.push(ov); }
   });
-  result.forEach(function(r){               // pass 2: auto-fill the rest
+  // pass 1: assign remaining players highest-rated first, each into an empty
+  // eligible slot, preferring one whose natural position (pos[0]) matches —
+  // so a DM lands in the DM slot rather than an earlier CM slot.
+  PLAYERS.filter(function(p){ return used.indexOf(p) < 0; })
+    .sort(function(a, b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); })
+    .forEach(function(p){
+      var exact = null, flex = null;
+      for(var i = 0; i < result.length; i++){
+        if(result[i].player) continue;
+        var sp = slots[i].pos;
+        if(sp.indexOf(p.pos) < 0) continue;
+        if(sp[0] === p.pos){ if(exact === null) exact = result[i]; }
+        else if(flex === null){ flex = result[i]; }
+      }
+      var target = exact || flex;
+      if(target){ target.player = p; used.push(p); }
+    });
+  // safety: fill any slot still empty
+  result.forEach(function(r){
     if(r.player) return;
     var pick = bestFor(slots[r.idx].pos, used);
     if(pick){ r.player = pick; used.push(pick); }
