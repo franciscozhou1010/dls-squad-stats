@@ -29,11 +29,13 @@ browser — it works offline, with no server and no internet connection needed.
   columns in place of `STA` / `SHO`.
 - **Best XI** — the **Best XI** tab auto-picks the top-rated player for each slot of a
   chosen formation (no player used twice) and lays them out on a pitch, with an
-  8-player substitute bench (1 GK · 2 DF · 3 MF · 2 FW) to the side. Switch between
-  **4-3-3, 4-2-3-1, 4-4-2, 3-5-2** — the highest-rated eligible player fills each slot,
-  where the central-midfield zone (DM/CM/AM) and the strikers (CF/SS) interchange while
-  wings and full-backs stay to type, so a different formation yields a different XI.
-  Adding a formation is one entry in `FORMATIONS`.
+  8-player substitute bench (1 GK · 2 DF · 3 MF · 2 FW) to the side. Pick from **8
+  formations** — 4-3-3, 4-2-3-1, 4-4-2, 3-5-2, 4-1-2-1-2 (diamond), 5-3-2, 3-4-3,
+  3-4-2-1 — and the highest-rated eligible player fills each slot, where the central
+  zone (DM/CM/AM) and strikers (CF/SS) interchange while wings and full-backs stay to
+  type, so a different formation yields a different XI. **Click any player on the pitch
+  to swap or lock** a specific choice into that slot (🔒) — the rest re-optimise around
+  it; **Reset** clears the locks. Adding a formation is one entry in `FORMATIONS`.
 
 ![Compare two players — side-by-side stats with the octagram radar overlay](compare.png)
 

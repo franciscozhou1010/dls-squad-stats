@@ -118,6 +118,24 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 0 0 10px; }
 .bench { display: flex; flex-direction: column; gap: 8px; }
 .bench-chip { width: 96px; background: #161b22; border: 1.5px solid #30363d; border-radius: 8px; padding: 5px 4px 6px; text-align: center; }
+.chip { cursor: pointer; }
+.chip.locked { box-shadow: 0 0 0 2px #3fb950; }
+.chip .lock { position: absolute; top: -7px; right: -7px; font-size: 11px; line-height: 1; }
+.xi-reset { background: #161b22; border: 1.5px solid #30363d; color: #8b949e; font-size: 12px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.xi-reset:hover { border-color: #58a6ff; color: #e6edf3; }
+.picker { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.picker-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; width: 340px; max-width: 90vw; max-height: 78vh; display: flex; flex-direction: column; overflow: hidden; }
+.picker-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #30363d; font-weight: 700; font-size: 14px; color: #e6edf3; }
+.picker-x { cursor: pointer; color: #8b949e; font-size: 16px; }
+.picker-x:hover { color: #e6edf3; }
+.picker-list { overflow-y: auto; padding: 6px; }
+.picker-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #e6edf3; }
+.picker-row:hover { background: #21262d; }
+.picker-row.cur { background: rgba(31,111,235,.22); }
+.picker-auto { justify-content: center; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; border-radius: 0; margin-bottom: 4px; }
+.pr-ovr { font-weight: 800; width: 26px; text-align: center; }
+.pr-name { flex: 1; }
+.pr-pos { font-size: 11px; color: #8b949e; }
 </style>
 </head>
 <body>
@@ -159,7 +177,8 @@ tr.r-standard:hover td { background: #251b00 !important; }
 <div id="sec-xi" class="section">
   <div class="xi-controls">
     <span class="xi-label">Formation</span>
-    <select id="formation-select" class="xi-select" onchange="renderXI()"></select>
+    <select id="formation-select" class="xi-select" onchange="changeFormation()"></select>
+    <button class="xi-reset" onclick="resetXI()">↺ Reset</button>
   </div>
   <div class="xi-summary" id="xi-summary"></div>
   <div class="xi-layout">
@@ -173,6 +192,12 @@ tr.r-standard:hover td { background: #251b00 !important; }
     <div class="bench-side">
       <h2 class="bench-head">Substitutes</h2>
       <div class="bench" id="xi-bench"></div>
+    </div>
+  </div>
+  <div id="xi-picker" class="picker" style="display:none" onclick="if(event.target===this)closePicker()">
+    <div class="picker-box">
+      <div class="picker-head"><span id="picker-title"></span><span class="picker-x" onclick="closePicker()">✕</span></div>
+      <div id="picker-list" class="picker-list"></div>
     </div>
   </div>
 </div>
@@ -762,12 +787,20 @@ function bestFor(posList, used){
     .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
   return cand[0] || null;
 }
+var overrides = {};   // slot index -> locked-in player
+var pickerIdx = null;
 function pickXI(slots, used){
-  return slots.map(function(s){
-    var pick = bestFor(s.pos, used);
-    if(pick) used.push(pick);
-    return { slot:s.slot, x:s.x, y:s.y, player:pick };
+  var result = slots.map(function(s, i){ return { slot:s.slot, x:s.x, y:s.y, idx:i, locked:false, player:null }; });
+  result.forEach(function(r){               // pass 1: place locked/overridden players
+    var ov = overrides[r.idx];
+    if(ov && used.indexOf(ov) < 0){ r.player = ov; r.locked = true; used.push(ov); }
   });
+  result.forEach(function(r){               // pass 2: auto-fill the rest
+    if(r.player) return;
+    var pick = bestFor(slots[r.idx].pos, used);
+    if(pick){ r.player = pick; used.push(pick); }
+  });
+  return result;
 }
 var BENCH = [
   { label:'GK', n:1, pred:function(p){ return p.pos === 'GK'; } },
@@ -798,7 +831,8 @@ function renderXI(){
     var col = p ? CARD_COLOR[p.card] : '#30363d';
     var nm  = p ? shortName(p) : '—';
     var ovr = p ? p.ovr : '';
-    return '<div class="chip" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '">'
+    return '<div class="chip' + (s.locked ? ' locked' : '') + '" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '" onclick="openPicker(' + s.idx + ')" title="Click to swap / lock">'
+      + (s.locked ? '<span class="lock">🔒</span>' : '')
       + '<span class="chip-pos">' + s.slot + '</span>'
       + '<span class="chip-ovr" style="color:' + col + '">' + ovr + '</span>'
       + '<span class="chip-name">' + nm + '</span></div>';
@@ -813,8 +847,45 @@ function renderXI(){
   }).join('');
   var picked = xi.filter(function(s){ return s.player; });
   var avg = picked.length ? (picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length).toFixed(1) : '0.0';
-  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8';
+  var locks = xi.filter(function(s){ return s.locked; }).length;
+  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
 }
+function currentFormation(){
+  var v = document.getElementById('formation-select').value;
+  return FORMATIONS.filter(function(f){ return f.id === v; })[0] || FORMATIONS[0];
+}
+function openPicker(idx){
+  pickerIdx = idx;
+  var f = currentFormation();
+  var slot = f.slots[idx];
+  var used = []; var cur = pickXI(f.slots, used)[idx].player;
+  var elig = PLAYERS.filter(function(p){ return slot.pos.indexOf(p.pos) >= 0; })
+    .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
+  document.getElementById('picker-title').textContent = slot.slot + ' — choose player';
+  var html = '<div class="picker-row picker-auto" onclick="choosePick(-1)">↺ Auto (best available)</div>';
+  html += elig.map(function(p){
+    var col = CARD_COLOR[p.card];
+    return '<div class="picker-row' + (p === cur ? ' cur' : '') + '" onclick="choosePick(' + PLAYERS.indexOf(p) + ')">'
+      + '<span class="pr-ovr" style="color:' + col + '">' + p.ovr + '</span>'
+      + '<span class="pr-name">' + p.name + (p.year ? ' (' + p.year + ')' : '') + '</span>'
+      + '<span class="pr-pos">' + p.pos + '</span></div>';
+  }).join('');
+  document.getElementById('picker-list').innerHTML = html;
+  document.getElementById('xi-picker').style.display = 'flex';
+}
+function choosePick(playerIdx){
+  if(playerIdx < 0){ delete overrides[pickerIdx]; }
+  else {
+    var p = PLAYERS[playerIdx];
+    Object.keys(overrides).forEach(function(k){ if(overrides[k] === p) delete overrides[k]; });
+    overrides[pickerIdx] = p;
+  }
+  closePicker();
+  renderXI();
+}
+function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
+function resetXI(){ overrides = {}; renderXI(); }
+function changeFormation(){ overrides = {}; renderXI(); }
 function initXI(){
   document.getElementById('formation-select').innerHTML =
     FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');
