@@ -28,8 +28,9 @@ browser — it works offline, with no server and no internet connection needed.
   *All Players*, and on the *Goalkeeper* tab — with keeper-specific `GKR` / `GKH`
   columns in place of `STA` / `SHO`.
 - **Best XI** — the **Best XI** tab auto-picks the top-rated player for each slot of a
-  chosen formation (no player used twice) and lays them out on a pitch. Ships a
-  4-3-3 (2 DM / 1 AM); more formations are a one-line addition to the `FORMATIONS` list.
+  chosen formation (no player used twice) and lays them out on a pitch, plus an
+  8-player substitute bench (1 GK · 2 DF · 3 MF · 2 FW) of the best remaining players.
+  Ships a 4-3-3 (2 DM / 1 AM); more formations are a one-line addition to `FORMATIONS`.
 
 ![Compare two players — side-by-side stats with the octagram radar overlay](compare.png)
 

@@ -113,6 +113,9 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .chip-pos { display: block; font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: #8b949e; }
 .chip-ovr { display: block; font-size: 15px; font-weight: 800; line-height: 1.1; }
 .chip-name { display: block; font-size: 9.5px; color: #e6edf3; line-height: 1.15; margin-top: 1px; word-break: break-word; }
+.bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 20px 0 10px; }
+.bench { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 680px; margin: 0 auto; }
+.bench-chip { width: 74px; background: #161b22; border: 1.5px solid #30363d; border-radius: 8px; padding: 4px 3px 5px; text-align: center; }
 </style>
 </head>
 <body>
@@ -164,6 +167,8 @@ tr.r-standard:hover td { background: #251b00 !important; }
     <div class="line box-bot"></div>
     <div id="xi-pitch"></div>
   </div>
+  <h2 class="bench-head">Substitutes</h2>
+  <div class="bench" id="xi-bench"></div>
 </div>
 
 <div id="sec-all" class="section active">
@@ -652,8 +657,7 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
-function pickXI(slots){
-  var used = [];
+function pickXI(slots, used){
   return slots.map(function(s){
     var cand = PLAYERS.filter(function(p){ return s.pos.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
       .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
@@ -662,10 +666,30 @@ function pickXI(slots){
     return { slot:s.slot, x:s.x, y:s.y, player:pick };
   });
 }
+var BENCH = [
+  { label:'GK', n:1, pred:function(p){ return p.pos === 'GK'; } },
+  { label:'DF', n:2, pred:function(p){ return POS_DF.indexOf(p.pos) >= 0; } },
+  { label:'MF', n:3, pred:function(p){ return POS_MF.indexOf(p.pos) >= 0; } },
+  { label:'FW', n:2, pred:function(p){ return POS_FW.indexOf(p.pos) >= 0; } }
+];
+function pickBench(used){
+  var bench = [];
+  BENCH.forEach(function(g){
+    for(var k = 0; k < g.n; k++){
+      var cand = PLAYERS.filter(function(p){ return g.pred(p) && used.indexOf(p) < 0; })
+        .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
+      if(!cand.length) break;
+      used.push(cand[0]);
+      bench.push(cand[0]);
+    }
+  });
+  return bench;
+}
 function renderXI(){
   var sel = document.getElementById('formation-select');
   var f = FORMATIONS.filter(function(x){ return x.id === sel.value; })[0] || FORMATIONS[0];
-  var xi = pickXI(f.slots);
+  var used = [];
+  var xi = pickXI(f.slots, used);
   document.getElementById('xi-pitch').innerHTML = xi.map(function(s){
     var p = s.player;
     var col = p ? CARD_COLOR[p.card] : '#30363d';
@@ -676,9 +700,17 @@ function renderXI(){
       + '<span class="chip-ovr" style="color:' + col + '">' + ovr + '</span>'
       + '<span class="chip-name">' + nm + '</span></div>';
   }).join('');
+  var bench = pickBench(used);
+  document.getElementById('xi-bench').innerHTML = bench.map(function(p){
+    var col = CARD_COLOR[p.card];
+    return '<div class="bench-chip" style="border-color:' + col + '">'
+      + '<span class="chip-pos">' + p.pos + '</span>'
+      + '<span class="chip-ovr" style="color:' + col + '">' + p.ovr + '</span>'
+      + '<span class="chip-name">' + shortName(p) + '</span></div>';
+  }).join('');
   var picked = xi.filter(function(s){ return s.player; });
   var avg = picked.length ? Math.round(picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length) : 0;
-  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  ' + picked.length + '/11 filled';
+  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8';
 }
 function initXI(){
   document.getElementById('formation-select').innerHTML =
