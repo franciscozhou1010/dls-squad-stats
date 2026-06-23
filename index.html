@@ -629,7 +629,8 @@ function polyPath(cx, cy, R, fracs) {
   const n = fracs.length;
   return fracs.map((f, i) => { const pt = radarPoint(cx, cy, R, f, i, n); return (i ? 'L' : 'M') + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1); }).join(' ') + ' Z';
 }
-function buildRadar(pA, pB) {
+function buildRadar(pA, pB, axisLabels) {
+  axisLabels = axisLabels || STAT_KEYS;
   const n = STAT_KEYS.length, cx = 170, cy = 160, R = 110, lr = R + 26;
   let g = '';
   [0.25, 0.5, 0.75, 1].forEach(f => {
@@ -640,7 +641,7 @@ function buildRadar(pA, pB) {
     g += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p1[0].toFixed(1) + '" y2="' + p1[1].toFixed(1) + '" stroke="#30363d" stroke-width="0.7"/>';
     const pl = radarPoint(cx, cy, lr, 1, i, n);
     const anchor = Math.abs(pl[0] - cx) < 2 ? 'middle' : (pl[0] > cx ? 'start' : 'end');
-    g += '<text x="' + pl[0].toFixed(1) + '" y="' + (pl[1] + 4).toFixed(1) + '" text-anchor="' + anchor + '" font-size="11" font-weight="600" fill="#8b949e">' + STAT_KEYS[i] + '</text>';
+    g += '<text x="' + pl[0].toFixed(1) + '" y="' + (pl[1] + 4).toFixed(1) + '" text-anchor="' + anchor + '" font-size="11" font-weight="600" fill="#8b949e">' + axisLabels[i] + '</text>';
   }
   function poly(p, color) {
     if (!p) return '';
@@ -956,7 +957,7 @@ function openDetail(idx){
   document.getElementById('detail-name').innerHTML = displayName(p);
   document.getElementById('detail-sub').innerHTML =
     '<b style="color:' + col + '">' + p.ovr + ' OVR</b> · ' + p.pos + ' · <span style="color:' + col + '">' + CARD_LABEL[p.card] + '</span>';
-  document.getElementById('detail-radar').innerHTML = buildRadar({ stats: stats }, null);
+  document.getElementById('detail-radar').innerHTML = buildRadar({ stats: stats }, null, labels);
   var bio = '<div class="detail-bio">'
     + '<span class="k">Club</span><span class="v">' + (p.club || '—') + '</span>'
     + '<span class="k">Nation</span><span class="v">' + ((NAT_FLAG[p.nat] || '') + ' ' + (p.nat || '—')).trim() + '</span>'
