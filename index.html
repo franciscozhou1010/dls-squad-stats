@@ -86,10 +86,11 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .cmp-table tr.row-tot .stat-label { color: #a8d8f0; }
 
 /* ===== Live search ===== */
-.search-wrap { display: flex; justify-content: center; margin: 0 0 16px; }
+.search-wrap { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
 .search-input { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 9px 16px; border-radius: 20px; width: 320px; max-width: 80vw; outline: none; }
 .search-input:focus { border-color: #58a6ff; }
 .search-input::placeholder { color: #6e7681; }
+.country-select { width: auto; min-width: 160px; cursor: pointer; }
 
 
 /* ===== GK sub-table heading (All Players view) ===== */
@@ -178,7 +179,8 @@ tr.r-standard:hover td { background: #251b00 !important; }
 </div>
 
 <div class="search-wrap">
-  <input id="player-search" class="search-input" type="search" placeholder="Search players by name…" autocomplete="off" oninput="liveSearch(this.value)">
+  <input id="player-search" class="search-input" type="search" placeholder="Search players by name…" autocomplete="off" oninput="applyFilters()">
+  <select id="country-filter" class="search-input country-select" onchange="filterCountry(this.value)" title="Filter players by country"><option value="">🌍 All Countries</option></select>
 </div>
 
 <div id="sec-compare" class="section">
@@ -195,6 +197,8 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <div class="xi-controls">
     <span class="xi-label">Formation</span>
     <select id="formation-select" class="xi-select" onchange="changeFormation()"></select>
+    <span class="xi-label">Nation</span>
+    <select id="xi-country" class="xi-select" onchange="changeXICountry()"><option value="">🌍 All</option></select>
     <button class="xi-reset" onclick="resetXI()">↺ Reset</button>
   </div>
   <div class="xi-summary" id="xi-summary"></div>
@@ -558,7 +562,7 @@ const GK_TABLES = {'tbl-all-gk':1, 'tbl-gk':1};
 function totalOf(p){ return p.st.reduce(function(a,b){return a+b;}, 0); }
 function displayName(p){ return p.name + (p.year ? " <span class='yr'>(" + p.year + ")</span>" : ""); }
 function rowHTML(p){
-  return '<tr class="r-' + p.card + '" style="cursor:pointer" onclick="openDetail(' + PLAYERS.indexOf(p) + ')">'
+  return '<tr class="r-' + p.card + '" data-nat="' + (p.nat || '').replace(/&/g, '&amp;') + '" style="cursor:pointer" onclick="openDetail(' + PLAYERS.indexOf(p) + ')">'
     + '<td>' + displayName(p) + '</td><td>' + p.pos + '</td><td>' + p.ovr + '</td>'
     + p.st.map(function(s){ return '<td>' + s + '</td>'; }).join('')
     + '<td class="tot">' + totalOf(p) + '</td></tr>';
@@ -677,23 +681,32 @@ function renderCompare() {
   out.innerHTML = '<div class="cmp-grid"><div><div class="radar-wrap">' + buildRadar(pA, pB) + '</div>' + legend + '</div>' + table + '</div>';
 }
 
-/* ===== Live search ===== */
-function liveSearch(q){
-  q = (q || '').trim().toLowerCase();
-  if(!q){ render(); return; }
-  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-  document.querySelectorAll('.cat').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('sec-all').classList.add('active');
-  document.querySelector('.cat').classList.add('active');
+/* ===== Live search + country filter (name and country compose) ===== */
+var filterNat = '';
+function deburr(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }  // strip accents so name search ignores diacritics
+function filterCountry(v){ filterNat = v || ''; applyFilters(); }
+function applyFilters(){
+  var q = deburr((document.getElementById('player-search').value || '').trim().toLowerCase());
+  var nat = filterNat;
+  if(!q && !nat){ render(); return; }
+  if(q){  // name search jumps to All Players, as before
+    document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.cat').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('sec-all').classList.add('active');
+    document.querySelector('.cat').classList.add('active');
+  }
   document.querySelectorAll('.tbl-wrap').forEach(function(wrap){
     var rows = wrap.querySelectorAll('tbody tr'); var vis = 0;
     rows.forEach(function(tr){
-      var c = tr.cells[0]; var nm = c ? c.textContent.toLowerCase() : '';
-      var show = nm.indexOf(q) !== -1; tr.style.display = show ? '' : 'none'; if(show) vis++;
+      var nm = deburr(tr.cells[0] ? tr.cells[0].textContent.toLowerCase() : '');
+      var okName = !q || nm.indexOf(q) !== -1;
+      var okNat = !nat || tr.dataset.nat === nat;
+      var show = okName && okNat; tr.style.display = show ? '' : 'none'; if(show) vis++;
     });
     var cnt = wrap.querySelector('.count'); if(cnt) cnt.textContent = vis + (vis===1 ? ' match' : ' matches');
   });
 }
+function liveSearch(){ applyFilters(); }  // back-compat alias
 
 /* ===== Best XI ===== */
 // Each slot's pos = the positions that can sensibly fill it; the highest-rated
@@ -814,8 +827,11 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
+var xiNat = '';   // Best XI nation filter ('' = whole squad)
+function xiPool(){ return xiNat ? PLAYERS.filter(function(p){ return p.nat === xiNat; }) : PLAYERS; }
+function changeXICountry(){ xiNat = document.getElementById('xi-country').value || ''; overrides = {}; renderXI(); }
 function bestFor(posList, used){
-  var cand = PLAYERS.filter(function(p){ return posList.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
+  var cand = xiPool().filter(function(p){ return posList.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
     .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
   return cand[0] || null;
 }
@@ -831,7 +847,7 @@ function pickXI(slots, used){
   // pass 1: assign remaining players highest-rated first, each into an empty
   // eligible slot, preferring one whose natural position (pos[0]) matches —
   // so a DM lands in the DM slot rather than an earlier CM slot.
-  PLAYERS.filter(function(p){ return used.indexOf(p) < 0; })
+  xiPool().filter(function(p){ return used.indexOf(p) < 0; })
     .sort(function(a, b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); })
     .forEach(function(p){
       var exact = null, flex = null;
@@ -863,7 +879,7 @@ function pickBench(used){
   var bench = [];
   BENCH.forEach(function(g){
     for(var k = 0; k < g.n; k++){
-      var cand = PLAYERS.filter(function(p){ return g.pred(p) && used.indexOf(p) < 0; })
+      var cand = xiPool().filter(function(p){ return g.pred(p) && used.indexOf(p) < 0; })
         .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
       if(!cand.length) break;
       used.push(cand[0]);
@@ -899,7 +915,8 @@ function renderXI(){
   var picked = xi.filter(function(s){ return s.player; });
   var avg = picked.length ? (picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length).toFixed(1) : '0.0';
   var locks = xi.filter(function(s){ return s.locked; }).length;
-  document.getElementById('xi-summary').textContent = f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
+  var natLabel = xiNat ? ((NAT_FLAG[xiNat] || '') + ' ' + xiNat).trim() + '  ·  ' : '';
+  document.getElementById('xi-summary').textContent = natLabel + f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
 }
 function currentFormation(){
   var v = document.getElementById('formation-select').value;
@@ -910,7 +927,7 @@ function openPicker(idx){
   var f = currentFormation();
   var slot = f.slots[idx];
   var used = []; var cur = pickXI(f.slots, used)[idx].player;
-  var elig = PLAYERS.filter(function(p){ return slot.pos.indexOf(p.pos) >= 0; })
+  var elig = xiPool().filter(function(p){ return slot.pos.indexOf(p.pos) >= 0; })
     .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
   document.getElementById('picker-title').textContent = slot.slot + ' — choose player';
   var html = '<div class="picker-row picker-auto" onclick="choosePick(-1)">↺ Auto (best available)</div>';
@@ -976,11 +993,22 @@ function initXI(){
     FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');
   renderXI();
 }
+function initCountries(){
+  var nats = PLAYERS.map(function(p){ return p.nat; }).filter(Boolean);
+  nats = nats.filter(function(n, i){ return nats.indexOf(n) === i; }).sort();
+  var opts = nats.map(function(n){
+    var v = n.replace(/&/g, '&amp;');
+    return '<option value="' + v + '">' + (NAT_FLAG[n] || '🏳️') + ' ' + v + '</option>';
+  }).join('');
+  document.getElementById('country-filter').innerHTML = '<option value="">🌍 All Countries</option>' + opts;
+  document.getElementById('xi-country').innerHTML = '<option value="">🌍 All Nations</option>' + opts;
+}
 
 /* ===== initial paint ===== */
 render();
 renderCompare();
 initXI();
+initCountries();
 
 </script>
 </body>
