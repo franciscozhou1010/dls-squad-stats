@@ -952,7 +952,7 @@ function choosePick(playerIdx){
   renderXI();
 }
 function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
-function resetXI(){ overrides = {}; renderXI(); }
+function resetXI(){ overrides = {}; xiNat = ''; document.getElementById('xi-country').value = ''; renderXI(); }
 function changeFormation(){ overrides = {}; renderXI(); }
 
 /* ===== Player detail (click any player) ===== */
