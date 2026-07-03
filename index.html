@@ -201,7 +201,7 @@ tr.r-standard:hover td { background: #251b00 !important; }
     <span class="xi-label">Formation</span>
     <select id="formation-select" class="xi-select" onchange="changeFormation()"></select>
     <span class="xi-label">Squad</span>
-    <select id="xi-pool-add" class="xi-select" onchange="addPool(this.value)"><option value="">+ Add club / nation…</option></select>
+    <select id="xi-pool-add" class="xi-select" onchange="addPool(this.value)"><option value="">+ Add league / club / nation…</option></select>
     <button class="xi-reset" onclick="resetXI()">↺ Reset</button>
   </div>
   <div id="xi-pool-chips" class="xi-pool-chips"></div>
@@ -832,26 +832,37 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
-var xiClubs = [], xiNats = [];   // Best XI pool — union of selected clubs + nations ([] = whole squad)
+var LEAGUES = {   // top-5 only; clubs not listed here are simply left out of league pools
+  'Premier League': ['Arsenal','Brentford','Brighton','Everton','Fulham','Liverpool','Man City','Man United','Newcastle','Nottingham Forest'],
+  'La Liga': ['Athletic Bilbao','Atletico Madrid','Barcelona','Real Madrid','Real Sociedad'],
+  'Serie A': ['AC Milan','Fiorentina','Inter Milan','Juventus','Napoli','Sassuolo'],
+  'Ligue 1': ['Paris SG'],
+  'Bundesliga': ['Bayern Munich','St. Pauli']
+};
+var xiClubs = [], xiNats = [], xiLeagues = [];   // Best XI pool — union of selected leagues + clubs + nations ([] = whole squad)
 function xiPool(){
-  if(!xiClubs.length && !xiNats.length) return PLAYERS;
-  return PLAYERS.filter(function(p){ return xiClubs.indexOf(p.club) >= 0 || xiNats.indexOf(p.nat) >= 0; });
+  if(!xiClubs.length && !xiNats.length && !xiLeagues.length) return PLAYERS;
+  var leagueClubs = {};
+  xiLeagues.forEach(function(lg){ (LEAGUES[lg] || []).forEach(function(c){ leagueClubs[c] = 1; }); });
+  return PLAYERS.filter(function(p){ return xiClubs.indexOf(p.club) >= 0 || xiNats.indexOf(p.nat) >= 0 || leagueClubs[p.club]; });
 }
 function addPool(v){
   if(!v) return;
-  var isNat = v.slice(0, 4) === 'nat:', name = v.slice(v.indexOf(':') + 1);
-  var arr = isNat ? xiNats : xiClubs;
+  var t = v.slice(0, v.indexOf(':')), name = v.slice(v.indexOf(':') + 1);
+  var arr = t === 'nat' ? xiNats : t === 'league' ? xiLeagues : xiClubs;
   if(arr.indexOf(name) < 0) arr.push(name);
   document.getElementById('xi-pool-add').selectedIndex = 0;
   overrides = {}; renderXI(); renderPoolChips();
 }
 function removePool(type, i){
-  (type === 'nat' ? xiNats : xiClubs).splice(i, 1);
+  var arr = type === 'nat' ? xiNats : type === 'league' ? xiLeagues : xiClubs;
+  arr.splice(i, 1);
   overrides = {}; renderXI(); renderPoolChips();
 }
 function poolEsc(s){ return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 function renderPoolChips(){
-  var html = xiClubs.map(function(c, i){ return '<span class="pool-chip" onclick="removePool(\'club\',' + i + ')">' + poolEsc(c) + ' ✕</span>'; }).join('')
+  var html = xiLeagues.map(function(lg, i){ return '<span class="pool-chip" onclick="removePool(\'league\',' + i + ')">🏆 ' + poolEsc(lg) + ' ✕</span>'; }).join('')
+    + xiClubs.map(function(c, i){ return '<span class="pool-chip" onclick="removePool(\'club\',' + i + ')">' + poolEsc(c) + ' ✕</span>'; }).join('')
     + xiNats.map(function(n, i){ return '<span class="pool-chip" onclick="removePool(\'nat\',' + i + ')">' + (NAT_FLAG[n] || '') + ' ' + poolEsc(n) + ' ✕</span>'; }).join('');
   document.getElementById('xi-pool-chips').innerHTML = html;
 }
@@ -940,7 +951,7 @@ function renderXI(){
   var picked = xi.filter(function(s){ return s.player; });
   var avg = picked.length ? (picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length).toFixed(1) : '0.0';
   var locks = xi.filter(function(s){ return s.locked; }).length;
-  var poolNames = xiClubs.concat(xiNats.map(function(n){ return ((NAT_FLAG[n] || '') + ' ' + n).trim(); }));
+  var poolNames = xiLeagues.map(function(lg){ return '🏆 ' + lg; }).concat(xiClubs, xiNats.map(function(n){ return ((NAT_FLAG[n] || '') + ' ' + n).trim(); }));
   var poolLabel = poolNames.length ? poolNames.join(' + ') + '  ·  ' : '';
   document.getElementById('xi-summary').textContent = poolLabel + f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
 }
@@ -978,7 +989,7 @@ function choosePick(playerIdx){
   renderXI();
 }
 function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
-function resetXI(){ overrides = {}; xiClubs = []; xiNats = []; renderXI(); renderPoolChips(); }
+function resetXI(){ overrides = {}; xiClubs = []; xiNats = []; xiLeagues = []; renderXI(); renderPoolChips(); }
 function changeFormation(){ overrides = {}; renderXI(); }
 
 /* ===== Player detail (click any player) ===== */
@@ -1032,8 +1043,10 @@ function initCountries(){
   clubs = clubs.filter(function(c, i){ return clubs.indexOf(c) === i; }).sort();
   var clubOpts = clubs.map(function(c){ var v = c.replace(/&/g, '&amp;'); return '<option value="club:' + v + '">' + v + '</option>'; }).join('');
   var natOpts = nats.map(function(n){ var v = n.replace(/&/g, '&amp;'); return '<option value="nat:' + v + '">' + (NAT_FLAG[n] || '🏳️') + ' ' + v + '</option>'; }).join('');
+  var leagueOpts = Object.keys(LEAGUES).map(function(lg){ return '<option value="league:' + lg + '">🏆 ' + lg + '</option>'; }).join('');
   document.getElementById('xi-pool-add').innerHTML =
-    '<option value="">+ Add club / nation…</option>'
+    '<option value="">+ Add league / club / nation…</option>'
+    + '<optgroup label="Leagues">' + leagueOpts + '</optgroup>'
     + '<optgroup label="Clubs">' + clubOpts + '</optgroup>'
     + '<optgroup label="Nations">' + natOpts + '</optgroup>';
 }
