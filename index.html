@@ -101,6 +101,9 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .xi-controls { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .xi-label { font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
 .xi-select { background: #161b22; border: 1.5px solid #30363d; color: #e6edf3; font-size: 13px; padding: 8px 12px; border-radius: 8px; outline: none; cursor: pointer; }
+.xi-pool-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.pool-chip { background: #161b22; border: 1px solid #30363d; color: #e6edf3; font-size: 12px; padding: 4px 10px; border-radius: 14px; cursor: pointer; user-select: none; }
+.pool-chip:hover { border-color: #f85149; color: #f85149; }
 .xi-select:focus { border-color: #58a6ff; }
 .xi-summary { text-align: center; color: #e6edf3; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
 .xi-layout { display: flex; gap: 24px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
@@ -197,10 +200,11 @@ tr.r-standard:hover td { background: #251b00 !important; }
   <div class="xi-controls">
     <span class="xi-label">Formation</span>
     <select id="formation-select" class="xi-select" onchange="changeFormation()"></select>
-    <span class="xi-label">Nation</span>
-    <select id="xi-country" class="xi-select" onchange="changeXICountry()"><option value="">🌍 All</option></select>
+    <span class="xi-label">Squad</span>
+    <select id="xi-pool-add" class="xi-select" onchange="addPool(this.value)"><option value="">+ Add club / nation…</option></select>
     <button class="xi-reset" onclick="resetXI()">↺ Reset</button>
   </div>
+  <div id="xi-pool-chips" class="xi-pool-chips"></div>
   <div class="xi-summary" id="xi-summary"></div>
   <div class="xi-layout">
     <div class="pitch">
@@ -828,9 +832,29 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
-var xiNat = '';   // Best XI nation filter ('' = whole squad)
-function xiPool(){ return xiNat ? PLAYERS.filter(function(p){ return p.nat === xiNat; }) : PLAYERS; }
-function changeXICountry(){ xiNat = document.getElementById('xi-country').value || ''; overrides = {}; renderXI(); }
+var xiClubs = [], xiNats = [];   // Best XI pool — union of selected clubs + nations ([] = whole squad)
+function xiPool(){
+  if(!xiClubs.length && !xiNats.length) return PLAYERS;
+  return PLAYERS.filter(function(p){ return xiClubs.indexOf(p.club) >= 0 || xiNats.indexOf(p.nat) >= 0; });
+}
+function addPool(v){
+  if(!v) return;
+  var isNat = v.slice(0, 4) === 'nat:', name = v.slice(v.indexOf(':') + 1);
+  var arr = isNat ? xiNats : xiClubs;
+  if(arr.indexOf(name) < 0) arr.push(name);
+  document.getElementById('xi-pool-add').selectedIndex = 0;
+  overrides = {}; renderXI(); renderPoolChips();
+}
+function removePool(type, i){
+  (type === 'nat' ? xiNats : xiClubs).splice(i, 1);
+  overrides = {}; renderXI(); renderPoolChips();
+}
+function poolEsc(s){ return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function renderPoolChips(){
+  var html = xiClubs.map(function(c, i){ return '<span class="pool-chip" onclick="removePool(\'club\',' + i + ')">' + poolEsc(c) + ' ✕</span>'; }).join('')
+    + xiNats.map(function(n, i){ return '<span class="pool-chip" onclick="removePool(\'nat\',' + i + ')">' + (NAT_FLAG[n] || '') + ' ' + poolEsc(n) + ' ✕</span>'; }).join('');
+  document.getElementById('xi-pool-chips').innerHTML = html;
+}
 function bestFor(posList, used){
   var cand = xiPool().filter(function(p){ return posList.indexOf(p.pos) >= 0 && used.indexOf(p) < 0; })
     .sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); });
@@ -916,8 +940,9 @@ function renderXI(){
   var picked = xi.filter(function(s){ return s.player; });
   var avg = picked.length ? (picked.reduce(function(a,s){ return a + s.player.ovr; }, 0) / picked.length).toFixed(1) : '0.0';
   var locks = xi.filter(function(s){ return s.locked; }).length;
-  var natLabel = xiNat ? ((NAT_FLAG[xiNat] || '') + ' ' + xiNat).trim() + '  ·  ' : '';
-  document.getElementById('xi-summary').textContent = natLabel + f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
+  var poolNames = xiClubs.concat(xiNats.map(function(n){ return ((NAT_FLAG[n] || '') + ' ' + n).trim(); }));
+  var poolLabel = poolNames.length ? poolNames.join(' + ') + '  ·  ' : '';
+  document.getElementById('xi-summary').textContent = poolLabel + f.name + '  ·  Avg OVR ' + avg + '  ·  XI ' + picked.length + '/11  ·  Bench ' + bench.length + '/8' + (locks ? '  ·  ' + locks + ' locked' : '');
 }
 function currentFormation(){
   var v = document.getElementById('formation-select').value;
@@ -953,7 +978,7 @@ function choosePick(playerIdx){
   renderXI();
 }
 function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
-function resetXI(){ overrides = {}; xiNat = ''; document.getElementById('xi-country').value = ''; renderXI(); }
+function resetXI(){ overrides = {}; xiClubs = []; xiNats = []; renderXI(); renderPoolChips(); }
 function changeFormation(){ overrides = {}; renderXI(); }
 
 /* ===== Player detail (click any player) ===== */
@@ -1002,7 +1027,15 @@ function initCountries(){
     return '<option value="' + v + '">' + (NAT_FLAG[n] || '🏳️') + ' ' + v + '</option>';
   }).join('');
   document.getElementById('country-filter').innerHTML = '<option value="">🌍 All Countries</option>' + opts;
-  document.getElementById('xi-country').innerHTML = '<option value="">🌍 All Nations</option>' + opts;
+  // Best XI pool adder — clubs + nations, grouped (exclude the Retired sentinel from clubs)
+  var clubs = PLAYERS.map(function(p){ return p.club; }).filter(function(c){ return c && c.indexOf('Retired') < 0; });
+  clubs = clubs.filter(function(c, i){ return clubs.indexOf(c) === i; }).sort();
+  var clubOpts = clubs.map(function(c){ var v = c.replace(/&/g, '&amp;'); return '<option value="club:' + v + '">' + v + '</option>'; }).join('');
+  var natOpts = nats.map(function(n){ var v = n.replace(/&/g, '&amp;'); return '<option value="nat:' + v + '">' + (NAT_FLAG[n] || '🏳️') + ' ' + v + '</option>'; }).join('');
+  document.getElementById('xi-pool-add').innerHTML =
+    '<option value="">+ Add club / nation…</option>'
+    + '<optgroup label="Clubs">' + clubOpts + '</optgroup>'
+    + '<optgroup label="Nations">' + natOpts + '</optgroup>';
 }
 
 /* ===== initial paint ===== */
