@@ -832,13 +832,12 @@ function shortName(p){
   var last = parts[parts.length-1], prev = parts[parts.length-2];
   return NAME_PARTICLES.indexOf(prev) >= 0 ? prev + ' ' + last : last;
 }
-var LEAGUES = {   // top-5 only; clubs not listed here are simply left out of league pools
+var LEAGUES = {   // leagues deep enough for their own XI; everything thinner folds into "Rest of World"
   'Premier League': ['Arsenal','Brentford','Brighton','Everton','Fulham','Liverpool','Man City','Man United','Newcastle','Nottingham Forest'],
   'La Liga': ['Athletic Bilbao','Atletico Madrid','Barcelona','Real Madrid','Real Sociedad'],
-  'Serie A': ['AC Milan','Fiorentina','Inter Milan','Juventus','Napoli','Sassuolo'],
-  'Ligue 1': ['Paris SG'],
-  'Bundesliga': ['Bayern Munich','St. Pauli']
-  // 'Rest of World' is injected dynamically in initCountries() = every non-top-5 club
+  'Serie A': ['AC Milan','Fiorentina','Inter Milan','Juventus','Napoli','Sassuolo']
+  // 'Rest of World' is injected dynamically in initCountries() = every club not in a league above,
+  // so Ligue 1 (PSG) and Bundesliga (Bayern, St. Pauli) fold in here — too thin for their own XI
 };
 function leagueIcon(lg){ return lg === 'Rest of World' ? '🌍' : '🏆'; }
 var xiClubs = [], xiNats = [], xiLeagues = [];   // Best XI pool — union of selected leagues + clubs + nations ([] = whole squad)
@@ -1046,8 +1045,8 @@ function initCountries(){
   var clubOpts = clubs.map(function(c){ var v = c.replace(/&/g, '&amp;'); return '<option value="club:' + v + '">' + v + '</option>'; }).join('');
   var natOpts = nats.map(function(n){ var v = n.replace(/&/g, '&amp;'); return '<option value="nat:' + v + '">' + (NAT_FLAG[n] || '🏳️') + ' ' + v + '</option>'; }).join('');
   var topSet = {};
-  ['Premier League','La Liga','Serie A','Ligue 1','Bundesliga'].forEach(function(lg){ LEAGUES[lg].forEach(function(c){ topSet[c] = 1; }); });
-  LEAGUES['Rest of World'] = clubs.filter(function(c){ return !topSet[c]; });   // dynamic: every non-top-5 club
+  Object.keys(LEAGUES).forEach(function(lg){ if(lg !== 'Rest of World') LEAGUES[lg].forEach(function(c){ topSet[c] = 1; }); });
+  LEAGUES['Rest of World'] = clubs.filter(function(c){ return !topSet[c]; });   // everything else, incl. Ligue 1 / Bundesliga clubs
   var leagueOpts = Object.keys(LEAGUES).map(function(lg){ return '<option value="league:' + lg + '">' + leagueIcon(lg) + ' ' + lg + '</option>'; }).join('');
   document.getElementById('xi-pool-add').innerHTML =
     '<option value="">+ Add league / club / nation…</option>'
