@@ -108,23 +108,39 @@ tr.r-standard:hover td { background: #251b00 !important; }
 .xi-summary { text-align: center; color: #e6edf3; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
 .xi-layout { display: flex; gap: 24px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
 .bench-side { flex: 0 0 auto; }
-.pitch { position: relative; flex: 0 1 480px; width: 480px; max-width: 100%; aspect-ratio: 68/98; background: repeating-linear-gradient(#1a5631 0 9.09%, #175430 9.09% 18.18%); border: 2px solid rgba(255,255,255,.22); border-radius: 10px; overflow: hidden; }
-.pitch .line { position: absolute; border: 1.5px solid rgba(255,255,255,.18); box-sizing: border-box; }
+.pitch { position: relative; flex: 0 1 480px; width: 480px; max-width: 100%; aspect-ratio: 68/98;
+  background:
+    radial-gradient(ellipse 130% 90% at 50% -10%, rgba(255,255,255,.10), transparent 55%),
+    repeating-linear-gradient(#22804480 0 9.09%, #1b6d3980 9.09% 18.18%),
+    linear-gradient(#207a41, #1a6535);
+  border: 2px solid rgba(255,255,255,.38); border-radius: 12px; overflow: hidden;
+  box-shadow: inset 0 0 80px rgba(0,0,0,.42), 0 12px 34px rgba(0,0,0,.5); }
+.pitch .line { position: absolute; border: 1.5px solid rgba(255,255,255,.34); box-sizing: border-box; }
 .pitch .halfway { left: 0; right: 0; top: 50%; height: 0; border-width: 1.5px 0 0 0; }
 .pitch .circle { left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; }
-.pitch .box-top { left: 50%; top: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 0 1.5px 1.5px 1.5px; border-radius: 0 0 6px 6px; }
-.pitch .box-bot { left: 50%; bottom: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 1.5px 1.5px 0 1.5px; border-radius: 6px 6px 0 0; }
+.pitch .box-top { left: 50%; top: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 0 1.5px 1.5px 1.5px; border-radius: 0 0 8px 8px; }
+.pitch .box-bot { left: 50%; bottom: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 1.5px 1.5px 0 1.5px; border-radius: 8px 8px 0 0; }
+.pitch .spot { position: absolute; width: 5px; height: 5px; background: rgba(255,255,255,.55); border-radius: 50%; transform: translate(-50%,-50%); }
+.pitch .spot-mid { left: 50%; top: 50%; } .pitch .spot-top { left: 50%; top: 11.5%; } .pitch .spot-bot { left: 50%; top: 88.5%; }
 #xi-pitch { position: absolute; inset: 0; }
-.chip { position: absolute; transform: translate(-50%,-50%); width: 74px; background: rgba(13,17,23,.9); border: 1.5px solid #30363d; border-radius: 8px; padding: 4px 3px 5px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.45); }
-.chip-pos { display: block; font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: #8b949e; }
-.chip-ovr { display: block; font-size: 15px; font-weight: 800; line-height: 1.1; }
-.chip-name { display: block; font-size: 9.5px; color: #e6edf3; line-height: 1.15; margin-top: 1px; word-break: break-word; }
-.bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 0 0 10px; }
-.bench { display: flex; flex-direction: column; gap: 8px; }
-.bench-chip { width: 96px; background: #161b22; border: 1.5px solid #30363d; border-radius: 8px; padding: 5px 4px 6px; text-align: center; }
-.chip { cursor: pointer; }
-.chip.locked { box-shadow: 0 0 0 2px #3fb950; }
+.chip { position: absolute; transform: translate(-50%,-50%); width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.97), rgba(13,17,23,.97)); border: 1.5px solid #30363d; border-radius: 10px; padding: 5px 3px 6px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.55); cursor: grab; touch-action: none; transition: transform .1s ease, box-shadow .1s ease; }
+.chip:hover { transform: translate(-50%,-50%) scale(1.08); z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+.chip:active { cursor: grabbing; }
+.chip.empty { background: rgba(13,17,23,.5); border-style: dashed; box-shadow: none; }
+.chip.locked { box-shadow: 0 0 0 2px #3fb950, 0 2px 10px rgba(0,0,0,.55); }
+.chip.dragging { opacity: .28; }
+.chip.drop-target { border-color: #58a6ff; box-shadow: 0 0 0 3px #58a6ff, 0 2px 12px rgba(0,0,0,.55); }
 .chip .lock { position: absolute; top: -7px; right: -7px; font-size: 11px; line-height: 1; }
+.chip-pos { display: block; font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: #8b949e; }
+.chip-ovr { display: block; font-size: 16px; font-weight: 800; line-height: 1.1; }
+.chip-name { display: block; font-size: 9.5px; color: #e6edf3; line-height: 1.15; margin-top: 1px; word-break: break-word; }
+.bench-head { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #8b949e; margin: 0 0 3px; }
+.bench-hint { text-align: center; font-size: 10px; color: #6e7681; margin: 0 0 10px; }
+.bench { display: flex; flex-direction: column; gap: 8px; }
+.bench-chip { width: 104px; background: linear-gradient(180deg, rgba(30,37,48,.97), rgba(13,17,23,.97)); border: 1.5px solid #30363d; border-radius: 10px; padding: 6px 4px 7px; text-align: center; cursor: grab; touch-action: none; box-shadow: 0 2px 8px rgba(0,0,0,.45); transition: transform .1s ease, border-color .1s ease; }
+.bench-chip:hover { transform: translateY(-2px); border-color: #58a6ff; }
+.bench-chip:active { cursor: grabbing; }
+.drag-ghost { position: fixed; transform: translate(-50%,-50%); z-index: 100; pointer-events: none; width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.98), rgba(13,17,23,.98)); border: 2px solid; border-radius: 10px; padding: 5px 3px 6px; text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,.7); }
 .xi-reset { background: #161b22; border: 1.5px solid #30363d; color: #8b949e; font-size: 12px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 .xi-reset:hover { border-color: #58a6ff; color: #e6edf3; }
 .picker { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 50; }
@@ -212,10 +228,14 @@ tr.r-standard:hover td { background: #251b00 !important; }
       <div class="line circle"></div>
       <div class="line box-top"></div>
       <div class="line box-bot"></div>
+      <div class="spot spot-mid"></div>
+      <div class="spot spot-top"></div>
+      <div class="spot spot-bot"></div>
       <div id="xi-pitch"></div>
     </div>
     <div class="bench-side">
       <h2 class="bench-head">Substitutes</h2>
+      <div class="bench-hint">drag onto the pitch to swap</div>
       <div class="bench" id="xi-bench"></div>
     </div>
   </div>
@@ -935,7 +955,7 @@ function renderXI(){
     var col = p ? CARD_COLOR[p.card] : '#30363d';
     var nm  = p ? shortName(p) : '—';
     var ovr = p ? p.ovr : '';
-    return '<div class="chip' + (s.locked ? ' locked' : '') + '" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '" onclick="openPicker(' + s.idx + ')" title="Click to swap / lock">'
+    return '<div class="chip' + (s.locked ? ' locked' : '') + (p ? '' : ' empty') + '" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '" data-slot="' + s.idx + '" data-pidx="' + (p ? PLAYERS.indexOf(p) : '') + '" title="Tap to swap · drag to move">'
       + (s.locked ? '<span class="lock">🔒</span>' : '')
       + '<span class="chip-pos">' + s.slot + '</span>'
       + '<span class="chip-ovr" style="color:' + col + '">' + ovr + '</span>'
@@ -944,7 +964,7 @@ function renderXI(){
   var bench = pickBench(used);
   document.getElementById('xi-bench').innerHTML = bench.map(function(p){
     var col = CARD_COLOR[p.card];
-    return '<div class="bench-chip" style="border-color:' + col + '">'
+    return '<div class="bench-chip" style="border-color:' + col + '" data-pidx="' + PLAYERS.indexOf(p) + '" title="Drag onto the pitch">'
       + '<span class="chip-pos">' + p.pos + '</span>'
       + '<span class="chip-ovr" style="color:' + col + '">' + p.ovr + '</span>'
       + '<span class="chip-name">' + shortName(p) + '</span></div>';
@@ -990,6 +1010,59 @@ function choosePick(playerIdx){
   renderXI();
 }
 function closePicker(){ document.getElementById('xi-picker').style.display = 'none'; pickerIdx = null; }
+
+/* ===== Drag a bench/field chip onto a pitch slot (pointer events → works on touch too) ===== */
+var xiDrag = null;
+function placeInSlot(pidx, slotIdx){
+  var p = PLAYERS[pidx];
+  Object.keys(overrides).forEach(function(k){ if(overrides[k] === p) delete overrides[k]; });
+  overrides[slotIdx] = p;
+  renderXI();
+}
+function xiGhost(pidx){
+  var p = PLAYERS[pidx], col = CARD_COLOR[p.card];
+  var g = document.createElement('div');
+  g.className = 'drag-ghost'; g.style.borderColor = col;
+  g.innerHTML = '<span class="chip-ovr" style="color:' + col + '">' + p.ovr + '</span><span class="chip-name">' + shortName(p) + '</span>';
+  return g;
+}
+function xiSlotUnder(x, y){ var el = document.elementFromPoint(x, y); return el ? el.closest('#xi-pitch .chip[data-slot]') : null; }
+function onXIDown(e){
+  var chip = e.target.closest('.chip, .bench-chip'); if(!chip) return;
+  var pidx = chip.dataset.pidx;
+  xiDrag = { pidx: (pidx === '' || pidx == null) ? null : parseInt(pidx, 10),
+             fromSlot: chip.dataset.slot !== undefined ? parseInt(chip.dataset.slot, 10) : null,
+             startX: e.clientX, startY: e.clientY, moved: false, ghost: null, chip: chip };
+  window.addEventListener('pointermove', onXIMove);
+  window.addEventListener('pointerup', onXIUp);
+  window.addEventListener('pointercancel', onXIUp);
+}
+function onXIMove(e){
+  if(!xiDrag) return;
+  if(!xiDrag.moved){
+    if(xiDrag.pidx === null) return;
+    if(Math.abs(e.clientX - xiDrag.startX) < 6 && Math.abs(e.clientY - xiDrag.startY) < 6) return;
+    xiDrag.moved = true;
+    xiDrag.ghost = xiGhost(xiDrag.pidx); document.body.appendChild(xiDrag.ghost);
+    xiDrag.chip.classList.add('dragging'); document.body.style.userSelect = 'none';
+  }
+  e.preventDefault();
+  xiDrag.ghost.style.left = e.clientX + 'px'; xiDrag.ghost.style.top = e.clientY + 'px';
+  document.querySelectorAll('#xi-pitch .chip.drop-target').forEach(function(c){ c.classList.remove('drop-target'); });
+  var over = xiSlotUnder(e.clientX, e.clientY); if(over) over.classList.add('drop-target');
+}
+function onXIUp(e){
+  window.removeEventListener('pointermove', onXIMove);
+  window.removeEventListener('pointerup', onXIUp);
+  window.removeEventListener('pointercancel', onXIUp);
+  var d = xiDrag; xiDrag = null; if(!d) return;
+  if(d.moved){
+    if(d.ghost) d.ghost.remove(); document.body.style.userSelect = '';
+    var over = e.type === 'pointercancel' ? null : xiSlotUnder(e.clientX, e.clientY);
+    if(over) placeInSlot(d.pidx, parseInt(over.dataset.slot, 10)); else renderXI();
+  } else if(d.fromSlot !== null){ openPicker(d.fromSlot); }
+}
+function initXIDrag(){ ['xi-pitch', 'xi-bench'].forEach(function(id){ document.getElementById(id).addEventListener('pointerdown', onXIDown); }); }
 function resetXI(){ overrides = {}; xiClubs = []; xiNats = []; xiLeagues = []; renderXI(); renderPoolChips(); }
 function changeFormation(){ overrides = {}; renderXI(); }
 
@@ -1030,6 +1103,7 @@ function initXI(){
   document.getElementById('formation-select').innerHTML =
     FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');
   renderXI();
+  initXIDrag();
 }
 function initCountries(){
   var nats = PLAYERS.map(function(p){ return p.nat; }).filter(Boolean);
