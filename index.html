@@ -62,6 +62,21 @@ tr.r-standard td { background: #1c1400 !important; border-bottom-color: #2e2000 
 tr.r-standard td:first-child { color: #f5a623 !important; }
 tr.r-standard:hover td { background: #251b00 !important; }
 
+/* On narrow screens, pin the Player column so names stay visible while the
+   stats scroll horizontally. Scoped to the roster tables (.tbl-scroll) and to
+   mobile widths; the row-type rules above supply each pinned cell's background. */
+@media (max-width: 768px) {
+  .tbl-scroll th:first-child,
+  .tbl-scroll td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    box-shadow: 1px 0 0 #30363d;
+  }
+  .tbl-scroll th:first-child { z-index: 2; background: #161b22; }
+  .tbl-scroll td:first-child { background: #0d1117; }
+}
+
 /* ===== Compare feature ===== */
 .cat-compare { border-color: #1f6feb; color: #58a6ff; }
 .cmp-pick { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 2px 0 18px; }
