@@ -254,19 +254,35 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
    which is also why CARD_COLOR keeps the vivid card hues (see readThemeColors). */
 .pitch { position: relative; flex: 0 1 480px; width: 480px; max-width: 100%; aspect-ratio: 68/98;
   background:
-    radial-gradient(ellipse 130% 90% at 50% -10%, rgba(255,255,255,.10), transparent 55%),
-    repeating-linear-gradient(#22804480 0 9.09%, #1b6d3980 9.09% 18.18%),
-    linear-gradient(#207a41, #1a6535);
-  border: 2px solid rgba(255,255,255,.38); border-radius: 12px; overflow: hidden;
-  box-shadow: inset 0 0 80px rgba(0,0,0,.42), 0 12px 34px rgba(0,0,0,.5); }
-.pitch .line { position: absolute; border: 1.5px solid rgba(255,255,255,.34); box-sizing: border-box; }
-.pitch .halfway { left: 0; right: 0; top: 50%; height: 0; border-width: 1.5px 0 0 0; }
-.pitch .circle { left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; }
-.pitch .box-top { left: 50%; top: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 0 1.5px 1.5px 1.5px; border-radius: 0 0 8px 8px; }
-.pitch .box-bot { left: 50%; bottom: 0; width: 54%; height: 16%; transform: translateX(-50%); border-width: 1.5px 1.5px 0 1.5px; border-radius: 8px 8px 0 0; }
-.pitch .spot { position: absolute; width: 5px; height: 5px; background: rgba(255,255,255,.55); border-radius: 50%; transform: translate(-50%,-50%); }
-.pitch .spot-mid { left: 50%; top: 50%; } .pitch .spot-top { left: 50%; top: 11.5%; } .pitch .spot-bot { left: 50%; top: 88.5%; }
-#xi-pitch { position: absolute; inset: 0; }
+    radial-gradient(ellipse 120% 74% at 50% 5%, rgba(255,255,255,.13), transparent 52%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 9.09%, rgba(0,0,0,.05) 9.09% 18.18%),
+    linear-gradient(180deg, #2f9350 0%, #23713d 100%);
+  border: 1px solid rgba(255,255,255,.14); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 12px 34px rgba(0,0,0,.5); }
+/* asset-free grass grain (feTurbulence data-URI) */
+.pitch::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .5; mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+/* radial vignette (reads as real falloff, unlike an inset box-shadow) */
+.pitch::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 80% 66% at 50% 46%, transparent 60%, rgba(0,0,0,.42)); }
+.pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+#xi-pitch { position: absolute; inset: 0; z-index: 4; }
+
+/* hover a pitch chip -> stat tooltip (mouse only; click still opens the swap picker) */
+.xi-tip { position: fixed; z-index: 80; pointer-events: none; width: 186px;
+  background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.5); padding: 9px 11px 10px; font-size: 12px;
+  opacity: 0; transform: translateY(4px); transition: opacity .12s ease, transform .12s ease; }
+.xi-tip.show { opacity: 1; transform: none; }
+.xi-tip .t-ovr { float: right; font-weight: 800; font-size: 16px; line-height: 1; margin-left: 8px; }
+.xi-tip .t-name { font-weight: 800; font-size: 13px; color: var(--text); }
+.xi-tip .t-yr { color: var(--text-subtle); font-weight: 400; }
+.xi-tip .t-meta { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; margin: 1px 0 7px; }
+.xi-tip .t-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.xi-tip .t-row { display: flex; justify-content: space-between; border-bottom: .5px solid var(--border-subtle); padding: 2.5px 0; }
+.xi-tip .t-k { color: var(--text-muted); font-size: 10px; font-weight: 600; letter-spacing: .3px; }
+.xi-tip .t-v { color: var(--text); font-weight: 700; font-size: 11.5px; }
+.xi-tip .t-total { text-align: right; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--total-accent); }
 .chip { position: absolute; transform: translate(-50%,-50%); width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.97), rgba(13,17,23,.97)); border: 1.5px solid #30363d; border-radius: 10px; padding: 5px 3px 6px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.55); cursor: grab; touch-action: none; transition: transform .1s ease, box-shadow .1s ease; }
 .chip:hover { transform: translate(-50%,-50%) scale(1.08); z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
 .chip:active { cursor: grabbing; }
@@ -370,13 +386,28 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   <div class="xi-summary" id="xi-summary"></div>
   <div class="xi-layout">
     <div class="pitch">
-      <div class="line halfway"></div>
-      <div class="line circle"></div>
-      <div class="line box-top"></div>
-      <div class="line box-bot"></div>
-      <div class="spot spot-mid"></div>
-      <div class="spot spot-top"></div>
-      <div class="spot spot-bot"></div>
+      <svg class="pitch-lines" viewBox="0 0 680 980" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g fill="none" stroke="rgba(255,255,255,.82)" stroke-width="2.2">
+          <rect x="4" y="4" width="672" height="972" rx="2"/>
+          <line x1="4" y1="490" x2="676" y2="490"/>
+          <circle cx="340" cy="490" r="91.5"/>
+          <rect x="138.4" y="4" width="403.2" height="154"/>
+          <rect x="248.4" y="4" width="183.2" height="51.3"/>
+          <path d="M264.2 158 A91.5 91.5 0 0 1 415.8 158"/>
+          <rect x="138.4" y="822" width="403.2" height="154"/>
+          <rect x="248.4" y="924.7" width="183.2" height="51.3"/>
+          <path d="M415.8 822 A91.5 91.5 0 0 1 264.2 822"/>
+          <path d="M4 14 A10 10 0 0 0 14 4"/>
+          <path d="M666 4 A10 10 0 0 0 676 14"/>
+          <path d="M14 976 A10 10 0 0 0 4 966"/>
+          <path d="M676 966 A10 10 0 0 0 666 976"/>
+        </g>
+        <g fill="rgba(255,255,255,.82)">
+          <circle cx="340" cy="490" r="3.5"/>
+          <circle cx="340" cy="106.7" r="3.5"/>
+          <circle cx="340" cy="873.3" r="3.5"/>
+        </g>
+      </svg>
       <div id="xi-pitch"></div>
     </div>
     <div class="bench-side">
@@ -1105,12 +1136,13 @@ function renderXI(){
     var col = p ? CARD_COLOR[p.card] : '#30363d';
     var nm  = p ? shortName(p) : '—';
     var ovr = p ? p.ovr : '';
-    return '<div class="chip' + (s.locked ? ' locked' : '') + (p ? '' : ' empty') + '" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '" data-slot="' + s.idx + '" data-pidx="' + (p ? PLAYERS.indexOf(p) : '') + '" title="Tap to swap · drag to move">'
+    return '<div class="chip' + (s.locked ? ' locked' : '') + (p ? '' : ' empty') + '" style="left:' + s.x + '%;top:' + s.y + '%;border-color:' + col + '" data-slot="' + s.idx + '" data-pidx="' + (p ? PLAYERS.indexOf(p) : '') + '">'
       + (s.locked ? '<span class="lock">🔒</span>' : '')
       + '<span class="chip-pos">' + s.slot + '</span>'
       + '<span class="chip-ovr" style="color:' + col + '">' + ovr + '</span>'
       + '<span class="chip-name">' + nm + '</span></div>';
   }).join('');
+  hideXiTip();
   var bench = pickBench(used);
   document.getElementById('xi-bench').innerHTML = bench.map(function(p){
     var col = CARD_COLOR[p.card];
@@ -1179,6 +1211,7 @@ function xiGhost(pidx){
 function xiSlotUnder(x, y){ var el = document.elementFromPoint(x, y); return el ? el.closest('#xi-pitch .chip[data-slot]') : null; }
 function onXIDown(e){
   var chip = e.target.closest('.chip, .bench-chip'); if(!chip) return;
+  hideXiTip();
   var pidx = chip.dataset.pidx;
   xiDrag = { pidx: (pidx === '' || pidx == null) ? null : parseInt(pidx, 10),
              fromSlot: chip.dataset.slot !== undefined ? parseInt(chip.dataset.slot, 10) : null,
@@ -1213,6 +1246,49 @@ function onXIUp(e){
   } else if(d.fromSlot !== null){ openPicker(d.fromSlot); }
 }
 function initXIDrag(){ ['xi-pitch', 'xi-bench'].forEach(function(id){ document.getElementById(id).addEventListener('pointerdown', onXIDown); }); }
+
+/* ===== Hover a pitch chip -> stat tooltip (mouse only; click still opens the swap picker) ===== */
+var xiTip = null;
+function ensureXiTip(){ if(!xiTip){ xiTip = document.createElement('div'); xiTip.className = 'xi-tip'; document.body.appendChild(xiTip); } return xiTip; }
+function hideXiTip(){ if(xiTip) xiTip.classList.remove('show'); }
+function showXiTip(chip){
+  var pidx = chip.dataset.pidx;
+  if(pidx === '' || pidx == null){ hideXiTip(); return; }
+  var p = PLAYERS[parseInt(pidx, 10)]; if(!p) return;
+  var col = CARD_TEXT[p.card];
+  var labels = STAT_KEYS.slice(); if(p.pos === 'GK'){ labels[2] = 'GKR'; labels[6] = 'GKH'; }
+  var total = p.st.reduce(function(a, b){ return a + b; }, 0);
+  var tip = ensureXiTip();
+  tip.innerHTML =
+    '<span class="t-ovr" style="color:' + col + '">' + p.ovr + '</span>'
+    + '<div class="t-name">' + p.name + (p.year ? ' <span class="t-yr">(' + p.year + ')</span>' : '') + '</div>'
+    + '<div class="t-meta">' + p.pos + ' · ' + CARD_LABEL[p.card] + (p.club ? ' · ' + p.club : '') + '</div>'
+    + '<div class="t-grid">' + labels.map(function(k, i){ return '<div class="t-row"><span class="t-k">' + k + '</span><span class="t-v">' + p.st[i] + '</span></div>'; }).join('') + '</div>'
+    + '<div class="t-total">Total ' + total + '</div>';
+  tip.classList.add('show');
+  var r = chip.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+  var left = r.left + r.width / 2 - tw / 2;
+  var top = r.top - th - 10;
+  if(top < 8) top = r.bottom + 10;
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+  tip.style.left = left + 'px'; tip.style.top = top + 'px';
+}
+function initXiHover(){
+  var pitch = document.getElementById('xi-pitch');
+  pitch.addEventListener('pointerover', function(e){
+    if(e.pointerType && e.pointerType !== 'mouse') return;
+    if(xiDrag) return;
+    var chip = e.target.closest('.chip[data-pidx]'); if(!chip || chip.dataset.pidx === '') return;
+    showXiTip(chip);
+  });
+  pitch.addEventListener('pointerout', function(e){
+    if(e.pointerType && e.pointerType !== 'mouse') return;
+    var chip = e.target.closest('.chip'); if(!chip) return;
+    if(e.relatedTarget && chip.contains(e.relatedTarget)) return;
+    hideXiTip();
+  });
+  window.addEventListener('scroll', hideXiTip, true);
+}
 function resetXI(){ overrides = {}; xiClubs = []; xiNats = []; xiLeagues = []; renderXI(); renderPoolChips(); }
 function changeFormation(){ overrides = {}; renderXI(); }
 
@@ -1255,6 +1331,7 @@ function initXI(){
     FORMATIONS.map(function(f){ return '<option value="' + f.id + '">' + f.name + '</option>'; }).join('');
   renderXI();
   initXIDrag();
+  initXiHover();
 }
 function initCountries(){
   var nats = PLAYERS.map(function(p){ return p.nat; }).filter(Boolean);
