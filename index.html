@@ -368,10 +368,6 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .ov-donut-mid b { font-size: 21px; font-weight: 800; } .ov-donut-mid span { font-size: 9px; color: var(--text-muted); letter-spacing: .5px; }
 .ov-lg { display: flex; flex-direction: column; gap: 5px; font-size: 11px; }
 .ov-li { display: flex; align-items: center; gap: 6px; } .ov-sw { width: 9px; height: 9px; border-radius: 2px; }
-#ov-lead { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 18px; }
-.ov-lead-row { display: flex; align-items: center; gap: 8px; padding: 4px; border-bottom: .5px solid var(--border-subtle); }
-.ov-lead-k { width: 34px; font-weight: 800; color: var(--accent); font-size: 11px; }
-.ov-lead-n { flex: 1; font-weight: 600; } .ov-lead-v { font-weight: 800; }
 @media (max-width: 820px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } .ov-hero, .ov-span2 { grid-column: span 2; } }
 @media (max-width: 520px) { .ov-grid { grid-template-columns: 1fr; } .ov-hero, .ov-span2 { grid-column: span 1; } .ov-hero-avg { font-size: 38px; } }
 </style>
@@ -383,10 +379,10 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 <h1>DLS Squad Stats</h1>
 
 <div class="cat-btns">
+  <button class="cat active" onclick="showTop('overview', this)">▦ Overview</button>
   <button class="cat" onclick="showTop('players', this)">Players</button>
   <button class="cat cat-compare" onclick="showTop('compare', this)">⚔ Compare</button>
   <button class="cat cat-xi" onclick="showTop('xi', this)">★ Best XI</button>
-  <button class="cat active" onclick="showTop('overview', this)">▦ Overview</button>
 </div>
 
 <!-- Players chrome: category sub-nav + legend + search — shown only inside the Players tab -->
@@ -429,7 +425,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
     <div class="ov-w"><div class="ov-t">By line</div><div id="ov-line"></div></div>
     <div class="ov-w"><div class="ov-t">Card mix</div><div class="ov-mix"><div class="ov-donut" id="ov-donut"><div class="ov-donut-mid"><b id="ov-donut-n"></b><span>CARDS</span></div></div><div class="ov-lg" id="ov-lg"></div></div></div>
     <div class="ov-w ov-span2"><div class="ov-t">Top nations</div><div id="ov-nat"></div></div>
-    <div class="ov-w ov-span2"><div class="ov-t">Stat leaders</div><div class="ov-lead" id="ov-lead"></div></div>
+    <div class="ov-w ov-span2"><div class="ov-t">Rating tiers</div><div id="ov-tiers"></div></div>
   </div>
 </div>
 
@@ -1480,10 +1476,17 @@ function renderOverview(){
       + '<div class="ov-barbg"><div class="ov-bar" style="width:' + (x[1] / nmax * 100) + '%;background:var(--accent)"></div></div>'
       + '<span class="ov-bv">' + x[1] + '</span></div>';
   }).join('');
-  var leadK = [['SPE',0], ['SHO',6], ['PAS',5], ['STR',3], ['TAC',7], ['ACC',1]];
-  document.getElementById('ov-lead').innerHTML = leadK.map(function(lk){
-    var best = P.slice().sort(function(a,b){ return b.st[lk[1]] - a.st[lk[1]]; })[0];
-    return '<div class="ov-lead-row"><span class="ov-lead-k">' + lk[0] + '</span><span class="ov-lead-n">' + shortName(best) + '</span><span class="ov-lead-v">' + best.st[lk[1]] + '</span></div>';
+  var tiers = [
+    ['97+',   function(o){ return o >= 97; }],
+    ['96',    function(o){ return o === 96; }],
+    ['95',    function(o){ return o === 95; }],
+    ['90–94', function(o){ return o >= 90 && o <= 94; }],
+    ['< 90',  function(o){ return o < 90; }]
+  ];
+  var tcounts = tiers.map(function(t){ return P.filter(function(p){ return t[1](p.ovr); }).length; });
+  var tmax = Math.max.apply(null, tcounts) || 1;
+  document.getElementById('ov-tiers').innerHTML = tiers.map(function(t, i){
+    return ovBarRow(t[0], tcounts[i], tmax, 'var(--accent)', 46);
   }).join('');
   var stats = {}; STAT_KEYS.forEach(function(k,i){ stats[k] = r1(avg(P.map(function(p){ return p.st[i]; }))); });
   document.getElementById('ov-radar').innerHTML = buildRadar({ stats: stats }, null, STAT_KEYS);
