@@ -224,6 +224,9 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .cmp-table .lose { color: var(--text-subtle); }
 .cmp-table tr.row-tot td { border-top: 1px solid var(--border); font-size: 15px; }
 .cmp-table tr.row-tot .stat-label { color: var(--total-accent); }
+/* per-stat gap, shown under the stat label; arrow points at whoever leads */
+.cmp-table .cmp-diff { font-size: 10px; font-weight: 700; letter-spacing: .3px; margin-top: 2px; white-space: nowrap; }
+.cmp-table .cmp-diff-eq { color: var(--text-subtle); font-weight: 600; }
 
 /* ===== Live search ===== */
 .search-wrap { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
@@ -965,7 +968,14 @@ function renderCompare() {
     const both = va != null && vb != null;
     const aCls = both ? (va > vb ? 'win' : (va < vb ? 'lose' : '')) : '';
     const bCls = both ? (vb > va ? 'win' : (vb < va ? 'lose' : '')) : '';
-    body += '<tr class="' + (label === 'Total' ? 'row-tot' : '') + '"><td class="' + aCls + '">' + (va != null ? va : '–') + '</td><td class="stat-label">' + label + '</td><td class="' + bCls + '">' + (vb != null ? vb : '–') + '</td></tr>';
+    let diff = '';
+    if (both) {
+      const d = va - vb;
+      if (d === 0) diff = '<div class="cmp-diff cmp-diff-eq">=</div>';
+      else if (d > 0) diff = '<div class="cmp-diff" style="color:' + COLOR_A + '">◀ ' + d + '</div>';
+      else diff = '<div class="cmp-diff" style="color:' + COLOR_B + '">' + (-d) + ' ▶</div>';
+    }
+    body += '<tr class="' + (label === 'Total' ? 'row-tot' : '') + '"><td class="' + aCls + '">' + (va != null ? va : '–') + '</td><td class="stat-label">' + label + diff + '</td><td class="' + bCls + '">' + (vb != null ? vb : '–') + '</td></tr>';
   });
   const table = '<table class="cmp-table"><thead><tr>' + hA + '<th class="stat-label">STAT</th>' + hB + '</tr></thead><tbody>' + body + '</tbody></table>';
   out.innerHTML = '<div class="cmp-grid"><div><div class="radar-wrap">' + buildRadar(pA, pB) + '</div>' + legend + '</div>' + table + '</div>';
