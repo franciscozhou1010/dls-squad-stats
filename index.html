@@ -82,13 +82,13 @@
     --radar-grid: #d0d7de;
     --radar-label: #57606a;
     --card-legend: #7a5c00;
-    --row-legend-bg: #fdf6e0; --row-legend-hover: #f7ecc2; --row-legend-border: #e9d192;
+    --row-legend-bg: #fdf4d2; --row-legend-hover: #f7e9b4; --row-legend-border: #e7d28e;
     --card-tots: #7331d9;
     --row-tots-bg: #f6effe; --row-tots-hover: #ecdcfb; --row-tots-border: #d8bcf4;
     --card-wc: #bb1f1f;
     --row-wc-bg: #fdecec; --row-wc-hover: #fad9d9; --row-wc-border: #f0b6b6;
-    --card-standard: #985200;
-    --row-standard-bg: #fdf2df; --row-standard-hover: #f9e7c2; --row-standard-border: #e9c992;
+    --card-standard: #a34400;
+    --row-standard-bg: #fdeee2; --row-standard-hover: #f9ddc9; --row-standard-border: #f0c9a8;
   }
 }
 /* An explicit choice always wins (this block comes last on purpose). */
@@ -116,13 +116,13 @@
   --radar-grid: #d0d7de;
   --radar-label: #57606a;
   --card-legend: #7a5c00;
-  --row-legend-bg: #fdf6e0; --row-legend-hover: #f7ecc2; --row-legend-border: #e9d192;
+  --row-legend-bg: #fdf4d2; --row-legend-hover: #f7e9b4; --row-legend-border: #e7d28e;
   --card-tots: #7331d9;
   --row-tots-bg: #f6effe; --row-tots-hover: #ecdcfb; --row-tots-border: #d8bcf4;
   --card-wc: #bb1f1f;
   --row-wc-bg: #fdecec; --row-wc-hover: #fad9d9; --row-wc-border: #f0b6b6;
-  --card-standard: #985200;
-  --row-standard-bg: #fdf2df; --row-standard-hover: #f9e7c2; --row-standard-border: #e9c992;
+  --card-standard: #a34400;
+  --row-standard-bg: #fdeee2; --row-standard-hover: #f9ddc9; --row-standard-border: #f0c9a8;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -744,8 +744,8 @@ const PLAYERS = [
   {"name":"Heung-Min Son","year":null,"pos":"CF","ovr":93,"card":"standard","st":[91,100,92,75,98,94,95,62],"club":"LAFC","nat":"South Korea","hgt":184,"foot":"B"},
   {"name":"Marcus Rashford","year":null,"pos":"LW","ovr":90,"card":"standard","st":[100,95,78,84,91,78,95,45],"club":"Barcelona","nat":"England","hgt":185,"foot":"R"},
   {"name":"Mason Greenwood","year":null,"pos":"RW","ovr":91,"card":"standard","st":[100,90,89,83,94,91,90,40],"club":"Marseille","nat":"England","hgt":181,"foot":"B"},
-  {"name":"Jonathan David","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[88,86,81,77,81,77,84,30],"club":"Juventus","nat":"Canada","hgt":175,"foot":"B"},
-  {"name":"Tarik Muharemović","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[78,70,79,90,75,76,55,90],"club":"Sassuolo","nat":"Bosnia & Herzegovina","hgt":187,"foot":"L"},
+  {"name":"Jonathan David","year":"2026","pos":"CF","ovr":85,"card":"wc","st":[92,91,86,80,84,80,88,31],"club":"Juventus","nat":"Canada","hgt":175,"foot":"B"},
+  {"name":"Tarik Muharemović","year":"2026","pos":"CB","ovr":83,"card":"wc","st":[80,72,81,92,76,77,56,92],"club":"Sassuolo","nat":"Bosnia & Herzegovina","hgt":187,"foot":"L"},
   {"name":"Igor Thiago","year":"2026","pos":"CF","ovr":84,"card":"tots","st":[82,77,83,93,84,75,93,37],"club":"Brentford","nat":"Brazil","hgt":188,"foot":"R"},
   {"name":"Achraf Hakimi","year":null,"pos":"RB","ovr":95,"card":"standard","st":[97,89,95,73,100,97,85,96],"club":"Paris SG","nat":"Morocco","hgt":181,"foot":"R"},
   {"name":"William Saliba","year":null,"pos":"CB","ovr":94,"card":"standard","st":[100,88,92,94,89,89,56,100],"club":"Arsenal","nat":"France","hgt":192,"foot":"R"},
@@ -789,19 +789,33 @@ const PLAYERS = [
   {"name":"Federico Dimarco","year":null,"pos":"LB","ovr":94,"card":"standard","st":[99,97,92,83,85,94,82,87],"club":"Inter Milan","nat":"Italy","hgt":175,"foot":"L"},
   {"name":"Rodri","year":null,"pos":"DM","ovr":96,"card":"standard","st":[87,87,99,100,91,98,87,97],"club":"Man City","nat":"Spain","hgt":191,"foot":"R"},
   {"name":"Rivaldo","year":"2002","pos":"AM","ovr":95,"card":"legend","st":[91,94,95,95,99,98,100,49],"club":"🎖️ Retired","nat":"Brazil","hgt":186,"foot":"L"},
-  {"name":"Nico Williams","year":"2026","pos":"LW","ovr":82,"card":"wc","st":[90,93,79,61,89,79,77,36],"club":"Athletic Bilbao","nat":"Spain","hgt":181,"foot":"R"},
-  {"name":"Iliman Ndiaye","year":"2026","pos":"RW","ovr":82,"card":"wc","st":[84,87,79,67,87,76,80,45],"club":"Everton","nat":"Senegal","hgt":180,"foot":"R"},
-  {"name":"Yoane Wissa","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[87,89,79,73,81,77,85,34],"club":"Newcastle","nat":"DR Congo","hgt":180,"foot":"R"},
-  {"name":"Alexander Sørloth","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[81,72,79,92,83,75,88,31],"club":"Atletico Madrid","nat":"Norway","hgt":195,"foot":"L"},
-  {"name":"Takefusa Kubo","year":"2026","pos":"RW","ovr":82,"card":"wc","st":[83,88,76,64,87,79,79,52],"club":"Real Sociedad","nat":"Japan","hgt":173,"foot":"L"},
+  {"name":"Nico Williams","year":"2026","pos":"LW","ovr":96,"card":"wc","st":[100,100,100,82,100,100,100,46],"club":"Athletic Bilbao","nat":"Spain","hgt":181,"foot":"R"},
+  {"name":"Iliman Ndiaye","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[86,89,81,68,88,77,82,46],"club":"Everton","nat":"Senegal","hgt":180,"foot":"R"},
+  {"name":"Yoane Wissa","year":"2026","pos":"CF","ovr":83,"card":"wc","st":[89,91,81,74,82,78,87,35],"club":"Newcastle","nat":"DR Congo","hgt":180,"foot":"R"},
+  {"name":"Alexander Sørloth","year":"2026","pos":"CF","ovr":88,"card":"wc","st":[88,83,88,97,89,81,96,33],"club":"Atletico Madrid","nat":"Norway","hgt":195,"foot":"L"},
+  {"name":"Takefusa Kubo","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[85,89,77,64,88,80,81,52],"club":"Real Sociedad","nat":"Japan","hgt":173,"foot":"L"},
   {"name":"Kang-in Lee","year":"2026","pos":"AM","ovr":82,"card":"wc","st":[79,87,80,63,85,86,77,55],"club":"Paris SG","nat":"South Korea","hgt":173,"foot":"L"},
-  {"name":"Jackson Irvine","year":"2026","pos":"CM","ovr":82,"card":"wc","st":[79,70,93,83,77,79,70,80],"club":"St. Pauli","nat":"Australia","hgt":189,"foot":"R"},
-  {"name":"Richard Ríos","year":"2026","pos":"DM","ovr":82,"card":"wc","st":[77,77,85,77,84,79,61,77],"club":"Benfica","nat":"Colombia","hgt":185,"foot":"R"},
+  {"name":"Jackson Irvine","year":"2026","pos":"CM","ovr":83,"card":"wc","st":[80,71,95,83,77,80,70,80],"club":"St. Pauli","nat":"Australia","hgt":189,"foot":"R"},
+  {"name":"Richard Ríos","year":"2026","pos":"DM","ovr":86,"card":"wc","st":[82,82,92,79,89,85,64,80],"club":"Benfica","nat":"Colombia","hgt":185,"foot":"R"},
   {"name":"Abdukodir Khusanov","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[92,80,74,81,75,77,45,83],"club":"Man City","nat":"Uzbekistan","hgt":186,"foot":"R"},
   {"name":"Arda Güler","year":"2026","pos":"AM","ovr":82,"card":"wc","st":[77,84,79,57,87,88,80,62],"club":"Real Madrid","nat":"Turkey","hgt":176,"foot":"L"},
-  {"name":"Piero Hincapié","year":"2026","pos":"CB","ovr":82,"card":"wc","st":[86,76,81,82,76,78,47,86],"club":"Arsenal","nat":"Ecuador","hgt":184,"foot":"L"},
-  {"name":"Rayan Aït-Nouri","year":"2026","pos":"LB","ovr":82,"card":"wc","st":[86,84,81,64,82,80,59,77],"club":"Man City","nat":"Algeria","hgt":180,"foot":"L"},
-  {"name":"Ronwen Williams","year":"2026","pos":"GK","ovr":82,"card":"wc","st":[61,59,80,60,59,61,78,49],"club":"Mamelodi Sundowns","nat":"South Africa","hgt":184,"foot":"R"}
+  {"name":"Piero Hincapié","year":"2026","pos":"CB","ovr":83,"card":"wc","st":[88,78,83,84,77,79,48,88],"club":"Arsenal","nat":"Ecuador","hgt":184,"foot":"L"},
+  {"name":"Rayan Aït-Nouri","year":"2026","pos":"LB","ovr":83,"card":"wc","st":[88,86,83,66,83,81,60,79],"club":"Man City","nat":"Algeria","hgt":180,"foot":"L"},
+  {"name":"Ronwen Williams","year":"2026","pos":"GK","ovr":83,"card":"wc","st":[61,59,81,60,59,61,79,49],"club":"Mamelodi Sundowns","nat":"South Africa","hgt":184,"foot":"R"},
+  {"name":"Dennis Bergkamp","year":"1994","pos":"CF","ovr":95,"card":"legend","st":[97,89,100,97,100,89,100,46],"club":"🎖️ Retired","nat":"Netherlands","hgt":183,"foot":"R"},
+  {"name":"James Rodríguez","year":"2014","pos":"AM","ovr":95,"card":"legend","st":[89,100,96,87,100,100,100,50],"club":"🎖️ Retired","nat":"Colombia","hgt":180,"foot":"L"},
+  {"name":"Rodri","year":"2026","pos":"DM","ovr":97,"card":"wc","st":[95,84,96,100,100,95,73,100],"club":"Man City","nat":"Spain","hgt":190,"foot":"R"},
+  {"name":"Rodrigo De Paul","year":"2026","pos":"CM","ovr":93,"card":"wc","st":[87,84,100,82,94,97,79,88],"club":"Inter Miami","nat":"Argentina","hgt":180,"foot":"R"},
+  {"name":"Bradley Barcola","year":null,"pos":"LW","ovr":91,"card":"standard","st":[99,100,90,73,95,91,95,37],"club":"Paris SG","nat":"France","hgt":182,"foot":"R"},
+  {"name":"Amadou Onana","year":"2026","pos":"DM","ovr":87,"card":"wc","st":[90,75,87,89,83,85,62,86],"club":"Aston Villa","nat":"Belgium","hgt":195,"foot":"R"},
+  {"name":"Álvaro Fidalgo","year":"2026","pos":"CM","ovr":87,"card":"wc","st":[85,89,91,71,89,89,76,76],"club":"América","nat":"Mexico","hgt":174,"foot":"R"},
+  {"name":"Omar Alderete","year":"2026","pos":"CB","ovr":85,"card":"wc","st":[82,76,85,92,78,80,54,94],"club":"Sunderland","nat":"Paraguay","hgt":188,"foot":"L"},
+  {"name":"Donyell Malen","year":"2026","pos":"CF","ovr":84,"card":"wc","st":[88,93,79,74,86,80,86,36],"club":"Aston Villa","nat":"Netherlands","hgt":176,"foot":"R"},
+  {"name":"Iñaki Williams","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[91,84,83,82,80,76,81,40],"club":"Athletic Bilbao","nat":"Ghana","hgt":186,"foot":"R"},
+  {"name":"Anthony Elanga","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[94,95,79,71,83,80,78,33],"club":"Newcastle","nat":"Sweden","hgt":178,"foot":"R"},
+  {"name":"Konrad Laimer","year":"2026","pos":"RB","ovr":83,"card":"wc","st":[89,83,85,69,78,85,67,83],"club":"Bayern Munich","nat":"Austria","hgt":180,"foot":"R"},
+  {"name":"Darwin Núñez","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[90,79,85,82,77,75,80,41],"club":"Al-Hilal","nat":"Uruguay","hgt":187,"foot":"R"},
+  {"name":"Chris Wood","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[76,68,79,94,82,75,86,45],"club":"Nottingham Forest","nat":"New Zealand","hgt":191,"foot":"R"}
 ];
 
 const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
@@ -1393,7 +1407,8 @@ var NAT_FLAG = {
   'Egypt':'🇪🇬','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Italy':'🇮🇹',
   'Japan':'🇯🇵','Morocco':'🇲🇦','Netherlands':'🇳🇱','Norway':'🇳🇴','Portugal':'🇵🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
   'Senegal':'🇸🇳','South Africa':'🇿🇦','South Korea':'🇰🇷','Spain':'🇪🇸','Switzerland':'🇨🇭',
-  'Turkey':'🇹🇷','USA':'🇺🇸','Uruguay':'🇺🇾','Uzbekistan':'🇺🇿'
+  'Turkey':'🇹🇷','USA':'🇺🇸','Uruguay':'🇺🇾','Uzbekistan':'🇺🇿',
+  'Austria':'🇦🇹','Ghana':'🇬🇭','Mexico':'🇲🇽','New Zealand':'🇳🇿','Paraguay':'🇵🇾','Sweden':'🇸🇪'
 };
 function footFull(f){ return {L:'Left', R:'Right', B:'Both'}[f] || f || '—'; }
 function openDetail(idx){
