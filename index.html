@@ -729,7 +729,7 @@ const PLAYERS = [
   {"name":"Harry Kane","year":null,"pos":"CF","ovr":96,"card":"standard","st":[99,96,100,100,90,90,97,55],"club":"Bayern Munich","nat":"England","hgt":188,"foot":"R"},
   {"name":"Lamine Yamal","year":null,"pos":"RW","ovr":96,"card":"standard","st":[99,100,99,86,100,99,94,44],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
   {"name":"Luis Suárez","year":"2026","pos":"CF","ovr":83,"card":"tots","st":[88,87,83,83,84,76,92,33],"club":"Sporting CP","nat":"Colombia","hgt":182,"foot":"R"},
-  {"name":"Kylian Mbappé","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,90,82,100,100,100,53],"club":"Real Madrid","nat":"France","hgt":178,"foot":"R"},
+  {"name":"Kylian Mbappé","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,99,100,89,100,33],"club":"Real Madrid","nat":"France","hgt":178,"foot":"R"},
   {"name":"Erling Haaland","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,100,91,89,100,49],"club":"Man City","nat":"Norway","hgt":195,"foot":"L"},
   {"name":"Mohamed Salah","year":null,"pos":"RW","ovr":96,"card":"standard","st":[100,100,100,92,96,95,92,51],"club":"Liverpool","nat":"Egypt","hgt":175,"foot":"L"},
   {"name":"Lionel Messi","year":null,"pos":"SS","ovr":96,"card":"standard","st":[96,100,86,85,100,95,99,60],"club":"Inter Miami","nat":"Argentina","hgt":170,"foot":"L"},
@@ -815,7 +815,9 @@ const PLAYERS = [
   {"name":"Anthony Elanga","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[94,95,79,71,83,80,78,33],"club":"Newcastle","nat":"Sweden","hgt":178,"foot":"R"},
   {"name":"Konrad Laimer","year":"2026","pos":"RB","ovr":83,"card":"wc","st":[89,83,85,69,78,85,67,83],"club":"Bayern Munich","nat":"Austria","hgt":180,"foot":"R"},
   {"name":"Darwin Núñez","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[90,79,85,82,77,75,80,41],"club":"Al-Hilal","nat":"Uruguay","hgt":187,"foot":"R"},
-  {"name":"Chris Wood","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[76,68,79,94,82,75,86,45],"club":"Nottingham Forest","nat":"New Zealand","hgt":191,"foot":"R"}
+  {"name":"Chris Wood","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[76,68,79,94,82,75,86,45],"club":"Nottingham Forest","nat":"New Zealand","hgt":191,"foot":"R"},
+  {"name":"Willian Pacho","year":null,"pos":"CB","ovr":93,"card":"standard","st":[97,98,97,100,82,82,54,94],"club":"Paris SG","nat":"Ecuador","hgt":188,"foot":"L"},
+  {"name":"Bruno Guimarães","year":null,"pos":"CM","ovr":93,"card":"standard","st":[88,86,100,89,86,90,85,91],"club":"Newcastle","nat":"Brazil","hgt":182,"foot":"R"}
 ];
 
 const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
@@ -1456,7 +1458,7 @@ function renderOverview(){
   function r1(x){ return Math.round(x * 10) / 10; }
   document.getElementById('ov-avg').textContent = r1(avg(P.map(function(p){ return p.ovr; })));
   var nations = {}, clubs = {};
-  P.forEach(function(p){ if(p.nat) nations[p.nat] = 1; if(p.club) clubs[p.club] = 1; });
+  P.forEach(function(p){ if(p.nat) nations[p.nat] = 1; if(p.club && p.club.indexOf('Retired') < 0) clubs[p.club] = 1; });
   document.getElementById('ov-herokpis').innerHTML =
     '<div class="ov-hk"><b>' + n + '</b><span>players</span></div>'
     + '<div class="ov-hk"><b>' + Object.keys(nations).length + '</b><span>nations</span></div>'
