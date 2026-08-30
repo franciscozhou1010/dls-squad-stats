@@ -1,0 +1,279 @@
+/* ===========================================================================
+   DLS shell — the chrome shared by every page of the site.
+
+   Direction: near-black ground, thin high-chroma strokes, octagonal clipped
+   corners instead of rounded ones, telemetry-style monospace labels, and glow
+   carried by layered box-shadows. Game UI, but console/HUD rather than the
+   candy-coloured mobile store.
+
+   Navigation is a fixed left rail: 60px of icons at rest, expanding to show
+   labels on hover. Content is padded past the collapsed width and the expanded
+   rail overlays it, so nothing reflows when it opens.
+
+   Every token is prefixed --dls- on purpose: squad.html carries its own
+   GitHub-Primer palette on --bg / --text / --accent and the two must not
+   collide. This file owns the rail only; page bodies keep their own CSS.
+   =========================================================================== */
+
+:root {
+  /* Ground */
+  --dls-void: #04080f;
+  --dls-ground: #070d18;
+  --dls-panel: #0b1524;
+  --dls-panel-lit: #101d30;
+
+  /* Strokes and text */
+  --dls-edge: #1c3a5e;
+  --dls-edge-soft: #16283f;
+  --dls-ink: #dce9f7;
+  --dls-ink-dim: #7d9bba;
+  --dls-ink-faint: #4c6684;
+
+  /* High-chroma accents */
+  --dls-cyan: #22d3ee;
+  --dls-blue: #3b9dff;
+  --dls-mint: #34d399;
+  --dls-amber: #fbbf24;
+  --dls-violet: #a78bfa;
+  --dls-magenta: #f472b6;
+
+  --dls-rail-w: 60px;
+  --dls-rail-open: 236px;
+
+  /* Two corners cut, top-left and bottom-right — the load-bearing shape of
+     the whole design. Overridden per element where a smaller cut reads better. */
+  --dls-cut: 14px;
+  --dls-oct: polygon(
+    var(--dls-cut) 0, 100% 0,
+    100% calc(100% - var(--dls-cut)), calc(100% - var(--dls-cut)) 100%,
+    0 100%, 0 var(--dls-cut)
+  );
+
+  --dls-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  --dls-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* --- Left rail ------------------------------------------------------------ */
+
+.dls-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  width: var(--dls-rail-w);
+  height: 100vh;
+  padding: 12px 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--dls-panel) 0%, var(--dls-void) 100%);
+  border-right: 1px solid var(--dls-edge-soft);
+  box-shadow: 1px 0 0 rgba(34, 211, 238, .07), 6px 0 26px rgba(0, 0, 0, .55);
+  font-family: var(--dls-sans);
+  transition: width .18s cubic-bezier(.4, 0, .2, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .dls-rail:hover { width: var(--dls-rail-open); }
+}
+.dls-rail.is-open { width: var(--dls-rail-open); }
+
+/* A hairline of accent light down the inner edge. */
+.dls-rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(34, 211, 238, .35) 22%, rgba(34, 211, 238, .35) 78%, transparent);
+  pointer-events: none;
+}
+
+/* Rows share a grid so icons stay put while labels fade in. */
+.dls-rail__logo,
+.dls-rail__item {
+  display: grid;
+  grid-template-columns: var(--dls-rail-w) 1fr;
+  align-items: center;
+  height: 46px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dls-rail__logo { height: 52px; margin-bottom: 14px; cursor: pointer; }
+.dls-rail__mark {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  background: linear-gradient(135deg, var(--dls-cyan), var(--dls-blue));
+  color: #041018;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  box-shadow: 0 0 14px rgba(34, 211, 238, .5);
+}
+.dls-rail__word {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dls-ink-dim);
+}
+
+.dls-rail__item { position: relative; color: var(--dls-ink-dim); transition: color .14s, background .14s; }
+.dls-rail__item svg { justify-self: center; width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.dls-rail__label { font-size: 12.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+
+.dls-rail__item:hover { color: var(--dls-ink); background: rgba(34, 211, 238, .06); }
+
+.dls-rail__item--active { color: var(--dls-cyan); background: rgba(34, 211, 238, .09); }
+.dls-rail__item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--dls-cyan);
+  box-shadow: 0 0 10px var(--dls-cyan);
+}
+.dls-rail__item--active svg { filter: drop-shadow(0 0 5px rgba(34, 211, 238, .8)); }
+
+.dls-rail__item--soon { color: var(--dls-ink-faint); cursor: not-allowed; }
+.dls-rail__item--soon:hover { color: var(--dls-ink-faint); background: none; }
+.dls-rail__lock {
+  margin-left: 8px;
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  letter-spacing: 1.2px;
+  color: var(--dls-ink-faint);
+  opacity: .8;
+}
+
+.dls-rail__spacer { flex: 1; }
+
+.dls-rail__foot {
+  display: grid;
+  grid-template-columns: var(--dls-rail-w) 1fr;
+  align-items: center;
+  min-height: 44px;
+  border-top: 1px solid var(--dls-edge-soft);
+  padding-top: 10px;
+}
+.dls-rail__build {
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+  white-space: nowrap;
+}
+
+/* squad.html ships a theme toggle pinned to the viewport corner; it moves into
+   the rail foot, so its absolute positioning and Primer colours are undone. */
+.dls-rail .theme-toggle {
+  position: static;
+  justify-self: center;
+  border-color: var(--dls-edge-soft);
+  background: var(--dls-panel-lit);
+  color: var(--dls-ink-dim);
+}
+.dls-rail .theme-toggle:hover { border-color: var(--dls-cyan); color: var(--dls-cyan); }
+
+/* Push page content clear of the collapsed rail. The attribute selector
+   outranks squad.html's own bare `body` rule regardless of load order. */
+body[data-dls-page] { padding-left: calc(var(--dls-rail-w) + 14px); }
+
+@media (max-width: 640px) {
+  :root { --dls-rail-w: 52px; }
+}
+
+/* --- Shared card / control primitives ------------------------------------ */
+
+/* Clipped panel with a 1px lit edge: the element paints the edge colour and an
+   inset pseudo-element paints the fill, since a clip-path crops any real
+   border along with the corners. */
+.dls-panel {
+  position: relative;
+  clip-path: var(--dls-oct);
+  background: var(--dls-edge-soft);
+}
+.dls-panel::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  clip-path: var(--dls-oct);
+  background: var(--dls-panel);
+  z-index: 0;
+}
+.dls-panel > * { position: relative; z-index: 1; }
+
+.dls-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 13px 18px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  border: none;
+  background: linear-gradient(100deg, var(--dls-cyan), var(--dls-blue));
+  color: #04121a;
+  font-family: var(--dls-sans);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter .14s, box-shadow .14s;
+}
+.dls-btn:hover { filter: brightness(1.12); box-shadow: 0 0 22px rgba(34, 211, 238, .45); }
+
+.dls-btn--locked {
+  background: var(--dls-edge-soft);
+  color: var(--dls-ink-faint);
+  cursor: not-allowed;
+  letter-spacing: 2px;
+}
+.dls-btn--locked:hover { filter: none; box-shadow: none; }
+
+/* Status chip — "LIVE" carries a pulsing dot, "LOCKED" does not. */
+.dls-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.dls-flag i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.dls-flag--live {
+  background: rgba(52, 211, 153, .13);
+  color: var(--dls-mint);
+  box-shadow: inset 0 0 0 1px rgba(52, 211, 153, .35);
+}
+.dls-flag--live i { animation: dls-pulse 1.8s ease-in-out infinite; }
+.dls-flag--soon {
+  background: rgba(125, 155, 186, .09);
+  color: var(--dls-ink-faint);
+  box-shadow: inset 0 0 0 1px rgba(125, 155, 186, .2);
+}
+
+@keyframes dls-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: .45; box-shadow: 0 0 7px 1px currentColor; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dls-rail { transition: none; }
+  .dls-flag--live i { animation: none; }
+}
