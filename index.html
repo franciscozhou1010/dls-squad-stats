@@ -241,6 +241,9 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 
 /* ===== Best XI ===== */
 .cat-xi { border-color: var(--success-strong); color: var(--success); }
+/* ===== Past cards ===== */
+.cat-past { border-color: var(--border); color: var(--text-muted); }
+.past-note { text-align: center; font-size: 12px; color: var(--text-muted); max-width: 640px; margin: 0 auto 14px; line-height: 1.5; }
 .xi-controls { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .xi-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 .xi-select { background: var(--bg-surface); border: 1.5px solid var(--border); color: var(--text); font-size: 13px; padding: 8px 12px; border-radius: 8px; outline: none; cursor: pointer; }
@@ -386,6 +389,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   <button class="cat" onclick="showTop('players', this)">Players</button>
   <button class="cat cat-compare" onclick="showTop('compare', this)">⚔ Compare</button>
   <button class="cat cat-xi" onclick="showTop('xi', this)">★ Best XI</button>
+  <button class="cat cat-past" onclick="showTop('past', this)">🗄 Past Cards</button>
 </div>
 
 <!-- Players chrome: category sub-nav + legend + search — shown only inside the Players tab -->
@@ -492,6 +496,28 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   </div>
 </div>
 
+<div id="sec-past" class="section">
+<p class="past-note">Cards that have left the squad, kept for the record. They are counted in nothing else — not the squad totals, not Best XI, not Compare.</p>
+<div class="tbl-wrap" id="tbl-past-out">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr><th onclick="sortTable('tbl-past-out',0)">Player</th><th onclick="sortTable('tbl-past-out',1)">Pos</th><th onclick="sortTable('tbl-past-out',2)">OVR</th><th onclick="sortTable('tbl-past-out',3)">SPE</th><th onclick="sortTable('tbl-past-out',4)">ACC</th><th onclick="sortTable('tbl-past-out',5)">STA</th><th onclick="sortTable('tbl-past-out',6)">STR</th><th onclick="sortTable('tbl-past-out',7)">CON</th><th onclick="sortTable('tbl-past-out',8)">PAS</th><th onclick="sortTable('tbl-past-out',9)">SHO</th><th onclick="sortTable('tbl-past-out',10)">TAC</th><th onclick="sortTable('tbl-past-out',11)">Total</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="count"></div>
+</div>
+<h2 class="gk-head" id="past-gk-head">Goalkeepers</h2>
+<div class="tbl-wrap" id="tbl-past-gk">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr><th onclick="sortTable('tbl-past-gk',0)">Player</th><th onclick="sortTable('tbl-past-gk',1)">Pos</th><th onclick="sortTable('tbl-past-gk',2)">OVR</th><th onclick="sortTable('tbl-past-gk',3)">SPE</th><th onclick="sortTable('tbl-past-gk',4)">ACC</th><th onclick="sortTable('tbl-past-gk',5)">GKR</th><th onclick="sortTable('tbl-past-gk',6)">STR</th><th onclick="sortTable('tbl-past-gk',7)">CON</th><th onclick="sortTable('tbl-past-gk',8)">PAS</th><th onclick="sortTable('tbl-past-gk',9)">GKH</th><th onclick="sortTable('tbl-past-gk',10)">TAC</th><th onclick="sortTable('tbl-past-gk',11)">Total</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="count"></div>
+</div>
+</div>
 <div id="sec-all" class="section">
 <div class="tbl-wrap" id="tbl-all-out">
   <div class="tbl-scroll">
@@ -728,7 +754,6 @@ const PLAYERS = [
   {"name":"Kenan Yildiz","year":"2026","pos":"SS","ovr":94,"card":"tots","st":[100,100,100,83,99,97,100,34],"club":"Juventus","nat":"Turkey","hgt":187,"foot":"B"},
   {"name":"Harry Kane","year":null,"pos":"CF","ovr":96,"card":"standard","st":[99,96,100,100,90,90,97,55],"club":"Bayern Munich","nat":"England","hgt":188,"foot":"R"},
   {"name":"Lamine Yamal","year":null,"pos":"RW","ovr":96,"card":"standard","st":[99,100,99,86,100,99,94,44],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
-  {"name":"Luis Suárez","year":"2026","pos":"CF","ovr":83,"card":"tots","st":[88,87,83,83,84,76,92,33],"club":"Sporting CP","nat":"Colombia","hgt":182,"foot":"R"},
   {"name":"Kylian Mbappé","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,99,100,89,100,33],"club":"Real Madrid","nat":"France","hgt":178,"foot":"R"},
   {"name":"Erling Haaland","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,100,91,89,100,49],"club":"Man City","nat":"Norway","hgt":195,"foot":"L"},
   {"name":"Mohamed Salah","year":null,"pos":"RW","ovr":96,"card":"standard","st":[100,100,100,92,96,95,92,51],"club":"Liverpool","nat":"Egypt","hgt":175,"foot":"L"},
@@ -790,7 +815,6 @@ const PLAYERS = [
   {"name":"Rodri","year":null,"pos":"DM","ovr":96,"card":"standard","st":[87,87,99,100,91,98,87,97],"club":"Man City","nat":"Spain","hgt":191,"foot":"R"},
   {"name":"Rivaldo","year":"2002","pos":"AM","ovr":95,"card":"legend","st":[91,94,95,95,99,98,100,49],"club":"🎖️ Retired","nat":"Brazil","hgt":186,"foot":"L"},
   {"name":"Nico Williams","year":"2026","pos":"LW","ovr":96,"card":"wc","st":[100,100,100,82,100,100,100,46],"club":"Athletic Bilbao","nat":"Spain","hgt":181,"foot":"R"},
-  {"name":"Iliman Ndiaye","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[86,89,81,68,88,77,82,46],"club":"Everton","nat":"Senegal","hgt":180,"foot":"R"},
   {"name":"Yoane Wissa","year":"2026","pos":"CF","ovr":83,"card":"wc","st":[89,91,81,74,82,78,87,35],"club":"Newcastle","nat":"DR Congo","hgt":180,"foot":"R"},
   {"name":"Alexander Sørloth","year":"2026","pos":"CF","ovr":88,"card":"wc","st":[88,83,88,97,89,81,96,33],"club":"Atletico Madrid","nat":"Norway","hgt":195,"foot":"L"},
   {"name":"Takefusa Kubo","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[85,89,77,64,88,80,81,52],"club":"Real Sociedad","nat":"Japan","hgt":173,"foot":"L"},
@@ -806,7 +830,7 @@ const PLAYERS = [
   {"name":"James Rodríguez","year":"2014","pos":"AM","ovr":95,"card":"legend","st":[89,100,96,87,100,100,100,50],"club":"🎖️ Retired","nat":"Colombia","hgt":180,"foot":"L"},
   {"name":"Rodri","year":"2026","pos":"DM","ovr":97,"card":"legend","st":[95,84,96,100,100,95,73,100],"club":"Man City","nat":"Spain","hgt":190,"foot":"R"},
   {"name":"Rodrigo De Paul","year":"2026","pos":"CM","ovr":93,"card":"wc","st":[87,84,100,82,94,97,79,88],"club":"Inter Miami","nat":"Argentina","hgt":180,"foot":"R"},
-  {"name":"Bradley Barcola","year":null,"pos":"LW","ovr":91,"card":"standard","st":[99,100,90,73,95,91,95,37],"club":"Paris SG","nat":"France","hgt":182,"foot":"R"},
+  {"name":"Bradley Barcola","year":"2026","pos":"LW","ovr":91,"card":"wc","st":[99,100,90,73,95,91,95,37],"club":"Liverpool","nat":"France","hgt":182,"foot":"R"},
   {"name":"Amadou Onana","year":"2026","pos":"DM","ovr":87,"card":"wc","st":[90,75,87,89,83,85,62,86],"club":"Aston Villa","nat":"Belgium","hgt":195,"foot":"R"},
   {"name":"Álvaro Fidalgo","year":"2026","pos":"CM","ovr":87,"card":"wc","st":[85,89,91,71,89,89,76,76],"club":"Real Betis","nat":"Mexico","hgt":174,"foot":"R"},
   {"name":"Omar Alderete","year":"2026","pos":"CB","ovr":85,"card":"wc","st":[82,76,85,92,78,80,54,94],"club":"Sunderland","nat":"Paraguay","hgt":188,"foot":"L"},
@@ -815,9 +839,29 @@ const PLAYERS = [
   {"name":"Anthony Elanga","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[94,95,79,71,83,80,78,33],"club":"Newcastle","nat":"Sweden","hgt":178,"foot":"R"},
   {"name":"Konrad Laimer","year":"2026","pos":"RB","ovr":83,"card":"wc","st":[89,83,85,69,78,85,67,83],"club":"Bayern Munich","nat":"Austria","hgt":180,"foot":"R"},
   {"name":"Darwin Núñez","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[90,79,85,82,77,75,80,41],"club":"Al-Hilal","nat":"Uruguay","hgt":187,"foot":"R"},
-  {"name":"Chris Wood","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[76,68,79,94,82,75,86,45],"club":"Nottingham Forest","nat":"New Zealand","hgt":191,"foot":"R"},
   {"name":"Willian Pacho","year":null,"pos":"CB","ovr":93,"card":"standard","st":[97,98,97,100,82,82,54,94],"club":"Paris SG","nat":"Ecuador","hgt":188,"foot":"L"},
-  {"name":"Bruno Guimarães","year":null,"pos":"CM","ovr":93,"card":"standard","st":[88,86,100,89,86,90,85,91],"club":"Newcastle","nat":"Brazil","hgt":182,"foot":"R"}
+  {"name":"Bruno Guimarães","year":null,"pos":"CM","ovr":93,"card":"standard","st":[88,86,100,89,86,90,85,91],"club":"Newcastle","nat":"Brazil","hgt":182,"foot":"R"},
+  {"name":"Paul Pogba","year":"2018","pos":"CM","ovr":96,"card":"legend","st":[94,91,93,96,93,98,88,81],"club":"🎖️ Retired","nat":"France","hgt":191,"foot":"R"},
+  {"name":"Fabio Cannavaro","year":"2006","pos":"CB","ovr":96,"card":"legend","st":[98,95,100,100,91,89,53,100],"club":"🎖️ Retired","nat":"Italy","hgt":176,"foot":"R"},
+  {"name":"Frenkie de Jong","year":null,"pos":"CM","ovr":93,"card":"standard","st":[78,95,91,81,98,97,83,84],"club":"Barcelona","nat":"Netherlands","hgt":181,"foot":"R"},
+  {"name":"Benjamin Pavard","year":"2018","pos":"RB","ovr":84,"card":"legend","st":[81,77,83,81,78,80,70,85],"club":"Marseille","nat":"France","hgt":186,"foot":"R"},
+  {"name":"Antoine Griezmann","year":null,"pos":"SS","ovr":91,"card":"standard","st":[82,92,83,86,97,91,88,62],"club":"Orlando City","nat":"France","hgt":176,"foot":"L"},
+  {"name":"Lamine Yamal","year":"2026","pos":"RW","ovr":97,"card":"legend","st":[100,100,100,91,100,100,100,41],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
+  {"name":"Dominik Szoboszlai","year":null,"pos":"AM","ovr":94,"card":"standard","st":[97,90,99,81,90,98,91,84],"club":"Liverpool","nat":"Hungary","hgt":186,"foot":"R"},
+  {"name":"Pau Cubarsí","year":"2026","pos":"CB","ovr":85,"card":"legend","st":[83,77,83,89,84,84,47,94],"club":"Barcelona","nat":"Spain","hgt":184,"foot":"R"},
+  {"name":"Luis Díaz","year":null,"pos":"LW","ovr":94,"card":"standard","st":[100,100,100,78,92,91,97,62],"club":"Bayern Munich","nat":"Colombia","hgt":180,"foot":"R"},
+  {"name":"Enzo Fernández","year":"2022","pos":"DM","ovr":95,"card":"legend","st":[89,90,96,82,98,97,83,88],"club":"Chelsea","nat":"Argentina","hgt":178,"foot":"R"}
+];
+
+/* Cards that have left the squad. They live in their own array rather than
+   carrying a flag on PLAYERS: every squad figure (Overview KPIs, card mix,
+   Best XI pool, Compare) reads PLAYERS directly, so a flag would need a filter
+   at each of those sites and one missed filter would leak a sold card into the
+   squad's numbers unnoticed. */
+const PAST_CARDS = [
+  {"name":"Iliman Ndiaye","year":"2026","pos":"RW","ovr":83,"card":"wc","st":[86,89,81,68,88,77,82,46],"club":"Everton","nat":"Senegal","hgt":180,"foot":"R"},
+  {"name":"Chris Wood","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[76,68,79,94,82,75,86,45],"club":"Nottingham Forest","nat":"New Zealand","hgt":191,"foot":"R"},
+  {"name":"Luis Suárez","year":"2026","pos":"CF","ovr":83,"card":"tots","st":[88,87,83,83,84,76,92,33],"club":"Sporting CP","nat":"Colombia","hgt":182,"foot":"R"}
 ];
 
 const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
@@ -847,21 +891,37 @@ const TABLES = [
   ['tbl-df-rb',   function(p){return p.pos==='RB';}],
   ['tbl-gk',      function(p){return p.pos==='GK';}]
 ];
-const GK_TABLES = {'tbl-all-gk':1, 'tbl-gk':1};
+const GK_TABLES = {'tbl-all-gk':1, 'tbl-gk':1, 'tbl-past-gk':1};
 
 function totalOf(p){ return p.st.reduce(function(a,b){return a+b;}, 0); }
 function displayName(p){ return p.name + (p.year ? " <span class='yr'>(" + p.year + ")</span>" : ""); }
-function rowHTML(p){
-  return '<tr class="r-' + p.card + '" data-nat="' + (p.nat || '').replace(/&/g, '&amp;') + '" style="cursor:pointer" onclick="openDetail(' + PLAYERS.indexOf(p) + ')">'
+function rowHTML(p, src){
+  var arr = src === 'past' ? PAST_CARDS : PLAYERS;
+  return '<tr class="r-' + p.card + '" data-nat="' + (p.nat || '').replace(/&/g, '&amp;') + '" style="cursor:pointer" onclick="openDetail(' + arr.indexOf(p) + (src === 'past' ? ",'past'" : '') + ')">'
     + '<td>' + displayName(p) + '</td><td>' + p.pos + '</td><td>' + p.ovr + '</td>'
     + p.st.map(function(s){ return '<td>' + s + '</td>'; }).join('')
     + '<td class="tot">' + totalOf(p) + '</td></tr>';
+}
+function renderPast(){
+  [['tbl-past-out', function(p){ return p.pos !== 'GK'; }],
+   ['tbl-past-gk',  function(p){ return p.pos === 'GK'; }]].forEach(function(t){
+    var wrap = document.getElementById(t[0]); if(!wrap) return;
+    var list = PAST_CARDS.filter(t[1]);
+    wrap.querySelector('tbody').innerHTML = list.map(function(p){ return rowHTML(p, 'past'); }).join('');
+    var cnt = wrap.querySelector('.count');
+    if(cnt) cnt.textContent = list.length + (GK_TABLES[t[0]] ? ' goalkeepers' : ' past cards');
+  });
+  /* Hide the goalkeeper block entirely while no keeper has been archived. */
+  var gkAny = PAST_CARDS.some(function(p){ return p.pos === 'GK'; });
+  var gkHead = document.getElementById('past-gk-head'), gkTbl = document.getElementById('tbl-past-gk');
+  if(gkHead) gkHead.style.display = gkAny ? '' : 'none';
+  if(gkTbl)  gkTbl.style.display  = gkAny ? '' : 'none';
 }
 function render(){
   TABLES.forEach(function(t){
     var wrap = document.getElementById(t[0]); if(!wrap) return;
     var list = PLAYERS.filter(t[1]);
-    wrap.querySelector('tbody').innerHTML = list.map(rowHTML).join('');
+    wrap.querySelector('tbody').innerHTML = list.map(function(p){ return rowHTML(p); }).join('');
     wrap.querySelectorAll('th').forEach(function(th){ th.dataset.asc = ''; th.textContent = th.textContent.replace(/ [↑↓]$/, ''); });
     var cnt = wrap.querySelector('.count');
     if(cnt) cnt.textContent = list.length + (GK_TABLES[t[0]] ? ' goalkeepers' : ' players');
@@ -1406,16 +1466,16 @@ function changeFormation(){ overrides = {}; renderXI(); }
 var NAT_FLAG = {
   'Algeria':'🇩🇿','Argentina':'🇦🇷','Australia':'🇦🇺','Belgium':'🇧🇪','Bosnia & Herzegovina':'🇧🇦',
   'Brazil':'🇧🇷','Canada':'🇨🇦','Colombia':'🇨🇴','Croatia':'🇭🇷','DR Congo':'🇨🇩','Ecuador':'🇪🇨',
-  'Egypt':'🇪🇬','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Italy':'🇮🇹',
+  'Egypt':'🇪🇬','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Hungary':'🇭🇺','Italy':'🇮🇹',
   'Japan':'🇯🇵','Morocco':'🇲🇦','Netherlands':'🇳🇱','Norway':'🇳🇴','Portugal':'🇵🇹','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
   'Senegal':'🇸🇳','South Africa':'🇿🇦','South Korea':'🇰🇷','Spain':'🇪🇸','Switzerland':'🇨🇭',
   'Turkey':'🇹🇷','USA':'🇺🇸','Uruguay':'🇺🇾','Uzbekistan':'🇺🇿',
   'Austria':'🇦🇹','Ghana':'🇬🇭','Mexico':'🇲🇽','New Zealand':'🇳🇿','Paraguay':'🇵🇾','Sweden':'🇸🇪'
 };
 function footFull(f){ return {L:'Left', R:'Right', B:'Both'}[f] || f || '—'; }
-function openDetail(idx){
-  var p = PLAYERS[idx]; if(!p) return;
-  detailOpenIdx = idx;
+function openDetail(idx, src){
+  var p = (src === 'past' ? PAST_CARDS : PLAYERS)[idx]; if(!p) return;
+  detailOpenIdx = idx; detailOpenSrc = src || null;
   var col = CARD_TEXT[p.card];
   var labels = STAT_KEYS.slice();
   if(p.pos === 'GK'){ labels[2] = 'GKR'; labels[6] = 'GKH'; }
@@ -1436,7 +1496,7 @@ function openDetail(idx){
   document.getElementById('detail-info').innerHTML = bio + statsHtml;
   document.getElementById('detail-modal').style.display = 'flex';
 }
-function closeDetail(){ detailOpenIdx = null; document.getElementById('detail-modal').style.display = 'none'; }
+function closeDetail(){ detailOpenIdx = null; detailOpenSrc = null; document.getElementById('detail-modal').style.display = 'none'; }
 
 /* ===== Overview dashboard (bento) — all figures computed live from PLAYERS ===== */
 function goCat(cat){   // jump from Overview into the Players tab at a given sub-category
@@ -1558,7 +1618,7 @@ var THEME_ICON = {
 };
 var CARD_TEXT = {};
 var RADAR_GRID = '#30363d', RADAR_LABEL = '#8b949e', TEXT_SUBTLE = '#6e7681';
-var detailOpenIdx = null;
+var detailOpenIdx = null, detailOpenSrc = null;
 var THEME_MQ = window.matchMedia('(prefers-color-scheme: dark)');
 
 function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
@@ -1599,7 +1659,7 @@ function applyTheme(pref){
   renderXI();
   renderCompare();
   renderOverview();
-  if (detailOpenIdx !== null) openDetail(detailOpenIdx);
+  if (detailOpenIdx !== null) openDetail(detailOpenIdx, detailOpenSrc);
 }
 
 function cycleTheme(){ applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(themePref()) + 1) % THEME_ORDER.length]); }
@@ -1613,6 +1673,7 @@ THEME_MQ.addEventListener('change', function(){
 /* ===== initial paint ===== */
 readThemeColors();
 render();
+renderPast();
 renderCompare();
 initXI();
 initCountries();
