@@ -365,6 +365,18 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .ov-hk b { font-size: 22px; font-weight: 800; display: block; } .ov-hk span { font-size: 10px; color: var(--text-muted); }
 #ov-radar { margin-top: 2px; } #ov-radar svg { width: 100%; max-width: 208px; height: auto; display: block; }
 .ov-kn { font-size: 30px; font-weight: 800; line-height: 1; } .ov-kl { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+/* Hero: figures on the left, radar alongside them rather than stacked underneath. */
+.ov-hero-body { display: flex; align-items: center; gap: 20px; }
+.ov-hero-left { flex: 1 1 auto; min-width: 0; }
+.ov-hero-right { flex: 0 0 auto; }
+.ov-hero-kpis { flex-wrap: wrap; }
+/* One block for all five card-type counts, filling the 2x2 beside the hero. */
+.ov-cards { grid-column: span 2; grid-row: span 2; }
+.ov-ct { display: flex; align-items: center; gap: 11px; padding: 10px 2px; border-bottom: .5px solid var(--border-subtle); }
+.ov-ct:last-child { border-bottom: 0; }
+.ov-ctd { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+.ov-ctl { flex: 1; font-weight: 600; }
+.ov-ctn { font-size: 27px; font-weight: 800; line-height: 1; }
 .ov-row { display: flex; align-items: center; gap: 9px; padding: 6px 4px; border-bottom: .5px solid var(--border-subtle); }
 .ov-row:last-child { border-bottom: 0; }
 .ov-prow { cursor: pointer; border-radius: 6px; } .ov-prow:hover { background: var(--bg-inset); }
@@ -384,8 +396,10 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .ov-donut-mid b { font-size: 21px; font-weight: 800; } .ov-donut-mid span { font-size: 9px; color: var(--text-muted); letter-spacing: .5px; }
 .ov-lg { display: flex; flex-direction: column; gap: 5px; font-size: 11px; }
 .ov-li { display: flex; align-items: center; gap: 6px; } .ov-sw { width: 9px; height: 9px; border-radius: 2px; }
-@media (max-width: 820px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } .ov-hero, .ov-span2 { grid-column: span 2; } }
-@media (max-width: 520px) { .ov-grid { grid-template-columns: 1fr; } .ov-hero, .ov-span2 { grid-column: span 1; } .ov-hero-avg { font-size: 38px; } }
+@media (max-width: 820px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } .ov-hero, .ov-span2, .ov-cards { grid-column: span 2; } .ov-cards { grid-row: auto; } }
+@media (max-width: 520px) { .ov-grid { grid-template-columns: 1fr; } .ov-hero, .ov-span2, .ov-cards { grid-column: span 1; } .ov-hero-avg { font-size: 38px; }
+  /* Too narrow to sit side by side — fall back to stacked. */
+  .ov-hero-body { flex-direction: column; align-items: flex-start; gap: 12px; } }
 </style>
 </head>
 <body>
@@ -430,16 +444,18 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
     <div class="ov-w ov-hero">
       <div class="ov-glow"></div>
       <div class="ov-t">Squad at a glance</div>
-      <div class="ov-hero-top"><div class="ov-hero-avg" id="ov-avg">—</div><div class="ov-hero-lab">avg OVR</div></div>
-      <div class="ov-hero-kpis" id="ov-herokpis"></div>
-      <div class="ov-t" style="margin-top:16px">Squad average</div>
-      <div id="ov-radar"></div>
+      <div class="ov-hero-body">
+        <div class="ov-hero-left">
+          <div class="ov-hero-top"><div class="ov-hero-avg" id="ov-avg">—</div><div class="ov-hero-lab">avg OVR</div></div>
+          <div class="ov-hero-kpis" id="ov-herokpis"></div>
+        </div>
+        <div class="ov-hero-right">
+          <div class="ov-t">Squad average</div>
+          <div id="ov-radar"></div>
+        </div>
+      </div>
     </div>
-    <div class="ov-w" id="ov-c-legend"></div>
-    <div class="ov-w" id="ov-c-wchero"></div>
-    <div class="ov-w" id="ov-c-tots"></div>
-    <div class="ov-w" id="ov-c-wc"></div>
-    <div class="ov-w" id="ov-c-standard"></div>
+    <div class="ov-w ov-cards"><div class="ov-t">Card types</div><div id="ov-cardtypes"></div></div>
     <div class="ov-w ov-span2"><div class="ov-t">Top rated <span class="ov-more" onclick="goCat('all')">View roster →</span></div><div id="ov-top"></div></div>
     <div class="ov-w"><div class="ov-t">By line</div><div id="ov-line"></div></div>
     <div class="ov-w"><div class="ov-t">Card mix</div><div class="ov-mix"><div class="ov-donut" id="ov-donut"><div class="ov-donut-mid"><b id="ov-donut-n"></b><span>CARDS</span></div></div><div class="ov-lg" id="ov-lg"></div></div></div>
@@ -1548,13 +1564,16 @@ function renderOverview(){
     + '<div class="ov-hk"><b>' + Object.keys(clubs).length + '</b><span>clubs</span></div>';
   var cc = { legend:0, wchero:0, tots:0, wc:0, standard:0 };
   P.forEach(function(p){ if(cc[p.card] != null) cc[p.card]++; });
-  [['ov-c-legend', cc.legend, 'Legend cards', '--card-legend'],
-   ['ov-c-wchero', cc.wchero, 'WC Hero cards', '--card-wchero'],
-   ['ov-c-tots', cc.tots, 'TOTS cards', '--card-tots'],
-   ['ov-c-wc', cc.wc, 'WC 2026 cards', '--card-wc'],
-   ['ov-c-standard', cc.standard, 'Standard cards', '--card-standard']].forEach(function(c){
-    document.getElementById(c[0]).innerHTML = '<div class="ov-kn" style="color:var(' + c[3] + ')">' + c[1] + '</div><div class="ov-kl">' + c[2] + '</div>';
-  });
+  document.getElementById('ov-cardtypes').innerHTML =
+    [['Legend', cc.legend, '--card-legend'],
+     ['WC Hero', cc.wchero, '--card-wchero'],
+     ['TOTS', cc.tots, '--card-tots'],
+     ['WC 2026', cc.wc, '--card-wc'],
+     ['Standard', cc.standard, '--card-standard']].map(function(c){
+      return '<div class="ov-ct"><span class="ov-ctd" style="background:var(' + c[2] + ')"></span>'
+        + '<span class="ov-ctl">' + c[0] + '</span>'
+        + '<span class="ov-ctn" style="color:var(' + c[2] + ')">' + c[1] + '</span></div>';
+    }).join('');
   var top = P.slice().sort(function(a,b){ return b.ovr - a.ovr || totalOf(b) - totalOf(a); }).slice(0, 6);
   document.getElementById('ov-top').innerHTML = top.map(function(p){
     return '<div class="ov-row ov-prow" onclick="openDetail(' + PLAYERS.indexOf(p) + ')">'
