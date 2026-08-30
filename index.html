@@ -48,6 +48,8 @@
 
   --card-legend: #e3b341;     --card-legend-vivid: #e3b341;
   --row-legend-bg: #1a1200;   --row-legend-hover: #2a1e00;   --row-legend-border: #3e2e00;
+  --card-wchero: #39d0d6;     --card-wchero-vivid: #39d0d6;
+  --row-wchero-bg: #0b2426;   --row-wchero-hover: #123a3d;   --row-wchero-border: #1a5257;
   --card-tots: #c084f5;       --card-tots-vivid: #c084f5;
   --row-tots-bg: #1a0a2e;     --row-tots-hover: #280f42;     --row-tots-border: #3d1f5e;
   --card-wc: #f87171;         --card-wc-vivid: #f87171;
@@ -83,6 +85,8 @@
     --radar-label: #57606a;
     --card-legend: #7a5c00;
     --row-legend-bg: #fdf4d2; --row-legend-hover: #f7e9b4; --row-legend-border: #e7d28e;
+    --card-wchero: #0b6e75;
+    --row-wchero-bg: #e6f9fa; --row-wchero-hover: #c9eff2; --row-wchero-border: #9fdde3;
     --card-tots: #7331d9;
     --row-tots-bg: #f6effe; --row-tots-hover: #ecdcfb; --row-tots-border: #d8bcf4;
     --card-wc: #bb1f1f;
@@ -117,6 +121,8 @@
   --radar-label: #57606a;
   --card-legend: #7a5c00;
   --row-legend-bg: #fdf4d2; --row-legend-hover: #f7e9b4; --row-legend-border: #e7d28e;
+  --card-wchero: #0b6e75;
+  --row-wchero-bg: #e6f9fa; --row-wchero-hover: #c9eff2; --row-wchero-border: #9fdde3;
   --card-tots: #7331d9;
   --row-tots-bg: #f6effe; --row-tots-hover: #ecdcfb; --row-tots-border: #d8bcf4;
   --card-wc: #bb1f1f;
@@ -138,6 +144,7 @@ h1 { text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 3px;
 .legend-strip span { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; color: var(--text-muted); }
 .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 .dot-legend { background: var(--card-legend); }
+.dot-hero { background: var(--card-wchero); }
 .dot-tots   { background: var(--card-tots); }
 .dot-wc     { background: var(--card-wc); }
 .dot-std    { background: var(--card-standard); }
@@ -173,6 +180,9 @@ td:nth-child(2) { text-align: left; color: var(--text-muted); font-size: 11px; }
 tr.r-legend td { background: var(--row-legend-bg) !important; border-bottom-color: var(--row-legend-border) !important; }
 tr.r-legend td:first-child { color: var(--card-legend) !important; }
 tr.r-legend:hover td { background: var(--row-legend-hover) !important; }
+tr.r-wchero td { background: var(--row-wchero-bg) !important; border-bottom-color: var(--row-wchero-border) !important; }
+tr.r-wchero td:first-child { color: var(--card-wchero) !important; }
+tr.r-wchero:hover td { background: var(--row-wchero-hover) !important; }
 
 tr.r-tots td { background: var(--row-tots-bg) !important; border-bottom-color: var(--row-tots-border) !important; }
 tr.r-tots td:first-child { color: var(--card-tots) !important; }
@@ -404,6 +414,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   </div>
   <div class="legend-strip">
     <span><i class="dot dot-legend"></i>Legend</span>
+    <span><i class="dot dot-hero"></i>WC Hero</span>
     <span><i class="dot dot-tots"></i>TOTS</span>
     <span><i class="dot dot-wc"></i>WC 2026</span>
     <span><i class="dot dot-std"></i>Standard</span>
@@ -425,6 +436,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
       <div id="ov-radar"></div>
     </div>
     <div class="ov-w" id="ov-c-legend"></div>
+    <div class="ov-w" id="ov-c-wchero"></div>
     <div class="ov-w" id="ov-c-tots"></div>
     <div class="ov-w" id="ov-c-wc"></div>
     <div class="ov-w" id="ov-c-standard"></div>
@@ -543,6 +555,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 <div class="sub-tabs">
   <button class="sub active" onclick="showSub('sp','sp-all')">All</button>
   <button class="sub" onclick="showSub('sp','sp-leg')">Legend</button>
+  <button class="sub" onclick="showSub('sp','sp-hero')">WC Hero</button>
   <button class="sub" onclick="showSub('sp','sp-tots')">TOTS</button>
   <button class="sub" onclick="showSub('sp','sp-wc')">WC2026</button>
 </div>
@@ -559,6 +572,15 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   <div class="tbl-scroll">
   <table>
     <thead><tr><th onclick="sortTable('tbl-sp-leg',0)">Player</th><th onclick="sortTable('tbl-sp-leg',1)">Pos</th><th onclick="sortTable('tbl-sp-leg',2)">OVR</th><th onclick="sortTable('tbl-sp-leg',3)">SPE</th><th onclick="sortTable('tbl-sp-leg',4)">ACC</th><th onclick="sortTable('tbl-sp-leg',5)">STA</th><th onclick="sortTable('tbl-sp-leg',6)">STR</th><th onclick="sortTable('tbl-sp-leg',7)">CON</th><th onclick="sortTable('tbl-sp-leg',8)">PAS</th><th onclick="sortTable('tbl-sp-leg',9)">SHO</th><th onclick="sortTable('tbl-sp-leg',10)">TAC</th><th onclick="sortTable('tbl-sp-leg',11)">Total</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  </div>
+  <div class="count"></div>
+</div></div>
+<div id="sp-hero" style="display:none"><div class="tbl-wrap" id="tbl-sp-hero">
+  <div class="tbl-scroll">
+  <table>
+    <thead><tr><th onclick="sortTable('tbl-sp-hero',0)">Player</th><th onclick="sortTable('tbl-sp-hero',1)">Pos</th><th onclick="sortTable('tbl-sp-hero',2)">OVR</th><th onclick="sortTable('tbl-sp-hero',3)">SPE</th><th onclick="sortTable('tbl-sp-hero',4)">ACC</th><th onclick="sortTable('tbl-sp-hero',5)">STA</th><th onclick="sortTable('tbl-sp-hero',6)">STR</th><th onclick="sortTable('tbl-sp-hero',7)">CON</th><th onclick="sortTable('tbl-sp-hero',8)">PAS</th><th onclick="sortTable('tbl-sp-hero',9)">SHO</th><th onclick="sortTable('tbl-sp-hero',10)">TAC</th><th onclick="sortTable('tbl-sp-hero',11)">Total</th></tr></thead>
     <tbody></tbody>
   </table>
   </div>
@@ -758,7 +780,7 @@ const PLAYERS = [
   {"name":"Erling Haaland","year":null,"pos":"CF","ovr":96,"card":"standard","st":[100,100,100,100,91,89,100,49],"club":"Man City","nat":"Norway","hgt":195,"foot":"L"},
   {"name":"Mohamed Salah","year":null,"pos":"RW","ovr":96,"card":"standard","st":[100,100,100,92,96,95,92,51],"club":"Liverpool","nat":"Egypt","hgt":175,"foot":"L"},
   {"name":"Lionel Messi","year":null,"pos":"SS","ovr":96,"card":"standard","st":[96,100,86,85,100,95,99,60],"club":"Inter Miami","nat":"Argentina","hgt":170,"foot":"L"},
-  {"name":"Lionel Messi","year":"2022","pos":"SS","ovr":97,"card":"legend","st":[100,100,100,88,100,100,100,45],"club":"Inter Miami","nat":"Argentina","hgt":170,"foot":"L"},
+  {"name":"Lionel Messi","year":"2022","pos":"SS","ovr":97,"card":"wchero","st":[100,100,100,88,100,100,100,45],"club":"Inter Miami","nat":"Argentina","hgt":170,"foot":"L"},
   {"name":"Raphinha","year":null,"pos":"LW","ovr":95,"card":"standard","st":[97,100,98,93,92,93,94,59],"club":"Barcelona","nat":"Brazil","hgt":176,"foot":"L"},
   {"name":"Vinícius Júnior","year":null,"pos":"LW","ovr":95,"card":"standard","st":[100,100,100,84,100,100,91,38],"club":"Real Madrid","nat":"Brazil","hgt":176,"foot":"R"},
   {"name":"Michael Olise","year":null,"pos":"RW","ovr":95,"card":"standard","st":[100,100,99,79,96,96,93,57],"club":"Bayern Munich","nat":"France","hgt":184,"foot":"L"},
@@ -827,8 +849,8 @@ const PLAYERS = [
   {"name":"Rayan Aït-Nouri","year":"2026","pos":"LB","ovr":83,"card":"wc","st":[88,86,83,66,83,81,60,79],"club":"Man City","nat":"Algeria","hgt":180,"foot":"L"},
   {"name":"Ronwen Williams","year":"2026","pos":"GK","ovr":83,"card":"wc","st":[61,59,81,60,59,61,79,49],"club":"Mamelodi Sundowns","nat":"South Africa","hgt":184,"foot":"R"},
   {"name":"Dennis Bergkamp","year":"1994","pos":"CF","ovr":95,"card":"legend","st":[97,89,100,97,100,89,100,46],"club":"🎖️ Retired","nat":"Netherlands","hgt":183,"foot":"R"},
-  {"name":"James Rodríguez","year":"2014","pos":"AM","ovr":95,"card":"legend","st":[89,100,96,87,100,100,100,50],"club":"🎖️ Retired","nat":"Colombia","hgt":180,"foot":"L"},
-  {"name":"Rodri","year":"2026","pos":"DM","ovr":97,"card":"legend","st":[95,84,96,100,100,95,73,100],"club":"Man City","nat":"Spain","hgt":190,"foot":"R"},
+  {"name":"James Rodríguez","year":"2014","pos":"AM","ovr":95,"card":"wchero","st":[89,100,96,87,100,100,100,50],"club":"🎖️ Retired","nat":"Colombia","hgt":180,"foot":"L"},
+  {"name":"Rodri","year":"2026","pos":"DM","ovr":97,"card":"wchero","st":[95,84,96,100,100,95,73,100],"club":"Man City","nat":"Spain","hgt":190,"foot":"R"},
   {"name":"Rodrigo De Paul","year":"2026","pos":"CM","ovr":93,"card":"wc","st":[87,84,100,82,94,97,79,88],"club":"Inter Miami","nat":"Argentina","hgt":180,"foot":"R"},
   {"name":"Bradley Barcola","year":"2026","pos":"LW","ovr":91,"card":"wc","st":[99,100,90,73,95,91,95,37],"club":"Liverpool","nat":"France","hgt":182,"foot":"R"},
   {"name":"Amadou Onana","year":"2026","pos":"DM","ovr":87,"card":"wc","st":[90,75,87,89,83,85,62,86],"club":"Aston Villa","nat":"Belgium","hgt":195,"foot":"R"},
@@ -841,16 +863,16 @@ const PLAYERS = [
   {"name":"Darwin Núñez","year":"2026","pos":"CF","ovr":82,"card":"wc","st":[90,79,85,82,77,75,80,41],"club":"Al-Hilal","nat":"Uruguay","hgt":187,"foot":"R"},
   {"name":"Willian Pacho","year":null,"pos":"CB","ovr":93,"card":"standard","st":[97,98,97,100,82,82,54,94],"club":"Paris SG","nat":"Ecuador","hgt":188,"foot":"L"},
   {"name":"Bruno Guimarães","year":null,"pos":"CM","ovr":93,"card":"standard","st":[88,86,100,89,86,90,85,91],"club":"Newcastle","nat":"Brazil","hgt":182,"foot":"R"},
-  {"name":"Paul Pogba","year":"2018","pos":"CM","ovr":96,"card":"legend","st":[94,91,93,96,93,98,88,81],"club":"🎖️ Retired","nat":"France","hgt":191,"foot":"R"},
+  {"name":"Paul Pogba","year":"2018","pos":"CM","ovr":96,"card":"wchero","st":[94,91,93,96,93,98,88,81],"club":"🎖️ Retired","nat":"France","hgt":191,"foot":"R"},
   {"name":"Fabio Cannavaro","year":"2006","pos":"CB","ovr":96,"card":"legend","st":[98,95,100,100,91,89,53,100],"club":"🎖️ Retired","nat":"Italy","hgt":176,"foot":"R"},
   {"name":"Frenkie de Jong","year":null,"pos":"CM","ovr":93,"card":"standard","st":[78,95,91,81,98,97,83,84],"club":"Barcelona","nat":"Netherlands","hgt":181,"foot":"R"},
-  {"name":"Benjamin Pavard","year":"2018","pos":"RB","ovr":84,"card":"legend","st":[81,77,83,81,78,80,70,85],"club":"Marseille","nat":"France","hgt":186,"foot":"R"},
+  {"name":"Benjamin Pavard","year":"2018","pos":"RB","ovr":84,"card":"wchero","st":[81,77,83,81,78,80,70,85],"club":"Marseille","nat":"France","hgt":186,"foot":"R"},
   {"name":"Antoine Griezmann","year":null,"pos":"SS","ovr":91,"card":"standard","st":[82,92,83,86,97,91,88,62],"club":"Orlando City","nat":"France","hgt":176,"foot":"L"},
-  {"name":"Lamine Yamal","year":"2026","pos":"RW","ovr":97,"card":"legend","st":[100,100,100,91,100,100,100,41],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
+  {"name":"Lamine Yamal","year":"2026","pos":"RW","ovr":97,"card":"wchero","st":[100,100,100,91,100,100,100,41],"club":"Barcelona","nat":"Spain","hgt":180,"foot":"L"},
   {"name":"Dominik Szoboszlai","year":null,"pos":"AM","ovr":94,"card":"standard","st":[97,90,99,81,90,98,91,84],"club":"Liverpool","nat":"Hungary","hgt":186,"foot":"R"},
-  {"name":"Pau Cubarsí","year":"2026","pos":"CB","ovr":85,"card":"legend","st":[83,77,83,89,84,84,47,94],"club":"Barcelona","nat":"Spain","hgt":184,"foot":"R"},
+  {"name":"Pau Cubarsí","year":"2026","pos":"CB","ovr":85,"card":"wchero","st":[83,77,83,89,84,84,47,94],"club":"Barcelona","nat":"Spain","hgt":184,"foot":"R"},
   {"name":"Luis Díaz","year":null,"pos":"LW","ovr":94,"card":"standard","st":[100,100,100,78,92,91,97,62],"club":"Bayern Munich","nat":"Colombia","hgt":180,"foot":"R"},
-  {"name":"Enzo Fernández","year":"2022","pos":"DM","ovr":95,"card":"legend","st":[89,90,96,82,98,97,83,88],"club":"Chelsea","nat":"Argentina","hgt":178,"foot":"R"}
+  {"name":"Enzo Fernández","year":"2022","pos":"DM","ovr":95,"card":"wchero","st":[89,90,96,82,98,97,83,88],"club":"Chelsea","nat":"Argentina","hgt":178,"foot":"R"}
 ];
 
 /* Cards that have left the squad. They live in their own array rather than
@@ -866,7 +888,7 @@ const PAST_CARDS = [
 
 const STAT_KEYS = ['SPE','ACC','STA','STR','CON','PAS','SHO','TAC'];
 let COLOR_A = '#58a6ff', COLOR_B = '#f5a623';
-const CARD_LABEL = {legend:'Legend', tots:'TOTS', wc:'WC 2026', standard:'Standard'};
+const CARD_LABEL = {legend:'Legend', wchero:'WC Hero', tots:'TOTS', wc:'WC 2026', standard:'Standard'};
 const POS_FW=['LW','CF','RW','SS'], POS_MF=['AM','CM','DM'], POS_DF=['LB','CB','RB'];
 
 const TABLES = [
@@ -874,6 +896,7 @@ const TABLES = [
   ['tbl-all-gk',  function(p){return p.pos==='GK';}],
   ['tbl-sp-all',  function(p){return p.card!=='standard';}],
   ['tbl-sp-leg',  function(p){return p.card==='legend';}],
+  ['tbl-sp-hero', function(p){return p.card==='wchero';}],
   ['tbl-sp-tots', function(p){return p.card==='tots';}],
   ['tbl-sp-wc',   function(p){return p.card==='wc';}],
   ['tbl-fw-all',  function(p){return POS_FW.indexOf(p.pos)>=0;}],
@@ -1194,7 +1217,7 @@ var FORMATIONS = [
     {slot:'GK', pos:['GK'], x:50, y:90}
   ]}
 ];
-var CARD_COLOR = {legend:'#d4a843', tots:'#c084f5', wc:'#f87171', standard:'#f5a623'};
+var CARD_COLOR = {legend:'#d4a843', wchero:'#39d0d6', tots:'#c084f5', wc:'#f87171', standard:'#f5a623'};
 var NAME_PARTICLES = ['Van','van','De','de','Da','da','Di','di','Del','del','Dos','dos','El'];
 
 function shortName(p){
@@ -1523,9 +1546,10 @@ function renderOverview(){
     '<div class="ov-hk"><b>' + n + '</b><span>players</span></div>'
     + '<div class="ov-hk"><b>' + Object.keys(nations).length + '</b><span>nations</span></div>'
     + '<div class="ov-hk"><b>' + Object.keys(clubs).length + '</b><span>clubs</span></div>';
-  var cc = { legend:0, tots:0, wc:0, standard:0 };
+  var cc = { legend:0, wchero:0, tots:0, wc:0, standard:0 };
   P.forEach(function(p){ if(cc[p.card] != null) cc[p.card]++; });
   [['ov-c-legend', cc.legend, 'Legend cards', '--card-legend'],
+   ['ov-c-wchero', cc.wchero, 'WC Hero cards', '--card-wchero'],
    ['ov-c-tots', cc.tots, 'TOTS cards', '--card-tots'],
    ['ov-c-wc', cc.wc, 'WC 2026 cards', '--card-wc'],
    ['ov-c-standard', cc.standard, 'Standard cards', '--card-standard']].forEach(function(c){
@@ -1548,11 +1572,11 @@ function renderOverview(){
     + ovBarRow('MF', grp.MF, lmax, 'var(--accent)', 26)
     + ovBarRow('DF', grp.DF, lmax, '#3fb950', 26)
     + ovBarRow('GK', grp.GK, lmax, 'var(--text-muted)', 26);
-  var order = [['standard', cc.standard, '--card-standard-vivid'], ['wc', cc.wc, '--card-wc-vivid'], ['tots', cc.tots, '--card-tots-vivid'], ['legend', cc.legend, '--card-legend-vivid']];
+  var order = [['standard', cc.standard, '--card-standard-vivid'], ['wc', cc.wc, '--card-wc-vivid'], ['tots', cc.tots, '--card-tots-vivid'], ['wchero', cc.wchero, '--card-wchero-vivid'], ['legend', cc.legend, '--card-legend-vivid']];
   var accP = 0, segs = order.map(function(o){ var s = accP / n * 100; accP += o[1]; return 'var(' + o[2] + ') ' + s.toFixed(2) + '% ' + (accP / n * 100).toFixed(2) + '%'; });
   document.getElementById('ov-donut').style.background = 'conic-gradient(' + segs.join(',') + ')';
   document.getElementById('ov-donut-n').textContent = n;
-  document.getElementById('ov-lg').innerHTML = [['Standard', cc.standard, '--card-standard-vivid'], ['WC 2026', cc.wc, '--card-wc-vivid'], ['TOTS', cc.tots, '--card-tots-vivid'], ['Legend', cc.legend, '--card-legend-vivid']].map(function(x){
+  document.getElementById('ov-lg').innerHTML = [['Standard', cc.standard, '--card-standard-vivid'], ['WC 2026', cc.wc, '--card-wc-vivid'], ['TOTS', cc.tots, '--card-tots-vivid'], ['WC Hero', cc.wchero, '--card-wchero-vivid'], ['Legend', cc.legend, '--card-legend-vivid']].map(function(x){
     return '<div class="ov-li"><span class="ov-sw" style="background:var(' + x[2] + ')"></span>' + x[0] + ' · ' + x[1] + '</div>';
   }).join('');
   var natC = {}; P.forEach(function(p){ if(p.nat) natC[p.nat] = (natC[p.nat] || 0) + 1; });
@@ -1628,9 +1652,9 @@ function cssVar(n){ return getComputedStyle(document.documentElement).getPropert
    CARD_COLOR keeps the vivid hues: it paints chips on the always-dark pitch.
    CARD_TEXT is the contrast-safe variant for text on themed surfaces. */
 function readThemeColors(){
-  CARD_COLOR = { legend: cssVar('--card-legend-vivid'), tots: cssVar('--card-tots-vivid'),
+  CARD_COLOR = { legend: cssVar('--card-legend-vivid'), wchero: cssVar('--card-wchero-vivid'), tots: cssVar('--card-tots-vivid'),
                  wc: cssVar('--card-wc-vivid'), standard: cssVar('--card-standard-vivid') };
-  CARD_TEXT  = { legend: cssVar('--card-legend'), tots: cssVar('--card-tots'),
+  CARD_TEXT  = { legend: cssVar('--card-legend'), wchero: cssVar('--card-wchero'), tots: cssVar('--card-tots'),
                  wc: cssVar('--card-wc'), standard: cssVar('--card-standard') };
   COLOR_A = cssVar('--series-a');
   COLOR_B = cssVar('--series-b');
