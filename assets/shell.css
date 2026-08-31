@@ -277,3 +277,99 @@ body[data-dls-page] { padding-left: calc(var(--dls-rail-w) + 14px); }
   .dls-rail { transition: none; }
   .dls-flag--live i { animation: none; }
 }
+
+/* --- Page furniture, shared by the HUD-skinned pages ----------------------
+   Opt in with data-dls-skin="hud" on <body>. squad.html deliberately stays
+   out: it keeps its own GitHub-Primer palette and its light/dark toggle, and
+   was not written for border-box, so the reset below is scoped too. */
+
+body[data-dls-skin="hud"] * { box-sizing: border-box; }
+
+body[data-dls-skin="hud"] {
+  margin: 0;
+  min-height: 100vh;
+  padding: 34px 26px 48px calc(var(--dls-rail-w) + 26px);
+  background:
+    radial-gradient(900px 520px at 22% -10%, rgba(34, 211, 238, .13) 0%, transparent 62%),
+    radial-gradient(760px 460px at 92% 8%, rgba(59, 157, 255, .10) 0%, transparent 60%),
+    linear-gradient(180deg, var(--dls-ground) 0%, var(--dls-void) 70%);
+  color: var(--dls-ink);
+  font-family: var(--dls-sans);
+  font-size: 14px;
+}
+
+/* Telemetry grid + scanlines, over the ground and under the content. */
+body[data-dls-skin="hud"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(34, 211, 238, .030) 1px, transparent 1px) 0 0 / 100% 46px,
+    linear-gradient(90deg, rgba(34, 211, 238, .030) 1px, transparent 1px) 0 0 / 46px 100%,
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .16) 0 1px, transparent 1px 3px);
+  mask-image: radial-gradient(1200px 700px at 40% 0%, #000 0%, transparent 78%);
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; }
+
+.head { margin-bottom: 26px; }
+.eyebrow {
+  margin: 0 0 10px;
+  font-family: var(--dls-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dls-cyan);
+  opacity: .85;
+}
+.head h1 {
+  margin: 0;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 0 34px rgba(34, 211, 238, .35);
+}
+.head h1 em {
+  font-style: normal;
+  color: var(--dls-cyan);
+  text-shadow: 0 0 22px rgba(34, 211, 238, .7);
+}
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 16px 0 0;
+  font-family: var(--dls-mono);
+  font-size: 10.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--dls-edge), transparent);
+}
+
+.note {
+  margin: 26px 0 0;
+  font-family: var(--dls-mono);
+  font-size: 10px;
+  line-height: 1.9;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.note b { color: var(--dls-ink-dim); font-weight: 600; }
+
+@media (max-width: 620px) {
+  body[data-dls-skin="hud"] { padding: 26px 16px 40px calc(var(--dls-rail-w) + 14px); }
+  .head h1 { font-size: 38px; }
+}

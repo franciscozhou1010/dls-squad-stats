@@ -8,86 +8,7 @@
 
 <link rel="stylesheet" href="assets/shell.css">
 <style>
-/* The hub is a single dark HUD end to end — Dream League Soccer has no light
-   mode, so unlike squad.html there is nothing here to mirror. */
 :root { color-scheme: dark; }
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 34px 26px 48px;
-  background:
-    radial-gradient(900px 520px at 22% -10%, rgba(34, 211, 238, .13) 0%, transparent 62%),
-    radial-gradient(760px 460px at 92% 8%, rgba(59, 157, 255, .10) 0%, transparent 60%),
-    linear-gradient(180deg, var(--dls-ground) 0%, var(--dls-void) 70%);
-  color: var(--dls-ink);
-  font-family: var(--dls-sans);
-  font-size: 14px;
-}
-
-/* Telemetry grid + scanlines, laid over the ground and under the content. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(34, 211, 238, .030) 1px, transparent 1px) 0 0 / 100% 46px,
-    linear-gradient(90deg, rgba(34, 211, 238, .030) 1px, transparent 1px) 0 0 / 46px 100%,
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, .16) 0 1px, transparent 1px 3px);
-  mask-image: radial-gradient(1200px 700px at 40% 0%, #000 0%, transparent 78%);
-}
-
-.wrap { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; }
-
-/* --- Page head ----------------------------------------------------------- */
-
-.head { margin-bottom: 26px; }
-.eyebrow {
-  margin: 0 0 10px;
-  font-family: var(--dls-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--dls-cyan);
-  opacity: .85;
-}
-.head h1 {
-  margin: 0;
-  font-size: 52px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -1px;
-  text-transform: uppercase;
-  color: #fff;
-  text-shadow: 0 0 34px rgba(34, 211, 238, .35);
-}
-.head h1 em {
-  font-style: normal;
-  color: var(--dls-cyan);
-  text-shadow: 0 0 22px rgba(34, 211, 238, .7);
-}
-.rule {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 16px 0 0;
-  font-family: var(--dls-mono);
-  font-size: 10.5px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  color: var(--dls-ink-faint);
-}
-.rule::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--dls-edge), transparent);
-}
 
 /* --- Tile grid ----------------------------------------------------------- */
 
@@ -132,7 +53,7 @@ body::before {
 .tile__desc { margin: 11px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
 .tile__foot { margin-top: auto; padding-top: 16px; }
 
-/* Live section — brighter edge, a real glow, and it lifts on hover. */
+/* The squad tile is the anchor: brighter edge, a real glow, lifts on hover. */
 .tile--live {
   grid-column: span 2;
   grid-row: span 2;
@@ -153,7 +74,7 @@ body::before {
 .tile--packs { --accent: var(--dls-magenta); }
 .tile--ask { --accent: var(--dls-mint); }
 
-/* --- Readouts on the live tile ------------------------------------------- */
+/* --- Readouts on the squad tile ------------------------------------------ */
 
 .figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 22px; background: var(--dls-edge-soft); }
 .fig { padding: 14px 10px; background: rgba(7, 13, 24, .72); text-align: center; }
@@ -213,40 +134,27 @@ body::before {
   color: var(--dls-ink-faint);
 }
 
-.note {
-  margin: 26px 0 0;
-  font-family: var(--dls-mono);
-  font-size: 10px;
-  line-height: 1.9;
-  letter-spacing: 1.1px;
-  text-transform: uppercase;
-  color: var(--dls-ink-faint);
-}
-.note b { color: var(--dls-ink-dim); font-weight: 600; }
-
 @media (max-width: 1080px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
   .tile--live { grid-row: auto; }
 }
 @media (max-width: 620px) {
-  body { padding: 26px 16px 40px; }
   .grid { grid-template-columns: 1fr; }
   .tile--live { grid-column: span 1; }
-  .head h1 { font-size: 38px; }
   .tile--live .tile__title { font-size: 28px; }
   .fig b { font-size: 25px; }
 }
 </style>
 </head>
 
-<body data-dls-page="home">
+<body data-dls-page="home" data-dls-skin="hud">
 
 <div class="wrap">
 
   <header class="head">
     <p class="eyebrow">// Dream League Soccer</p>
     <h1>DLS<em>.</em>Hub</h1>
-    <p class="rule">One section online · four in build</p>
+    <p class="rule" id="head-rule"></p>
   </header>
 
   <div class="grid">
@@ -271,13 +179,13 @@ body::before {
       <div class="tile__foot"><a class="dls-btn" href="squad.html">Enter</a></div>
     </section>
 
-    <section class="dls-panel tile tile--soon tile--store">
+    <section class="dls-panel tile tile--store">
       <div class="tile__head">
-        <h2 class="tile__title">Store &amp; Pricing</h2>
-        <span class="dls-flag dls-flag--soon">Soon</span>
+        <h2 class="tile__title">Store</h2>
+        <span class="dls-flag dls-flag--live"><i></i>Online</span>
       </div>
-      <p class="tile__desc">Coin and gem tiers, real-money prices, and what a dollar actually buys at each step.</p>
-      <div class="tile__foot"><span class="dls-btn dls-btn--locked">Not built</span></div>
+      <p class="tile__desc">Gem and coin tiers in CAD — rate per dollar, which tiers are worse than a cheaper one, and the cheapest route to an amount.</p>
+      <div class="tile__foot"><a class="dls-btn" href="store.html">Enter</a></div>
     </section>
 
     <section class="dls-panel tile tile--soon tile--rewards">
@@ -310,7 +218,7 @@ body::before {
   </div>
 
   <p class="note">
-    Internal build — not public. Squad figures computed live from <b>data/players.js</b>.
+    Internal build. Squad figures computed live from <b>data/players.js</b>.
     Last full roster and club reconcile <b>2026-08-30</b>.
   </p>
 
@@ -326,6 +234,12 @@ var CARD_LABEL = { legend: 'Legend', wchero: 'WC Hero', tots: 'TOTS', wc: 'WC 20
 var CARD_ORDER = ['legend', 'wchero', 'tots', 'wc', 'standard'];
 
 (function () {
+  /* Counted off the tiles so the line cannot drift as sections come online. */
+  var live = document.querySelectorAll('.dls-flag--live').length;
+  var soon = document.querySelectorAll('.dls-flag--soon').length;
+  document.getElementById('head-rule').textContent =
+    live + (live === 1 ? ' section' : ' sections') + ' online · ' + soon + ' in build';
+
   var total = PLAYERS.reduce(function (a, p) { return a + p.ovr; }, 0);
   document.getElementById('f-count').textContent = PLAYERS.length;
   document.getElementById('f-avg').textContent = Math.round((total / PLAYERS.length) * 10) / 10;
