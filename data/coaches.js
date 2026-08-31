@@ -92,6 +92,8 @@ const COACH_RULES = [
     src: 'Footnote on Francisco\'s Coaches screen' },
   { rule: 'Breakthrough (5% / 10% / 20% by rarity) raises the points per stat when it fires: Common 1 → 1.5, Rare 2 → 3, Legendary 3 → 5. It is shown but left out of the value maths, so the per-point figures are the floor rather than an average.',
     src: 'Francisco — stated, not seen on screen' },
+  { rule: 'A player near their +10 ceiling gains less than the table says: the ceiling is measured in overall rating, while the points here are raw stat points — different units, so they are not netted off.',
+    src: 'Footnote on the Coaches screen' },
   { rule: 'Special coaches can train all statistics; core coaches are limited to their own group.',
     src: 'Francisco\'s Coaches screen' }
 ];

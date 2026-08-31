@@ -22,7 +22,7 @@
       d: 'M12 4l6 15H6zM4 19h16' },
     { id: 'rewards', label: 'Rewards', href: null,
       d: 'M12 3l2.6 5.7 6.4.7-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.7z' },
-    { id: 'packs', label: 'Packs', href: null,
+    { id: 'packs', label: 'Packs', href: 'packs.html',
       d: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9' },
     { id: 'ask', label: 'Ask DLS', href: null,
       d: 'M4 5h16v11H9l-5 4z' }

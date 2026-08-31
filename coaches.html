@@ -97,28 +97,6 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
   text-transform: uppercase;
 }
 
-/* --- Provenance ---------------------------------------------------------- */
-
-.src {
-  display: inline-block;
-  width: 17px;
-  height: 17px;
-  line-height: 17px;
-  text-align: center;
-  border-radius: 50%;
-  font-family: var(--dls-mono);
-  font-size: 10px;
-  font-weight: 700;
-  cursor: help;
-}
-.src--shot { background: rgba(52, 211, 153, .18); color: var(--dls-mint); }
-.src--alt { background: rgba(251, 191, 36, .18); color: var(--dls-amber); }
-.src--recall { background: rgba(251, 191, 36, .18); color: var(--dls-amber); }
-.src--unknown { background: rgba(125, 155, 186, .14); color: var(--dls-ink-faint); }
-
-.legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 14px 18px; }
-.legend div { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--dls-ink-dim); }
-
 /* --- Prose blocks -------------------------------------------------------- */
 
 .block { padding: 16px 18px; }
@@ -168,9 +146,9 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
       <div class="card__sub" id="disc-sub"></div>
     </div>
     <div class="dls-panel card">
-      <div class="card__lab">Cheapest stat point</div>
-      <div class="card__big" id="best">—<small> gems / point</small></div>
-      <div class="card__sub" id="best-sub"></div>
+      <div class="card__lab">Your squad</div>
+      <div class="card__big" id="split">—</div>
+      <div class="card__sub" id="split-sub"></div>
     </div>
   </div>
 
@@ -179,14 +157,12 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
       <table>
         <thead><tr>
           <th>Coach</th><th>You pay</th><th>≈ CAD</th><th>What it does</th>
-          <th>Points</th><th>Gems / point</th><th>Breakthrough</th><th>Src</th>
+          <th>Points</th><th>Gems / point</th><th>Breakthrough</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
   </div>
-
-  <div class="dls-panel legend" id="legend"></div>
 
   <div class="duo">
     <div class="dls-panel block block--rules">
@@ -221,13 +197,6 @@ function coachPrice(base) {
   return base == null ? null : Math.floor(base * (100 - COACH_DISCOUNT_PCT) / 100);
 }
 
-var SRC = {
-  shot:       { cls: 'shot',    mark: '✓', label: 'Seen on your own screen' },
-  'shot-alt': { cls: 'alt',     mark: '~', label: 'Seen, but on someone else’s account' },
-  said:       { cls: 'recall',  mark: '?', label: 'You told me, no screenshot yet' },
-  unknown:    { cls: 'unknown', mark: '–', label: 'Not collected' }
-};
-
 /* Best value is judged inside each coach line, not across the whole table:
    core and Special coaches train different cards, so a Special coach costing
    more per point than a Fitness one is not a verdict on either. */
@@ -254,10 +223,10 @@ function bestPerType() {
     if (c.type !== lastType) {
       lastType = c.type;
       var stock = COACH_STOCK[c.type];
-      head = '<tr class="grp"><td colspan="8"><span>' + c.type + '</span>'
+      head = '<tr class="grp"><td colspan="7"><span>' + c.type + '</span>'
         + (stock != null ? ' <em>· you hold ' + stock + '</em>' : '') + '</td></tr>';
     }
-    var pay = coachPrice(c.base), pts = coachPoints(c), per = pay / pts, s = SRC[c.src];
+    var pay = coachPrice(c.base), pts = coachPoints(c), per = pay / pts;
     return head + '<tr>'
       + '<td><span class="rarity">' + c.rarity + '</span>'
       + (Math.abs(per - best[c.type]) < 1e-9 ? '<span class="tag">Best</span>' : '') + '</td>'
@@ -271,8 +240,6 @@ function bestPerType() {
       + '<td class="pts">' + pts + '</td>'
       + '<td class="per-pt">' + per.toFixed(2) + '</td>'
       + '<td class="bt">' + c.chance + '% → +' + c.bt + '</td>'
-      + '<td><span class="src src--' + s.cls + '" title="' + s.label
-      + (c.note ? ' — ' + c.note.replace(/"/g, '&quot;') : '') + '">' + s.mark + '</span></td>'
       + '</tr>';
   }).join('');
 
@@ -281,53 +248,31 @@ function bestPerType() {
     COACH_DISCOUNT_PCT + '%<small> off every coach</small>';
   document.getElementById('disc-sub').textContent = COACH_DISCOUNT_SOURCE + '.';
 
-  var cheapest = COACHES.map(function (c) {
-    return { c: c, per: coachPrice(c.base) / coachPoints(c) };
-  }).sort(function (a, b) { return a.per - b.per; })[0];
-
-  document.getElementById('best').innerHTML =
-    cheapest.per.toFixed(2) + '<small> gems / point</small>';
-
-  /* Mapping card type to the coach split is an inference: "standard" is the
-     regular card type in the squad data, everything else is a special card. */
-  var split = '';
+  /* Which cards each coach line can be used on at all. Mapping card type to
+     the split is an inference: "standard" is the regular card type in the
+     squad data, everything else is a special card. */
   if (typeof PLAYERS !== 'undefined') {
     var regular = PLAYERS.filter(function (p) { return p.card === 'standard'; }).length;
-    split = ' Your squad splits ' + regular + ' regular / ' + (PLAYERS.length - regular) + ' special.';
+    document.getElementById('split').innerHTML =
+      regular + '<small> regular</small> · ' + (PLAYERS.length - regular) + '<small> special</small>';
+    document.getElementById('split-sub').textContent =
+      'Regular cards take the three core coaches; special cards take Special coaches. '
+      + 'Neither substitutes for the other.';
   }
-  document.getElementById('best-sub').textContent =
-    cheapest.c.type + ' ' + cheapest.c.rarity + ' — ' + coachPrice(cheapest.c.base)
-    + ' gems for ' + coachPoints(cheapest.c) + ' stat points, about '
-    + money(cheapest.per / gemRate) + ' a point.' + split;
 
   /* --- legend, rules, gaps --- */
-  document.getElementById('legend').innerHTML = Object.keys(SRC).map(function (k) {
-    return '<div><span class="src src--' + SRC[k].cls + '">' + SRC[k].mark + '</span>' + SRC[k].label + '</div>';
-  }).join('');
-
   document.getElementById('rules').innerHTML = COACH_RULES.map(function (r) {
     return '<li>' + r.rule + '<em>' + r.src + '</em></li>';
   }).join('');
 
-  /* Several rows share a note; list each note once against the rows it covers
-     rather than repeating it verbatim three times. */
-  var byNote = {};
-  COACHES.filter(function (c) { return c.note; }).forEach(function (c) {
-    (byNote[c.note] = byNote[c.note] || []).push(c.type + ' ' + c.rarity);
-  });
   var unseen = COACHES.filter(function (c) { return c.src !== 'shot'; });
-
   document.getElementById('gaps').innerHTML =
-    '<li><b>' + unseen.length + ' of ' + COACHES.length + ' price rows</b> have no screenshot behind them. '
-    + 'Only the Special line is confirmed on your own screen.</li>'
-    + Object.keys(byNote).map(function (n) {
-        return '<li><b>' + byNote[n].join(', ') + '</b> — ' + n + '</li>';
-      }).join('')
-    + '<li><b>Core coaches pick their players at random.</b> So gems-per-point ranks efficiency, '
-    + 'not usefulness: to pump one specific card a Common is the only single-target option — '
-    + '17 gems a point against 5.81, five times worse but actually aimed.</li>'
-    + '<li>The <b>+10 overall ceiling</b> is in a different unit from these stat points, so it is not '
-    + 'folded in — a player near their cap gets less than the table says.</li>';
+    '<li>Only the <b>Special</b> line has been read off your own screen. Fitness comes from a '
+    + 'screenshot of another account, and <b>Technical and Goalkeeping are from what you told me</b> '
+    + '— ' + unseen.length + ' of ' + COACHES.length + ' rows. Worth a look before spending on them.</li>'
+    + '<li>Rounding is settled — the game truncates, so 15 × 0.70 = 10.5 shows as 10. What has not '
+    + 'been seen on this account is the <b>current card wording for core coaches</b>; the effects '
+    + 'listed here come from an older-looking screen.</li>';
 
   document.getElementById('foot').innerHTML =
     'Prices are gems, discounted by your own Training Centre, so unlike the gem and coin tiers '
