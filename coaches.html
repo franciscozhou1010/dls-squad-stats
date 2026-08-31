@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaches · DLS</title>
+<meta name="theme-color" content="#04080f">
+
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+:root { color-scheme: dark; --accent: var(--dls-violet); }
+
+.stack { display: grid; gap: 16px; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.duo > * { min-width: 0; }
+
+/* --- Headline cards ------------------------------------------------------ */
+
+.card { padding: 18px 20px; background: color-mix(in srgb, var(--accent) 46%, var(--dls-edge-soft)); }
+.card__lab {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.card__big {
+  margin-top: 8px;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--dls-violet);
+  text-shadow: 0 0 22px rgba(167, 139, 250, .35);
+  font-variant-numeric: tabular-nums;
+}
+.card__big small { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--dls-ink-dim); }
+.card__sub { margin-top: 9px; font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
+
+/* --- Table --------------------------------------------------------------- */
+
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; min-width: 620px; border-collapse: collapse; }
+th {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--dls-edge);
+  font-family: var(--dls-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+  text-align: right;
+  white-space: nowrap;
+}
+th:first-child, td:first-child { text-align: left; }
+td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--dls-edge-soft);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+tbody tr:hover td { background: rgba(167, 139, 250, .05); }
+
+.grp td { border-bottom: none; padding-top: 18px; padding-bottom: 4px; }
+.grp span {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--dls-violet);
+}
+.grp em { font-style: normal; color: var(--dls-ink-faint); letter-spacing: 1.2px; }
+
+.rarity { font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #eef6ff; }
+.gem-price { font-weight: 900; font-size: 15px; color: var(--dls-violet); }
+.gem-base { color: var(--dls-ink-faint); text-decoration: line-through; }
+.cad { color: var(--dls-ink); }
+.pts { color: var(--dls-ink); font-weight: 700; }
+.per-pt { font-weight: 900; font-size: 15px; color: var(--dls-violet); }
+.bt { color: var(--dls-ink-dim); font-size: 12px; }
+.does { color: var(--dls-ink-dim); font-size: 12px; white-space: normal; min-width: 180px; }
+.does b { color: var(--dls-ink); font-weight: 700; }
+
+.tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+  background: rgba(52, 211, 153, .16);
+  color: var(--dls-mint);
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+/* --- Provenance ---------------------------------------------------------- */
+
+.src {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  line-height: 17px;
+  text-align: center;
+  border-radius: 50%;
+  font-family: var(--dls-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+}
+.src--shot { background: rgba(52, 211, 153, .18); color: var(--dls-mint); }
+.src--alt { background: rgba(251, 191, 36, .18); color: var(--dls-amber); }
+.src--recall { background: rgba(251, 191, 36, .18); color: var(--dls-amber); }
+.src--unknown { background: rgba(125, 155, 186, .14); color: var(--dls-ink-faint); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 14px 18px; }
+.legend div { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--dls-ink-dim); }
+
+/* --- Prose blocks -------------------------------------------------------- */
+
+.block { padding: 16px 18px; }
+.block h2 {
+  margin: 0 0 10px;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+.block--rules h2 { color: var(--dls-cyan); }
+.block--gaps h2 { color: var(--dls-magenta); }
+.block ul { margin: 0; padding-left: 18px; }
+.block li { margin-bottom: 9px; font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
+.block li:last-child { margin-bottom: 0; }
+.block li b { color: #eef6ff; font-weight: 700; }
+.block li em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-family: var(--dls-mono);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+
+@media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
+</style>
+</head>
+
+<body data-dls-page="coaches" data-dls-skin="hud">
+
+<div class="wrap stack">
+
+  <header class="head">
+    <p class="eyebrow">// Coaches</p>
+    <h1>Coaches</h1>
+    <p class="rule" id="head-rule">—</p>
+  </header>
+
+  <div class="duo">
+    <div class="dls-panel card">
+      <div class="card__lab">Your coach discount</div>
+      <div class="card__big" id="disc">—<small> off every coach</small></div>
+      <div class="card__sub" id="disc-sub"></div>
+    </div>
+    <div class="dls-panel card">
+      <div class="card__lab">Cheapest stat point</div>
+      <div class="card__big" id="best">—<small> gems / point</small></div>
+      <div class="card__sub" id="best-sub"></div>
+    </div>
+  </div>
+
+  <div class="dls-panel">
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Coach</th><th>You pay</th><th>≈ CAD</th><th>What it does</th>
+          <th>Points</th><th>Gems / point</th><th>Breakthrough</th><th>Src</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="dls-panel legend" id="legend"></div>
+
+  <div class="duo">
+    <div class="dls-panel block block--rules">
+      <h2>How coaching works</h2>
+      <ul id="rules"></ul>
+    </div>
+    <div class="dls-panel block block--gaps">
+      <h2>Not solid yet</h2>
+      <ul id="gaps"></ul>
+    </div>
+  </div>
+
+  <p class="note" id="foot"></p>
+
+</div>
+
+<script src="data/coaches.js"></script>
+<script src="data/store.js"></script>
+<script src="data/players.js"></script>
+<script src="assets/shell.js" defer></script>
+<script>
+/* Every figure here is derived from data/coaches.js — prices, points and value
+   are computed, never typed, so a price change is a one-line edit in the data
+   file. data/store.js supplies the gem rate for the CAD column; data/players.js
+   supplies the squad split, since core and Special coaches apply to different
+   cards and the useful question is how many of each you own. */
+
+var money = function (n) { return 'C$' + n.toFixed(2); };
+var num = function (n) { return n.toLocaleString('en-CA'); };
+
+function coachPrice(base) {
+  return base == null ? null : Math.floor(base * (100 - COACH_DISCOUNT_PCT) / 100);
+}
+
+var SRC = {
+  shot:       { cls: 'shot',    mark: '✓', label: 'Seen on your own screen' },
+  'shot-alt': { cls: 'alt',     mark: '~', label: 'Seen, but on someone else’s account' },
+  said:       { cls: 'recall',  mark: '?', label: 'You told me, no screenshot yet' },
+  unknown:    { cls: 'unknown', mark: '–', label: 'Not collected' }
+};
+
+/* Best value is judged inside each coach line, not across the whole table:
+   core and Special coaches train different cards, so a Special coach costing
+   more per point than a Fitness one is not a verdict on either. */
+function bestPerType() {
+  var best = {};
+  COACHES.forEach(function (c) {
+    var per = coachPrice(c.base) / coachPoints(c);
+    if (best[c.type] == null || per < best[c.type]) best[c.type] = per;
+  });
+  return best;
+}
+
+(function () {
+  var gemRate = Math.max.apply(null, GEM_PACKS.map(function (p) { return p.gems / p.price; }));
+  var best = bestPerType();
+
+  document.getElementById('head-rule').textContent =
+    'Gem prices · your Training Centre discount applied · CAD at ' + gemRate.toFixed(1) + ' gems per C$1';
+
+  /* --- table --- */
+  var lastType = null;
+  document.getElementById('rows').innerHTML = COACHES.map(function (c) {
+    var head = '';
+    if (c.type !== lastType) {
+      lastType = c.type;
+      var stock = COACH_STOCK[c.type];
+      head = '<tr class="grp"><td colspan="8"><span>' + c.type + '</span>'
+        + (stock != null ? ' <em>· you hold ' + stock + '</em>' : '') + '</td></tr>';
+    }
+    var pay = coachPrice(c.base), pts = coachPoints(c), per = pay / pts, s = SRC[c.src];
+    return head + '<tr>'
+      + '<td><span class="rarity">' + c.rarity + '</span>'
+      + (Math.abs(per - best[c.type]) < 1e-9 ? '<span class="tag">Best</span>' : '') + '</td>'
+      + '<td><span class="gem-price">' + num(pay) + '</span> <span class="gem-base">' + num(c.base) + '</span></td>'
+      + '<td class="cad">' + money(pay / gemRate) + '</td>'
+      + '<td class="does"><b>' + c.players + (c.rndPlayers ? ' random' : '')
+      + (c.players === 1 ? ' player' : ' players')
+      + '</b> · +' + c.step + ' to ' + c.statN
+      + (c.pick === 'random' ? ' random stat' : ' stat') + (c.statN === 1 ? '' : 's')
+      + (c.pick === 'random' ? '' : ' ' + c.pick) + '</td>'
+      + '<td class="pts">' + pts + '</td>'
+      + '<td class="per-pt">' + per.toFixed(2) + '</td>'
+      + '<td class="bt">' + c.chance + '% → +' + c.bt + '</td>'
+      + '<td><span class="src src--' + s.cls + '" title="' + s.label
+      + (c.note ? ' — ' + c.note.replace(/"/g, '&quot;') : '') + '">' + s.mark + '</span></td>'
+      + '</tr>';
+  }).join('');
+
+  /* --- headline cards --- */
+  document.getElementById('disc').innerHTML =
+    COACH_DISCOUNT_PCT + '%<small> off every coach</small>';
+  document.getElementById('disc-sub').textContent = COACH_DISCOUNT_SOURCE + '.';
+
+  var cheapest = COACHES.map(function (c) {
+    return { c: c, per: coachPrice(c.base) / coachPoints(c) };
+  }).sort(function (a, b) { return a.per - b.per; })[0];
+
+  document.getElementById('best').innerHTML =
+    cheapest.per.toFixed(2) + '<small> gems / point</small>';
+
+  /* Mapping card type to the coach split is an inference: "standard" is the
+     regular card type in the squad data, everything else is a special card. */
+  var split = '';
+  if (typeof PLAYERS !== 'undefined') {
+    var regular = PLAYERS.filter(function (p) { return p.card === 'standard'; }).length;
+    split = ' Your squad splits ' + regular + ' regular / ' + (PLAYERS.length - regular) + ' special.';
+  }
+  document.getElementById('best-sub').textContent =
+    cheapest.c.type + ' ' + cheapest.c.rarity + ' — ' + coachPrice(cheapest.c.base)
+    + ' gems for ' + coachPoints(cheapest.c) + ' stat points, about '
+    + money(cheapest.per / gemRate) + ' a point.' + split;
+
+  /* --- legend, rules, gaps --- */
+  document.getElementById('legend').innerHTML = Object.keys(SRC).map(function (k) {
+    return '<div><span class="src src--' + SRC[k].cls + '">' + SRC[k].mark + '</span>' + SRC[k].label + '</div>';
+  }).join('');
+
+  document.getElementById('rules').innerHTML = COACH_RULES.map(function (r) {
+    return '<li>' + r.rule + '<em>' + r.src + '</em></li>';
+  }).join('');
+
+  /* Several rows share a note; list each note once against the rows it covers
+     rather than repeating it verbatim three times. */
+  var byNote = {};
+  COACHES.filter(function (c) { return c.note; }).forEach(function (c) {
+    (byNote[c.note] = byNote[c.note] || []).push(c.type + ' ' + c.rarity);
+  });
+  var unseen = COACHES.filter(function (c) { return c.src !== 'shot'; });
+
+  document.getElementById('gaps').innerHTML =
+    '<li><b>' + unseen.length + ' of ' + COACHES.length + ' price rows</b> have no screenshot behind them. '
+    + 'Only the Special line is confirmed on your own screen.</li>'
+    + Object.keys(byNote).map(function (n) {
+        return '<li><b>' + byNote[n].join(', ') + '</b> — ' + n + '</li>';
+      }).join('')
+    + '<li><b>Core coaches pick their players at random.</b> So gems-per-point ranks efficiency, '
+    + 'not usefulness: to pump one specific card a Common is the only single-target option — '
+    + '17 gems a point against 5.81, five times worse but actually aimed.</li>'
+    + '<li>The <b>+10 overall ceiling</b> is in a different unit from these stat points, so it is not '
+    + 'folded in — a player near their cap gets less than the table says.</li>';
+
+  document.getElementById('foot').innerHTML =
+    'Prices are gems, discounted by your own Training Centre, so unlike the gem and coin tiers '
+    + 'these are <b>account-specific</b>. Breakthrough is shown but deliberately left out of the value '
+    + 'maths, so every gems-per-point figure is a floor rather than an average.';
+})();
+</script>
+</body>
+</html>

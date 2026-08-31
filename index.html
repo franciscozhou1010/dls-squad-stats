@@ -12,7 +12,7 @@
 
 /* --- Tile grid ----------------------------------------------------------- */
 
-.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
 .tile {
   --accent: var(--dls-cyan);
@@ -70,7 +70,8 @@
 .tile--soon { opacity: .82; }
 .tile--soon .tile__title { color: var(--dls-ink-dim); }
 .tile--store { --accent: var(--dls-amber); }
-.tile--rewards { --accent: var(--dls-violet); }
+.tile--coaches { --accent: var(--dls-violet); }
+.tile--rewards { --accent: var(--dls-rose); }
 .tile--packs { --accent: var(--dls-magenta); }
 .tile--ask { --accent: var(--dls-mint); }
 
@@ -186,6 +187,15 @@
       </div>
       <p class="tile__desc">Gem and coin tiers in CAD — rate per dollar, which tiers are worse than a cheaper one, and the cheapest route to an amount.</p>
       <div class="tile__foot"><a class="dls-btn" href="store.html">Enter</a></div>
+    </section>
+
+    <section class="dls-panel tile tile--coaches">
+      <div class="tile__head">
+        <h2 class="tile__title">Coaches</h2>
+        <span class="dls-flag dls-flag--live"><i></i>Online</span>
+      </div>
+      <p class="tile__desc">Every coach priced in gems and dollars, what each one actually does, and which rarity is worth buying.</p>
+      <div class="tile__foot"><a class="dls-btn" href="coaches.html">Enter</a></div>
     </section>
 
     <section class="dls-panel tile tile--soon tile--rewards">
