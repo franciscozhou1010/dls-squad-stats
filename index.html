@@ -73,7 +73,8 @@
 .tile--coaches { --accent: var(--dls-violet); }
 .tile--rewards { --accent: var(--dls-rose); }
 .tile--packs { --accent: var(--dls-magenta); }
-.tile--ask { --accent: var(--dls-mint); }
+.tile--ladder { --accent: var(--dls-blue); }
+.tile--ask { --accent: var(--dls-mint); grid-column: 1 / -1; min-height: 0; }
 
 /* --- Readouts on the squad tile ------------------------------------------ */
 
@@ -196,6 +197,15 @@
       </div>
       <p class="tile__desc">Every coach priced in gems and dollars, what each one actually does, and which rarity is worth buying.</p>
       <div class="tile__foot"><a class="dls-btn" href="coaches.html">Enter</a></div>
+    </section>
+
+    <section class="dls-panel tile tile--ladder">
+      <div class="tile__head">
+        <h2 class="tile__title">Prize Ladder</h2>
+        <span class="dls-flag dls-flag--live"><i></i>Online</span>
+      </div>
+      <p class="tile__desc">The Dream Point economy — 40 rungs, four special players, and what finishing actually costs in matches, coins or cash.</p>
+      <div class="tile__foot"><a class="dls-btn" href="ladder.html">Enter</a></div>
     </section>
 
     <section class="dls-panel tile tile--soon tile--rewards">

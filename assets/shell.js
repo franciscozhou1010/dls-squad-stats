@@ -20,6 +20,8 @@
       d: 'M3.5 12.5l9-9h8v8l-9 9zM16.4 7.6h.01' },
     { id: 'coaches', label: 'Coaches', href: 'coaches.html',
       d: 'M12 4l6 15H6zM4 19h16' },
+    { id: 'ladder', label: 'Ladder', href: 'ladder.html',
+      d: 'M8 21V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v15M8 9h8M8 14h8M4 21h16' },
     { id: 'rewards', label: 'Rewards', href: null,
       d: 'M12 3l2.6 5.7 6.4.7-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.7z' },
     { id: 'packs', label: 'Packs', href: 'packs.html',
