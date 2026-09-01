@@ -162,6 +162,100 @@
 .plan__out .ok { color: var(--dls-mint); }
 .plan__out .no { color: var(--dls-magenta); }
 
+.modes { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.mode {
+  padding: 7px 13px;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  border: none;
+  background: var(--dls-panel-lit);
+  box-shadow: inset 0 0 0 1px var(--dls-edge);
+  color: var(--dls-ink-dim);
+  font-family: var(--dls-sans);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.mode:hover { color: var(--dls-ink); }
+.mode.is-on { background: var(--dls-blue); color: #04121a; box-shadow: none; }
+
+.boostin { display: inline-flex; align-items: center; gap: 7px; }
+.boostin em {
+  font-style: normal;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.boostin input { width: 62px; }
+
+.buy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--dls-edge-soft); }
+.buy > div { padding: 14px 16px; background: var(--dls-panel); }
+.buy__cur {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.buy__cost {
+  margin-top: 7px;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--dls-ink);
+  font-variant-numeric: tabular-nums;
+}
+.buy__sub { margin-top: 7px; font-size: 11.5px; line-height: 1.5; color: var(--dls-ink-faint); }
+.buy--free .buy__cost { color: var(--dls-mint); }
+.buy--cheap .buy__cost { color: var(--dls-blue); }
+@media (max-width: 700px) { .buy { grid-template-columns: 1fr; } }
+
+.io { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 12px; }
+.io label { display: inline-flex; align-items: center; gap: 8px; }
+.io em {
+  font-style: normal;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.io span { font-family: var(--dls-mono); font-size: 10px; letter-spacing: .8px; color: var(--dls-ink-faint); }
+.io input { width: 74px; }
+.io--derived input { width: 92px; box-shadow: inset 0 0 0 1px var(--dls-blue); color: var(--dls-blue); }
+
+/* The answer people actually want: not "how many games to finish" but "what
+   do I walk away with". A rate estimate 10% out moves this by a rung, where
+   it would make a games-to-finish figure meaningless. */
+.landing {
+  margin-top: 16px;
+  padding: 16px 18px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background: linear-gradient(120deg, rgba(59, 157, 255, .16), rgba(34, 211, 238, .07));
+}
+.landing__big {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -.4px;
+  color: #fff;
+}
+.landing__big b { color: var(--dls-amber); }
+.landing__sub { margin-top: 8px; font-size: 12.5px; line-height: 1.6; color: var(--dls-ink-dim); }
+.landing__sub b { color: #eef6ff; font-weight: 800; }
+
+.buy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--dls-edge-soft); }
+.buy > div { padding: 14px 16px; background: var(--dls-panel); }
+.buy__cur { font-family: var(--dls-mono); font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--dls-ink-faint); }
+.buy__cost { margin-top: 7px; font-size: 24px; font-weight: 900; line-height: 1; color: var(--dls-ink); font-variant-numeric: tabular-nums; }
+.buy__sub { margin-top: 7px; font-size: 11.5px; line-height: 1.5; color: var(--dls-ink-faint); }
+.buy--free .buy__cost { color: var(--dls-mint); }
+.buy--cheap .buy__cost { color: var(--dls-blue); }
+@media (max-width: 700px) { .buy { grid-template-columns: 1fr; } }
+
 /* --- The ladder, drawn ---------------------------------------------------- */
 
 .track { position: relative; padding: 6px 0; max-height: 640px; overflow-y: auto; }
@@ -233,6 +327,32 @@
   color: #fff;
 }
 .rung--player .rung__dp { color: var(--dls-amber); font-size: 14px; }
+
+.rung--far { opacity: .34; }
+.here {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin: 8px 16px 8px 0;
+}
+.here em {
+  justify-self: end;
+  font-style: normal;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--dls-blue);
+}
+.here i {
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--dls-blue), transparent);
+  box-shadow: 0 0 10px rgba(59, 157, 255, .7);
+}
+@media (max-width: 900px) { .here { grid-template-columns: 56px 1fr; } }
 
 /* --- Prose --------------------------------------------------------------- */
 
@@ -313,17 +433,31 @@
     </div>
 
     <div class="dls-panel plan">
-      <div class="plan__lab">How many games do I need?</div>
-      <div class="plan__row">
-        <span class="plan__unit">I have</span>
-        <input id="have-dp" type="number" min="0" step="500" value="2020" inputmode="numeric">
-        <span class="plan__unit">DP · spending</span>
-        <input id="spend-coins" type="number" min="0" step="500" value="0" inputmode="numeric">
-        <span class="plan__unit">coins · winning</span>
-        <input id="wins" type="number" min="0" step="1" value="6" inputmode="numeric">
-        <span class="plan__unit">a day</span>
+      <div class="plan__lab">Where will I land? — a rough estimate</div>
+
+      <div class="io">
+        <label><em>Career</em><input id="c-games" type="number" min="0" step="1" value="6" inputmode="numeric"><span>games a day ×</span><input id="c-rate" type="number" min="1" step="10" value="120" inputmode="numeric"><span>DP</span></label>
+        <label><em>DLL</em><input id="d-games" type="number" min="0" step="1" value="1" inputmode="numeric"><span>games a day ×</span><input id="d-rate" type="number" min="1" step="10" value="200" inputmode="numeric"><span>DP</span></label>
+        <label class="io--derived"><em>So, a day</em><input id="daily" type="number" min="0" step="10" inputmode="numeric"><span>DP — or type your own if you have measured it</span></label>
       </div>
+
+      <div class="io">
+        <label><em>I have</em><input id="have-dp" type="number" min="0" step="500" value="2020" inputmode="numeric"><span>DP</span></label>
+        <label><em>Days left</em><input id="days" type="number" min="1" step="1" value="90" inputmode="numeric"><span>of the season</span></label>
+        <label><em>Boosts</em>
+          <input id="b-common" type="number" min="0" step="1" value="0" inputmode="numeric"><span>C</span>
+          <input id="b-rare" type="number" min="0" step="1" value="0" inputmode="numeric"><span>R</span>
+          <input id="b-legendary" type="number" min="0" step="1" value="0" inputmode="numeric"><span>L</span>
+        </label>
+      </div>
+
+      <div class="landing" id="landing"></div>
       <div class="plan__out" id="plan-out"></div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="rows__cap" id="buy-cap">Or buy what is left</div>
+      <div class="buy" id="buy"></div>
     </div>
 
     <div class="dls-panel">
@@ -363,17 +497,15 @@
 <script src="assets/shell.js" defer></script>
 <script>
 /* Everything is derived from data/ladder.js, priced through the best gem and
-   coin tiers in data/store.js. No rate, ranking or verdict is typed by hand. */
+   coin tiers in data/store.js. Nothing here is a published figure: the per-game
+   rates are averages Francisco gave, so every output is an estimate and the
+   page says so rather than implying precision it does not have. */
 
 var money = function (n) { return 'C$' + n.toFixed(2); };
 var num = function (n) { return Math.round(n).toLocaleString('en-CA'); };
 
 var GEM_RATE = Math.max.apply(null, GEM_PACKS.map(function (p) { return p.gems / p.price; }));
 var COIN_RATE = Math.max.apply(null, COIN_PACKS.map(function (p) { return (p.base + p.bonus) / p.price; }));
-var PER_WIN = DP_PER_WIN + DP_PER_AD;
-
-var coinOffer = DP_OFFERS.find(function (o) { return o.currency === 'coins'; });
-var COINS_PER_DP = coinOffer.cost / coinOffer.dp;
 
 function offerCad(o) {
   return o.currency === 'cad' ? o.cost
@@ -397,7 +529,6 @@ var ICONS = {
   form: 'M5 13l7-6 7 6M5 19l7-6 7 6',
   dpboost: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM8 13l4-4 4 4'
 };
-
 function icon(name) {
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (ICONS[name] || ICONS.coins) + '"/></svg>';
 }
@@ -424,15 +555,16 @@ document.getElementById('tabs').addEventListener('click', function (e) {
 window.addEventListener('hashchange', function () { showTab(location.hash.slice(1) || 'ladder'); });
 
 (function () {
+  var career = DP_RATES.find(function (r) { return r.id === 'career'; });
+
   document.getElementById('head-rule').textContent =
-    LADDER_EVENT + ' · ' + LADDER.length + ' rewards over ' + LADDER_DAYS + ' days';
+    LADDER_EVENT + ' · ' + LADDER.length + ' rewards over ' + LADDER_DAYS + ' days · all figures estimated';
   document.getElementById('tab-ladder-sub').textContent = LADDER.length + ' rungs';
 
   /* --- this season's four ---
      Deliberately NOT paired one-to-one with the rungs: which player lands on
      which threshold is random, so lining them up would invent a mapping the
-     game does not have. The four names and the four thresholds are shown as
-     two separate sets. */
+     game does not have. */
   var playerRungs = LADDER.filter(function (r) { return r.icon === 'player'; });
   document.getElementById('season').innerHTML =
     '<span class="squad-strip__lab">This season</span>'
@@ -443,103 +575,203 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
     + playerRungs.map(function (r) { return num(r.dp); }).join(' · ')
     + ' DP, in random order</span>';
 
-  /* --- headline --- */
+  /* --- headline: the mode choice is the biggest lever, so it leads --- */
   document.getElementById('target').innerHTML = num(LADDER_TARGET) + '<small> DP</small>';
-  document.getElementById('target-sub').textContent =
-    num(LADDER_TARGET / PER_WIN) + ' wins with an ad after each — '
-    + (LADDER_TARGET / PER_WIN / LADDER_DAYS).toFixed(1) + ' a day for ' + LADDER_DAYS + ' days. '
-    + 'Or ' + num(LADDER_TARGET * COINS_PER_DP) + ' coins, or ' + money(LADDER_TARGET / 25000 * 24.99) + ' in cash.';
+  document.getElementById('target-sub').innerHTML =
+    DP_RATES.map(function (r) {
+      return num(LADDER_TARGET / r.dp) + ' games of <b>' + r.label + '</b>';
+    }).join(', or ')
+    + '. Over ' + LADDER_DAYS + ' days that is '
+    + DP_RATES.map(function (r) { return (LADDER_TARGET / r.dp / LADDER_DAYS).toFixed(1); }).join(' / ')
+    + ' a day.';
 
   var gems = LADDER.filter(function (r) { return r.icon === 'gems'; }).reduce(function (a, r) { return a + r.n; }, 0);
   var coins = LADDER.filter(function (r) { return r.icon === 'coins'; }).reduce(function (a, r) { return a + r.n; }, 0);
-  var players = LADDER.filter(function (r) { return r.icon === 'player'; });
 
   document.getElementById('payout').innerHTML =
-    players.length + '<small> players</small> · ' + gems + '<small> gems</small>';
+    playerRungs.length + '<small> players</small> · ' + gems + '<small> gems</small>';
   document.getElementById('payout-sub').textContent =
     'Plus ' + num(coins) + ' coins and '
     + LADDER.filter(function (r) { return ['player', 'gems', 'coins'].indexOf(r.icon) < 0; }).length
     + ' other items. The gems alone are worth ' + money(gems / GEM_RATE) + ' at the best store tier.';
 
-  /* --- buying routes --- */
+  /* --- what a Dream Point costs --- */
   var routes = DP_OFFERS.map(function (o) {
     return { o: o, cad: offerCad(o), per: o.dp / offerCad(o) };
   }).sort(function (a, b) { return b.per - a.per; });
 
   document.getElementById('routes').innerHTML =
     '<div class="rows__cap">What a Dream Point costs</div>'
-    + '<div class="row"><b>Winning a match</b><span>' + DP_PER_WIN + ' DP, ' + PER_WIN
-    + ' with an ad</span><em>free</em></div>'
+    + DP_RATES.map(function (r) {
+        return '<div class="row row--free"><b>' + r.label + '</b><span>' + r.note + '</span>'
+          + '<em>' + r.dp + ' DP a game</em></div>';
+      }).join('')
     + routes.map(function (r) {
         var cur = r.o.currency === 'cad' ? 'cash' : r.o.currency;
-        var cls = (r === routes[0] ? ' row--best' : '') + (r.o.currency === 'coins' ? ' row--free' : '');
+        var cls = r === routes[0] ? ' row--best' : '';
         return '<div class="row' + cls + '">'
           + '<b>' + num(r.o.dp) + ' DP for ' + (r.o.currency === 'cad' ? money(r.o.cost) : num(r.o.cost) + ' ' + cur) + '</b>'
           + '<span>' + money(r.cad) + ' of value</span>'
           + '<em>' + num(r.per) + ' DP / C$1</em></div>';
       }).join('');
 
-  /* --- boosts --- */
-  document.getElementById('boosts').innerHTML =
-    '<div class="rows__cap">Dream Point boosts — measured in games, not time</div>'
-    + DP_BOOSTS.map(function (b) {
-        return '<div class="row"><b>' + b.rarity + ' · +' + b.pct + '%</b>'
-          + '<span>lasts ' + b.games + ' games</span>'
-          + '<em>+' + num(boostWorth(b, PER_WIN)) + ' DP</em></div>';
-      }).join('');
+  /* --- planner ----------------------------------------------------------
+     Two modes in, because nobody is purely one or the other, and the answer
+     out is a landing spot rather than a games-to-finish figure: at these
+     rates finishing wants 23 Career games a day, which is not a plan anyone
+     follows. Where you actually land survives a 10% error in the rate; a
+     precise-looking games total does not. */
 
-  /* --- planner --- */
-  function plan() {
-    var have = Math.max(0, parseInt(document.getElementById('have-dp').value, 10) || 0);
-    var spend = Math.max(0, parseInt(document.getElementById('spend-coins').value, 10) || 0);
-    var wins = Math.max(0, parseInt(document.getElementById('wins').value, 10) || 0);
-    var fromCoins = Math.floor(spend / COINS_PER_DP);
-    var short = LADDER_TARGET - have - fromCoins;
-    var out = document.getElementById('plan-out');
+  var el = function (id) { return document.getElementById(id); };
+  var val = function (id, min) { return Math.max(min === undefined ? 0 : min, parseInt(el(id).value, 10) || 0); };
 
-    if (short <= 0) {
-      out.innerHTML = num(have) + ' DP plus ' + num(fromCoins) + ' from coins already clears '
-        + num(LADDER_TARGET) + '. <em class="ok">No matches needed.</em>';
-      return;
-    }
-    var games = Math.ceil(short / PER_WIN);
-    if (wins === 0) {
-      out.innerHTML = 'Short <b>' + num(short) + ' DP</b> — that is <b>' + num(games)
-        + ' wins</b>, or ' + money(short / 25000 * 24.99) + ' of Dream Points.';
-      return;
-    }
-    var days = short / (wins * PER_WIN);
-    var made = days <= LADDER_DAYS;
-    out.innerHTML =
-      'Short <b>' + num(short) + ' DP</b>' + (fromCoins ? ' after ' + num(fromCoins) + ' from coins' : '')
-      + ' — <b>' + num(games) + ' wins</b> with an ad after each. At ' + wins
-      + ' a day that is <b>' + Math.ceil(days) + ' days</b>, <em class="' + (made ? 'ok' : 'no') + '">'
-      + (made ? 'inside the ' + LADDER_DAYS + '-day window' : 'past the ' + LADDER_DAYS + '-day window') + '</em>.<br>'
-      + (made
-          ? 'Dropping to ' + Math.ceil(short / (LADDER_DAYS * PER_WIN)) + ' wins a day still finishes it.'
-          : 'You would need ' + Math.ceil(short / (LADDER_DAYS * PER_WIN)) + ' a day, or '
-            + money(Math.max(0, short - LADDER_DAYS * wins * PER_WIN) / 25000 * 24.99) + ' to cover the rest.')
-      + ' Boosts are left out, and they are worth about one percent of the target, so this is close to the real figure.';
+  function boostsHeld(perGame) {
+    return DP_BOOSTS.reduce(function (a, b) {
+      return a + val('b-' + b.rarity.toLowerCase()) * boostWorth(b, perGame);
+    }, 0);
   }
-  ['have-dp', 'spend-coins', 'wins'].forEach(function (id) {
-    document.getElementById(id).addEventListener('input', plan);
-  });
-  plan();
 
-  /* --- the ladder, drawn --- */
-  document.getElementById('track').innerHTML = LADDER.map(function (r) {
-    var mod = r.icon === 'player' ? 'player'
-            : r.icon === 'gems' ? 'gems'
-            : r.icon === 'coins' ? 'coins'
-            : (r.rar || 'common');
-    return '<div class="rung rung--' + mod + '">'
-      + '<span class="rung__dp' + (r.dp == null ? ' none' : '') + '">'
-      + (r.dp == null ? 'claimed' : num(r.dp)) + '</span>'
-      + '<span class="rung__node">' + icon(r.icon) + '</span>'
-      + '<span class="rung__name">' + r.reward + '</span>'
-      + '<span class="rung__pct">' + (r.dp == null ? '' : (r.dp / LADDER_TARGET * 100).toFixed(0) + '%') + '</span>'
-      + '</div>';
-  }).join('');
+  /* Points sell in fixed blocks, so a gap always rounds UP to a whole block —
+     quoting the exact gap would price a purchase the store will not make. */
+  function buyGap(gap) {
+    return DP_BUY.map(function (b) {
+      var blocks = Math.ceil(gap / b.dpBlock);
+      var cost = blocks * b.costBlock;
+      var got = blocks * b.dpBlock;
+      return {
+        b: b, blocks: blocks, cost: cost, got: got, spare: got - gap,
+        cad: b.currency === 'cad' ? cost : b.currency === 'gems' ? cost / GEM_RATE : cost / COIN_RATE
+      };
+    });
+  }
+
+  /* Typing in the daily field wins until a game count is touched again. */
+  var dailyTyped = false;
+  el('daily').addEventListener('input', function () { dailyTyped = true; run(); });
+
+  function run() {
+    var cg = val('c-games'), cr = val('c-rate', 1) || 120;
+    var dg = val('d-games'), dr = val('d-rate', 1) || 200;
+    var computed = cg * cr + dg * dr;
+    if (!dailyTyped) el('daily').value = computed;
+    var daily = val('daily');
+
+    var days = val('days', 1) || 1;
+    var have = val('have-dp');
+    /* Boosts are valued at whichever mode you play more of — they scale with
+       the per-game rate, so pretending otherwise would over- or under-count. */
+    var boostRate = dg * dr > cg * cr ? dr : cr;
+    var fromBoosts = boostsHeld(boostRate);
+
+    var landed = Math.min(LADDER_TARGET, have + fromBoosts + daily * days);
+    var gapToFinish = LADDER_TARGET - have - fromBoosts;
+
+    /* boosts panel follows the same rate */
+    el('boosts').innerHTML =
+      '<div class="rows__cap">Dream Point boosts — measured in games, not time · valued at '
+      + boostRate + ' DP a game</div>'
+      + DP_BOOSTS.map(function (b) {
+          return '<div class="row"><b>' + b.rarity + ' · +' + b.pct + '%</b>'
+            + '<span>lasts ' + b.games + ' games</span>'
+            + '<em>+' + num(boostWorth(b, boostRate)) + ' DP</em></div>';
+        }).join('');
+
+    /* --- where you land --- */
+    var reachedPlayers = playerRungs.filter(function (r) { return r.dp <= landed; });
+    var nextPlayer = playerRungs.find(function (r) { return r.dp > landed; });
+    var allRungs = LADDER.filter(function (r) { return r.dp != null; });
+    var reachedRungs = allRungs.filter(function (r) { return r.dp <= landed; });
+
+    var big = daily === 0
+      ? 'Not playing, so you stay at <b>' + num(have + fromBoosts) + ' DP</b>.'
+      : 'In ' + days + ' days you reach about <b>' + num(landed) + ' DP</b> — '
+        + '<b>' + reachedPlayers.length + ' of ' + playerRungs.length + '</b> players.';
+
+    var sub = reachedRungs.length + ' of ' + allRungs.length + ' rungs cleared at '
+      + num(daily) + ' DP a day.';
+
+    if (nextPlayer) {
+      var needDaily = (nextPlayer.dp - have - fromBoosts) / days;
+      var extra = Math.max(0, needDaily - daily);
+      sub += ' The next player sits at <b>' + num(nextPlayer.dp) + '</b>, '
+        + num(nextPlayer.dp - landed) + ' further on'
+        + (extra > 0
+            ? ' — <b>' + num(extra) + ' more DP a day</b> would reach it, about '
+              + Math.ceil(extra / cr) + ' more Career games or ' + Math.ceil(extra / dr) + ' more DLL.'
+            : '.');
+    } else {
+      sub += ' That is the whole ladder — all four players.';
+    }
+
+    el('landing').innerHTML = '<div class="landing__big">' + big + '</div>'
+      + '<div class="landing__sub">' + sub + '</div>';
+
+    el('plan-out').innerHTML =
+      (gapToFinish > 0
+        ? 'Finishing outright wants <b>' + num(gapToFinish) + ' DP</b> more — '
+          + num(Math.ceil(gapToFinish / cr)) + ' Career games or ' + num(Math.ceil(gapToFinish / dr))
+          + ' DLL games, against the ' + days + ' days you have left.'
+        : 'Nothing left to earn.')
+      + '<br>Per-game rates are averages, not published numbers. If you want a real one, note your DP '
+      + 'today and again tomorrow — the difference beats every estimate on this page.';
+
+    /* --- buy the rest --- */
+    if (gapToFinish <= 0) {
+      el('buy-cap').textContent = 'Nothing left to buy';
+      el('buy').innerHTML = '';
+    } else {
+      var opts = buyGap(gapToFinish);
+      var cheapest = opts.reduce(function (a, b) { return b.cad < a.cad ? b : a; });
+      el('buy-cap').innerHTML = 'Or buy the whole remainder — <b>' + num(gapToFinish)
+        + ' DP</b>, sold only in whole blocks';
+      el('buy').innerHTML = opts.map(function (o) {
+        var isCoins = o.b.currency === 'coins';
+        var cls = isCoins ? ' buy--free' : (o === cheapest ? ' buy--cheap' : '');
+        return '<div class="' + cls.trim() + '">'
+          + '<div class="buy__cur">' + (o.b.currency === 'cad' ? 'Cash' : o.b.currency) + '</div>'
+          + '<div class="buy__cost">' + (o.b.currency === 'cad' ? money(o.cost) : num(o.cost) + ' ' + o.b.unit) + '</div>'
+          + '<div class="buy__sub">' + o.blocks + ' × ' + num(o.b.dpBlock) + ' DP block'
+          + (o.blocks === 1 ? '' : 's') + ' → ' + num(o.got) + ' DP'
+          + (o.spare > 0 ? ', ' + num(o.spare) + ' spare' : '')
+          + '<br>' + (isCoins
+              ? 'Free if the coins were earned; ' + money(o.cad) + ' if you had to buy them.'
+              : 'Worth ' + money(o.cad) + (o === cheapest ? ' — cheapest in real money.' : '.'))
+          + '</div></div>';
+      }).join('');
+    }
+
+    drawTrack(landed);
+  }
+
+  /* --- the ladder, drawn, with a line where you land --- */
+  function drawTrack(landed) {
+    var marked = false;
+    el('track').innerHTML = LADDER.map(function (r) {
+      var mod = r.icon === 'player' ? 'player'
+              : r.icon === 'gems' ? 'gems'
+              : r.icon === 'coins' ? 'coins'
+              : (r.rar || 'common');
+      var far = r.dp != null && r.dp > landed;
+      var marker = '';
+      if (far && !marked) {
+        marked = true;
+        marker = '<div class="here"><em>' + num(landed) + ' DP</em><i></i></div>';
+      }
+      return marker + '<div class="rung rung--' + mod + (far ? ' rung--far' : '') + '">'
+        + '<span class="rung__dp' + (r.dp == null ? ' none' : '') + '">'
+        + (r.dp == null ? 'claimed' : num(r.dp)) + '</span>'
+        + '<span class="rung__node">' + icon(r.icon) + '</span>'
+        + '<span class="rung__name">' + r.reward + '</span>'
+        + '<span class="rung__pct">' + (r.dp == null ? '' : (r.dp / LADDER_TARGET * 100).toFixed(0) + '%') + '</span>'
+        + '</div>';
+    }).join('');
+  }
+
+  ['c-games', 'c-rate', 'd-games', 'd-rate', 'have-dp', 'days', 'b-common', 'b-rare', 'b-legendary']
+    .forEach(function (id) {
+      el(id).addEventListener('input', function () { dailyTyped = false; run(); });
+    });
+  run();
 
   /* --- prose --- */
   document.getElementById('how').innerHTML = LADDER_NOTES.map(function (n) {
@@ -547,19 +779,19 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
   }).join('');
 
   document.getElementById('gaps').innerHTML = [
-    'Three early rungs are claimed in the screenshots, so their rewards are known but '
-      + '<b>their thresholds are not</b>. They are drawn without a number rather than guessed.',
     '<b>The rungs are last season\u2019s.</b> They were read off the Classic WC Players ladder '
       + '(Bergkamp, Desailly, Rivaldo, Cannavaro); this season is ' + LADDER_SEASON.players.join(', ')
       + '. A ladder almost certainly keeps its shape, but not one threshold here has been checked '
-      + 'against the current one — this is the biggest reason to distrust the page.',
+      + 'against the current one.',
+    '<b>Per-game rates are averages, not published figures.</b> 120 for Career, 160 for DLL, 200 for '
+      + 'DLL with ads — every games-and-days number on this page inherits that uncertainty.',
+    'Three early rungs are claimed in the screenshots, so their rewards are known but '
+      + '<b>their thresholds are not</b>. They are drawn without a number rather than guessed.',
     'Francisco put the first player rung at 67,500; the ladder shows <b>62,500</b>.',
     'The screenshots show <b>3 hours left</b> while the event is described as running 90 days — '
       + 'either it repeats, or the 90 days covers something wider.',
-    'Whether <b>ad rewards are capped per day</b> is unknown. If they are, ' + PER_WIN
-      + ' DP a win is optimistic for heavy play.',
-    'Boost sources beyond this ladder — the season pass and challenges — are not counted, '
-      + 'so a heavy player earns somewhat faster than the planner says.'
+    'Whether <b>ad rewards are capped per day</b> is unknown. If they are, the DLL-with-ads rate is '
+      + 'optimistic for heavy play.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   document.getElementById('foot').innerHTML =

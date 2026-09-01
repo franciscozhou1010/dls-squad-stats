@@ -76,11 +76,34 @@ const LADDER = [
   { dp: 250000, reward: 'Special Player',          kind: 'player', icon: 'player', rar: 'legendary' }
 ];
 
-/* Earning. A win pays a flat rate; watching an ad after it adds more. Boosts
-   (Dream Time, and the +50/75/150% boost items the ladder itself hands out)
-   multiply this, so the figures below are the unboosted floor. */
-const DP_PER_WIN = 120;
-const DP_PER_AD = 40;
+/* Earning. There are two game modes and they pay very differently, which is
+   the single biggest lever on how long a ladder takes:
+
+     Career (PvE) tops out at 120 for a clean sheet and five goals. Every goal
+     short of five costs 2 DP, and conceding at all costs 4 — so 4-0 pays 118
+     and 5-1 pays 116. The ad bonus moves with it. Nobody scores five every
+     time, so 120 is the working average rather than the ceiling.
+
+     Dream League Live (PvP) pays a lot more: about 160 without ads and about
+     200 with them.
+
+   Every figure here is an average Francisco gave, not a formula the game
+   publishes, so everything downstream is an estimate and is labelled as one. */
+const DP_RATES = [
+  { id: 'career', label: 'Career', dp: 120,
+    note: 'PvE. 120 needs a clean sheet and five goals; 2 DP a goal short of that, 4 for conceding.' },
+  { id: 'dll', label: 'Dream League Live', dp: 160,
+    note: 'PvP, no ads.' },
+  { id: 'dllad', label: 'DLL + ads', dp: 200,
+    note: 'PvP with ads watched. Roughly 160 plus about 51 for a clean sheet.' }
+];
+
+/* Kept for the career detail table — how the 120 is actually assembled. */
+const CAREER_SCORING = { max: 120, ad: 40, needGoals: 5, perGoalShort: 2, conceded: 4 };
+
+/* The rate the page defaults to. Career, because it is the mode Francisco
+   named first and the most pessimistic of the three. */
+const DP_DEFAULT_RATE = 'career';
 
 /* Dream Point boosts. Crucially these last a FIXED NUMBER OF GAMES rather
    than a stretch of time, which is what makes them worth so little: a
@@ -93,11 +116,21 @@ const DP_BOOSTS = [
   { rarity: 'Legendary', pct: 150, games: 8 }
 ];
 
-/* Extra DP a boost is worth, over playing the same games unboosted. */
+/* Extra DP a boost is worth, over playing the same games unboosted.
+   Scales with the mode you play, so a boost is worth more in DLL. */
 function boostWorth(b, perWin) { return perWin * (b.pct / 100) * b.games; }
 
-/* Buying. The daily offers all resolve to one rate per currency, which is
-   what makes them comparable at all. */
+/* Buying. The daily offers resolve to one rate per currency, which is what
+   makes them comparable — but they also come in fixed blocks, and that is what
+   the calculator has to respect. You cannot buy 2,300 coins' worth of Dream
+   Points: the smallest coin purchase is 1,500 coins for 1,000 DP, and cash
+   only sells them 25,000 at a time. */
+const DP_BUY = [
+  { currency: 'coins', dpBlock: 1000,  costBlock: 1500,  unit: 'coins' },
+  { currency: 'gems',  dpBlock: 1000,  costBlock: 100,   unit: 'gems' },
+  { currency: 'cad',   dpBlock: 25000, costBlock: 24.99, unit: 'CAD' }
+];
+
 const DP_OFFERS = [
   { dp: 1000,  cost: 1500,  currency: 'coins' },
   { dp: 5000,  cost: 7500,  currency: 'coins' },
@@ -113,14 +146,16 @@ const LADDER_NOTES = [
     src: 'Francisco' },
   { text: 'Which of the four players you get at each player rung is random. Finish the ladder and you get all four anyway.',
     src: 'Francisco' },
-  { text: 'A win pays ' + DP_PER_WIN + ' DP, plus ' + DP_PER_AD + ' more for watching an ad after it.',
+  { text: 'The two modes pay very differently. Career tops out at 120 — a clean sheet and five goals — dropping 2 DP a goal short and 4 for conceding, so 4-0 pays 118 and 5-1 pays 116. Dream League Live pays about 160, or about 200 with ads.',
     src: 'Francisco' },
+  { text: 'Playing DLL with ads instead of Career cuts the climb by roughly 40% — 1,250 games against 2,084 for the same 250,000.',
+    src: 'Derived from the rates above' },
   { text: 'Dream Point boosts last a set number of games, not a stretch of time: +50% for 3, +75% for 5, +150% for 8. That is why they barely move a 250,000 target: the ones this ladder hands out are worth '
       + LADDER.filter(function (r) { return r.icon === 'dpboost'; }).reduce(function (a, r) {
           var b = DP_BOOSTS.find(function (x) { return x.rarity.toLowerCase() === r.rar; });
-          return a + (b ? boostWorth(b, DP_PER_WIN + DP_PER_AD) : 0);
+          return a + (b ? boostWorth(b, DP_RATES[0].dp) : 0);
         }, 0).toLocaleString('en-CA')
-      + ' DP between them, about one percent of the way.',
+      + ' DP between them at the Career rate — about one percent of the way, and the reason the planner leaves them optional.',
     src: 'Francisco + Prize Ladder screenshots' },
   { text: 'Boosts can be bought with gems, but nobody does. They come from the season pass, this ladder, and challenges.',
     src: 'Francisco' },
