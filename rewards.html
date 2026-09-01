@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rewards · DLS</title>
+<meta name="theme-color" content="#04080f">
+
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+:root { color-scheme: dark; --accent: var(--dls-rose); }
+
+.stack { display: grid; gap: 16px; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.duo > * { min-width: 0; }
+
+/* --- Tabs ---------------------------------------------------------------- */
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.tab {
+  padding: 10px 20px;
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  border: none;
+  background: var(--dls-panel);
+  box-shadow: inset 0 0 0 1px var(--dls-edge-soft);
+  color: var(--dls-ink-dim);
+  font-family: var(--dls-sans);
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .14s, background .14s;
+}
+.tab:hover:not(:disabled) { color: var(--dls-ink); background: var(--dls-panel-lit); }
+.tab.is-on { background: linear-gradient(100deg, var(--dls-rose), var(--dls-magenta)); color: #1b0510; }
+.tab:disabled { color: var(--dls-ink-faint); cursor: not-allowed; }
+.tab small {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 1.1px;
+  opacity: .7;
+}
+.pane { display: none; }
+.pane.is-on { display: grid; gap: 16px; }
+
+/* --- Cards --------------------------------------------------------------- */
+
+.card { padding: 18px 20px; background: color-mix(in srgb, var(--dls-blue) 46%, var(--dls-edge-soft)); }
+.card__lab {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.card__big {
+  margin-top: 8px;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--dls-blue);
+  text-shadow: 0 0 22px rgba(59, 157, 255, .35);
+  font-variant-numeric: tabular-nums;
+}
+.card__big small { font-size: 13px; font-weight: 700; letter-spacing: 0; color: var(--dls-ink-dim); }
+.card__sub { margin-top: 9px; font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
+
+/* --- Routes and boosts --------------------------------------------------- */
+
+.rows { display: grid; gap: 1px; background: var(--dls-edge-soft); }
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 16px;
+  background: var(--dls-panel);
+}
+.row b { font-size: 13px; font-weight: 700; color: var(--dls-ink); }
+.row span { font-family: var(--dls-mono); font-size: 11px; color: var(--dls-ink-faint); white-space: nowrap; }
+.row em {
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--dls-blue);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.row--best { background: rgba(52, 211, 153, .08); }
+.row--best em { color: var(--dls-mint); }
+.row--free { background: rgba(59, 157, 255, .07); }
+.rows__cap {
+  padding: 10px 16px;
+  background: var(--dls-panel);
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+
+/* --- Planner ------------------------------------------------------------- */
+
+.plan { padding: 16px 18px; }
+.plan__lab {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.plan__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.plan input {
+  width: 108px;
+  padding: 9px 12px;
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  border: none;
+  background: var(--dls-panel-lit);
+  box-shadow: inset 0 0 0 1px var(--dls-edge);
+  color: var(--dls-ink);
+  font-family: var(--dls-mono);
+  font-size: 15px;
+  font-weight: 700;
+}
+.plan input:focus { outline: none; box-shadow: inset 0 0 0 1px var(--dls-blue); }
+.plan__unit { font-family: var(--dls-mono); font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--dls-ink-faint); }
+.plan__out { margin-top: 14px; font-size: 13.5px; line-height: 1.65; color: var(--dls-ink-dim); }
+.plan__out b { color: #eef6ff; font-weight: 800; }
+.plan__out em { font-style: normal; font-weight: 800; }
+.plan__out .ok { color: var(--dls-mint); }
+.plan__out .no { color: var(--dls-magenta); }
+
+/* --- The ladder, drawn ---------------------------------------------------- */
+
+.track { position: relative; padding: 6px 0; max-height: 640px; overflow-y: auto; }
+/* The spine the nodes sit on, mirroring the connecting line in game. */
+.track::before {
+  content: '';
+  position: absolute;
+  left: 118px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--dls-edge) 4%, var(--dls-edge) 96%, transparent);
+}
+.rung {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px 44px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 5px 16px 5px 0;
+}
+.rung__dp {
+  text-align: right;
+  font-family: var(--dls-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dls-ink);
+  font-variant-numeric: tabular-nums;
+}
+.rung__dp.none { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--dls-ink-faint); }
+.rung__node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  justify-self: center;
+  border-radius: 50%;
+  background: var(--dls-panel-lit);
+  box-shadow: 0 0 0 2px var(--dls-ground), inset 0 0 0 1.5px var(--rar, #9db4cc);
+  color: var(--rar, #9db4cc);
+}
+.rung__node svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.rung__name { font-size: 12.5px; color: var(--dls-ink-dim); }
+.rung__pct { font-family: var(--dls-mono); font-size: 9.5px; color: var(--dls-ink-faint); }
+
+.rung--common { --rar: #9db4cc; }
+.rung--rare { --rar: var(--dls-blue); }
+.rung--legendary { --rar: var(--dls-amber); }
+.rung--gems { --rar: var(--dls-cyan); }
+.rung--coins { --rar: var(--dls-amber); }
+
+/* Player rungs are the only reason anyone climbs, so they get the weight. */
+.rung--player { padding-top: 10px; padding-bottom: 10px; }
+.rung--player .rung__node {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(160deg, #fde68a, var(--dls-amber));
+  color: #3a2600;
+  box-shadow: 0 0 0 2px var(--dls-ground), 0 0 20px rgba(251, 191, 36, .45);
+}
+.rung--player .rung__node svg { width: 22px; height: 22px; stroke-width: 1.9; }
+.rung--player .rung__name {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #fff;
+}
+.rung--player .rung__dp { color: var(--dls-amber); font-size: 14px; }
+
+/* --- Prose --------------------------------------------------------------- */
+
+.block { padding: 16px 18px; }
+.block h2 {
+  margin: 0 0 10px;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+.block--how h2 { color: var(--dls-cyan); }
+.block--gaps h2 { color: var(--dls-magenta); }
+.block ul { margin: 0; padding-left: 18px; }
+.block li { margin-bottom: 9px; font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
+.block li:last-child { margin-bottom: 0; }
+.block li b { color: #eef6ff; font-weight: 700; }
+.block li em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-family: var(--dls-mono);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+
+.stub { padding: 40px 18px; text-align: center; }
+.stub p { margin: 0; font-size: 13px; color: var(--dls-ink-faint); }
+
+@media (max-width: 900px) {
+  .duo { grid-template-columns: 1fr; }
+  .track::before { left: 78px; }
+  .rung { grid-template-columns: 56px 40px 1fr; padding-right: 8px; }
+  .rung__pct { display: none; }
+}
+</style>
+</head>
+
+<body data-dls-page="rewards" data-dls-skin="hud">
+
+<div class="wrap stack">
+
+  <header class="head">
+    <p class="eyebrow">// Rewards</p>
+    <h1>Rewards</h1>
+    <p class="rule" id="head-rule">—</p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab is-on" data-tab="ladder">Prize Ladder<small id="tab-ladder-sub">—</small></button>
+    <button class="tab" data-tab="pass" disabled>Season Pass<small>not built</small></button>
+    <button class="tab" data-tab="challenges" disabled>Challenges<small>not built</small></button>
+  </nav>
+
+  <!-- ================= PRIZE LADDER ================= -->
+  <section class="pane is-on" id="pane-ladder">
+
+    <div class="duo">
+      <div class="dls-panel card">
+        <div class="card__lab">Finish the ladder</div>
+        <div class="card__big" id="target">—</div>
+        <div class="card__sub" id="target-sub"></div>
+      </div>
+      <div class="dls-panel card">
+        <div class="card__lab">What it pays out</div>
+        <div class="card__big" id="payout">—</div>
+        <div class="card__sub" id="payout-sub"></div>
+      </div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="rows" id="routes"></div>
+    </div>
+
+    <div class="dls-panel plan">
+      <div class="plan__lab">How many games do I need?</div>
+      <div class="plan__row">
+        <span class="plan__unit">I have</span>
+        <input id="have-dp" type="number" min="0" step="500" value="2020" inputmode="numeric">
+        <span class="plan__unit">DP · spending</span>
+        <input id="spend-coins" type="number" min="0" step="500" value="0" inputmode="numeric">
+        <span class="plan__unit">coins · winning</span>
+        <input id="wins" type="number" min="0" step="1" value="6" inputmode="numeric">
+        <span class="plan__unit">a day</span>
+      </div>
+      <div class="plan__out" id="plan-out"></div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="rows" id="boosts"></div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="track" id="track"></div>
+    </div>
+
+    <div class="duo">
+      <div class="dls-panel block block--how">
+        <h2>How it works</h2>
+        <ul id="how"></ul>
+      </div>
+      <div class="dls-panel block block--gaps">
+        <h2>Not solid yet</h2>
+        <ul id="gaps"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-pass">
+    <div class="dls-panel stub"><p>Season pass tiers, the premium multipliers and the progress bank are not built yet.</p></div>
+  </section>
+
+  <section class="pane" id="pane-challenges">
+    <div class="dls-panel stub"><p>Daily, weekly, career and Dream League Live challenges are not built yet.</p></div>
+  </section>
+
+  <p class="note" id="foot"></p>
+
+</div>
+
+<script src="data/ladder.js"></script>
+<script src="data/store.js"></script>
+<script src="assets/shell.js" defer></script>
+<script>
+/* Everything is derived from data/ladder.js, priced through the best gem and
+   coin tiers in data/store.js. No rate, ranking or verdict is typed by hand. */
+
+var money = function (n) { return 'C$' + n.toFixed(2); };
+var num = function (n) { return Math.round(n).toLocaleString('en-CA'); };
+
+var GEM_RATE = Math.max.apply(null, GEM_PACKS.map(function (p) { return p.gems / p.price; }));
+var COIN_RATE = Math.max.apply(null, COIN_PACKS.map(function (p) { return (p.base + p.bonus) / p.price; }));
+var PER_WIN = DP_PER_WIN + DP_PER_AD;
+
+var coinOffer = DP_OFFERS.find(function (o) { return o.currency === 'coins'; });
+var COINS_PER_DP = coinOffer.cost / coinOffer.dp;
+
+function offerCad(o) {
+  return o.currency === 'cad' ? o.cost
+       : o.currency === 'gems' ? o.cost / GEM_RATE
+       : o.cost / COIN_RATE;
+}
+
+/* Icons echo the badges the game puts on each rung, so the ladder can be read
+   at a glance the way it is in game rather than as a list of words. */
+var ICONS = {
+  player: 'M12 2l8 3.5v6.5c0 4.6-3.4 8.3-8 10-4.6-1.7-8-5.4-8-10V5.5z',
+  gems: 'M6 3h12l3 6-9 12L3 9z',
+  coins: 'M4 7c0-1.66 3.58-3 8-3s8 1.34 8 3-3.58 3-8 3-8-1.34-8-3zM4 7v5c0 1.66 3.58 3 8 3s8-1.34 8-3V7M4 12v5c0 1.66 3.58 3 8 3s8-1.34 8-3v-5',
+  fitness: 'M3 12h3.5l2-6 3.5 12 2.5-6H21',
+  technical: 'M12 4l6 14H6zM3 20h18',
+  goalkeeping: 'M8 21v-9M8 12V6a2 2 0 0 1 4 0v4M12 10V4.5a1.75 1.75 0 0 1 3.5 0V10M15.5 10V7a1.75 1.75 0 0 1 3.5 0v7a7 7 0 0 1-7 7H8',
+  special: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7z',
+  scout: 'M8 4h3v4H8zM13 4h3v4h-3zM6.5 20a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 20a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM9.5 8L7 13M14.5 8l2.5 5',
+  agent: 'M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 20a7 7 0 0 1 14 0M18 7v6M15 10h6',
+  physio: 'M3 8h18v12H3zM9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8M12 11v6M9 14h6',
+  form: 'M5 13l7-6 7 6M5 19l7-6 7 6',
+  dpboost: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM8 13l4-4 4 4'
+};
+
+function icon(name) {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (ICONS[name] || ICONS.coins) + '"/></svg>';
+}
+
+/* --- Tabs ----------------------------------------------------------------- */
+
+function showTab(name) {
+  var found = false;
+  document.querySelectorAll('.tab').forEach(function (b) {
+    var on = b.dataset.tab === name && !b.disabled;
+    b.classList.toggle('is-on', on);
+    if (on) found = true;
+  });
+  if (!found) return showTab('ladder');
+  document.querySelectorAll('.pane').forEach(function (p) {
+    p.classList.toggle('is-on', p.id === 'pane-' + name);
+  });
+  if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
+}
+document.getElementById('tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab');
+  if (b && !b.disabled) showTab(b.dataset.tab);
+});
+window.addEventListener('hashchange', function () { showTab(location.hash.slice(1) || 'ladder'); });
+
+(function () {
+  document.getElementById('head-rule').textContent =
+    LADDER_EVENT + ' · ' + LADDER.length + ' rewards over ' + LADDER_DAYS + ' days';
+  document.getElementById('tab-ladder-sub').textContent = LADDER.length + ' rungs';
+
+  /* --- headline --- */
+  document.getElementById('target').innerHTML = num(LADDER_TARGET) + '<small> DP</small>';
+  document.getElementById('target-sub').textContent =
+    num(LADDER_TARGET / PER_WIN) + ' wins with an ad after each — '
+    + (LADDER_TARGET / PER_WIN / LADDER_DAYS).toFixed(1) + ' a day for ' + LADDER_DAYS + ' days. '
+    + 'Or ' + num(LADDER_TARGET * COINS_PER_DP) + ' coins, or ' + money(LADDER_TARGET / 25000 * 24.99) + ' in cash.';
+
+  var gems = LADDER.filter(function (r) { return r.icon === 'gems'; }).reduce(function (a, r) { return a + r.n; }, 0);
+  var coins = LADDER.filter(function (r) { return r.icon === 'coins'; }).reduce(function (a, r) { return a + r.n; }, 0);
+  var players = LADDER.filter(function (r) { return r.icon === 'player'; });
+
+  document.getElementById('payout').innerHTML =
+    players.length + '<small> players</small> · ' + gems + '<small> gems</small>';
+  document.getElementById('payout-sub').textContent =
+    'Plus ' + num(coins) + ' coins and '
+    + LADDER.filter(function (r) { return ['player', 'gems', 'coins'].indexOf(r.icon) < 0; }).length
+    + ' other items. The gems alone are worth ' + money(gems / GEM_RATE) + ' at the best store tier.';
+
+  /* --- buying routes --- */
+  var routes = DP_OFFERS.map(function (o) {
+    return { o: o, cad: offerCad(o), per: o.dp / offerCad(o) };
+  }).sort(function (a, b) { return b.per - a.per; });
+
+  document.getElementById('routes').innerHTML =
+    '<div class="rows__cap">What a Dream Point costs</div>'
+    + '<div class="row"><b>Winning a match</b><span>' + DP_PER_WIN + ' DP, ' + PER_WIN
+    + ' with an ad</span><em>free</em></div>'
+    + routes.map(function (r) {
+        var cur = r.o.currency === 'cad' ? 'cash' : r.o.currency;
+        var cls = (r === routes[0] ? ' row--best' : '') + (r.o.currency === 'coins' ? ' row--free' : '');
+        return '<div class="row' + cls + '">'
+          + '<b>' + num(r.o.dp) + ' DP for ' + (r.o.currency === 'cad' ? money(r.o.cost) : num(r.o.cost) + ' ' + cur) + '</b>'
+          + '<span>' + money(r.cad) + ' of value</span>'
+          + '<em>' + num(r.per) + ' DP / C$1</em></div>';
+      }).join('');
+
+  /* --- boosts --- */
+  document.getElementById('boosts').innerHTML =
+    '<div class="rows__cap">Dream Point boosts — measured in games, not time</div>'
+    + DP_BOOSTS.map(function (b) {
+        return '<div class="row"><b>' + b.rarity + ' · +' + b.pct + '%</b>'
+          + '<span>lasts ' + b.games + ' games</span>'
+          + '<em>+' + num(boostWorth(b, PER_WIN)) + ' DP</em></div>';
+      }).join('');
+
+  /* --- planner --- */
+  function plan() {
+    var have = Math.max(0, parseInt(document.getElementById('have-dp').value, 10) || 0);
+    var spend = Math.max(0, parseInt(document.getElementById('spend-coins').value, 10) || 0);
+    var wins = Math.max(0, parseInt(document.getElementById('wins').value, 10) || 0);
+    var fromCoins = Math.floor(spend / COINS_PER_DP);
+    var short = LADDER_TARGET - have - fromCoins;
+    var out = document.getElementById('plan-out');
+
+    if (short <= 0) {
+      out.innerHTML = num(have) + ' DP plus ' + num(fromCoins) + ' from coins already clears '
+        + num(LADDER_TARGET) + '. <em class="ok">No matches needed.</em>';
+      return;
+    }
+    var games = Math.ceil(short / PER_WIN);
+    if (wins === 0) {
+      out.innerHTML = 'Short <b>' + num(short) + ' DP</b> — that is <b>' + num(games)
+        + ' wins</b>, or ' + money(short / 25000 * 24.99) + ' of Dream Points.';
+      return;
+    }
+    var days = short / (wins * PER_WIN);
+    var made = days <= LADDER_DAYS;
+    out.innerHTML =
+      'Short <b>' + num(short) + ' DP</b>' + (fromCoins ? ' after ' + num(fromCoins) + ' from coins' : '')
+      + ' — <b>' + num(games) + ' wins</b> with an ad after each. At ' + wins
+      + ' a day that is <b>' + Math.ceil(days) + ' days</b>, <em class="' + (made ? 'ok' : 'no') + '">'
+      + (made ? 'inside the ' + LADDER_DAYS + '-day window' : 'past the ' + LADDER_DAYS + '-day window') + '</em>.<br>'
+      + (made
+          ? 'Dropping to ' + Math.ceil(short / (LADDER_DAYS * PER_WIN)) + ' wins a day still finishes it.'
+          : 'You would need ' + Math.ceil(short / (LADDER_DAYS * PER_WIN)) + ' a day, or '
+            + money(Math.max(0, short - LADDER_DAYS * wins * PER_WIN) / 25000 * 24.99) + ' to cover the rest.')
+      + ' Boosts are left out, and they are worth about one percent of the target, so this is close to the real figure.';
+  }
+  ['have-dp', 'spend-coins', 'wins'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', plan);
+  });
+  plan();
+
+  /* --- the ladder, drawn --- */
+  document.getElementById('track').innerHTML = LADDER.map(function (r) {
+    var mod = r.icon === 'player' ? 'player'
+            : r.icon === 'gems' ? 'gems'
+            : r.icon === 'coins' ? 'coins'
+            : (r.rar || 'common');
+    return '<div class="rung rung--' + mod + '">'
+      + '<span class="rung__dp' + (r.dp == null ? ' none' : '') + '">'
+      + (r.dp == null ? 'claimed' : num(r.dp)) + '</span>'
+      + '<span class="rung__node">' + icon(r.icon) + '</span>'
+      + '<span class="rung__name">' + r.reward + '</span>'
+      + '<span class="rung__pct">' + (r.dp == null ? '' : (r.dp / LADDER_TARGET * 100).toFixed(0) + '%') + '</span>'
+      + '</div>';
+  }).join('');
+
+  /* --- prose --- */
+  document.getElementById('how').innerHTML = LADDER_NOTES.map(function (n) {
+    return '<li>' + n.text + '<em>' + n.src + '</em></li>';
+  }).join('');
+
+  document.getElementById('gaps').innerHTML = [
+    'Three early rungs are claimed in the screenshots, so their rewards are known but '
+      + '<b>their thresholds are not</b>. They are drawn without a number rather than guessed.',
+    'Francisco put the first player rung at 67,500; the ladder shows <b>62,500</b>.',
+    'The screenshots show <b>3 hours left</b> while the event is described as running 90 days — '
+      + 'either it repeats, or the 90 days covers something wider.',
+    'Whether <b>ad rewards are capped per day</b> is unknown. If they are, ' + PER_WIN
+      + ' DP a win is optimistic for heavy play.',
+    'Boost sources beyond this ladder — the season pass and challenges — are not counted, '
+      + 'so a heavy player earns somewhat faster than the planner says.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  document.getElementById('foot').innerHTML =
+    'Cash buys Dream Points at <b>' + num(routes[0].per) + ' per C$1</b> against ' + num(routes[routes.length - 1].per)
+    + ' through coins — but that ranking only bites if you buy the currency first. Coins already earned are '
+    + 'free Dream Points, which is why spending a surplus on them is right even though the route ranks last.';
+
+  showTab(location.hash.slice(1) || 'ladder');
+})();
+</script>
+</body>
+</html>

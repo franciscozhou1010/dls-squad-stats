@@ -23,46 +23,46 @@ const LADDER_DAYS = 90;
    threshold rather than a guessed one — the count still comes to the 40 total
    Francisco quoted, which is the check that nothing is missing. */
 const LADDER = [
-  { dp: null,   reward: 'Rare Dream Point Boost',  kind: 'dpboost' },
-  { dp: null,   reward: '250 coins',               kind: 'coins', n: 250 },
-  { dp: null,   reward: 'Common Fitness Coach',    kind: 'coach' },
-  { dp: 3000,   reward: '25 gems',                 kind: 'gems', n: 25 },
-  { dp: 4000,   reward: 'Rare Special Coach',      kind: 'coach' },
-  { dp: 5000,   reward: 'Rare Agent',              kind: 'agent' },
-  { dp: 6000,   reward: '300 coins',               kind: 'coins', n: 300 },
-  { dp: 7000,   reward: 'Common Dream Point Boost (+50%)', kind: 'dpboost' },
-  { dp: 8500,   reward: 'Rare Scout',              kind: 'scout' },
-  { dp: 10000,  reward: '30 gems',                 kind: 'gems', n: 30 },
-  { dp: 11500,  reward: 'Legendary Physio',        kind: 'physio' },
-  { dp: 13000,  reward: 'Rare Fitness Coach',      kind: 'coach' },
-  { dp: 14500,  reward: 'Legendary Form Boost',    kind: 'form' },
-  { dp: 16000,  reward: '400 coins',               kind: 'coins', n: 400 },
-  { dp: 17500,  reward: 'Legendary Scout',         kind: 'scout' },
-  { dp: 19500,  reward: 'Rare Dream Point Boost (+75%)', kind: 'dpboost' },
-  { dp: 21500,  reward: 'Legendary Physio',        kind: 'physio' },
-  { dp: 23500,  reward: '40 gems',                 kind: 'gems', n: 40 },
-  { dp: 26000,  reward: 'Legendary Form Boost',    kind: 'form' },
-  { dp: 28500,  reward: 'Rare Agent',              kind: 'agent' },
-  { dp: 31000,  reward: 'Legendary Physio',        kind: 'physio' },
-  { dp: 34000,  reward: '500 coins',               kind: 'coins', n: 500 },
-  { dp: 37000,  reward: 'Rare Scout',              kind: 'scout' },
-  { dp: 41000,  reward: 'Common Fitness Coach',    kind: 'coach' },
-  { dp: 45000,  reward: 'Legendary Form Boost',    kind: 'form' },
-  { dp: 50000,  reward: '50 gems',                 kind: 'gems', n: 50 },
-  { dp: 55000,  reward: 'Legendary Physio',        kind: 'physio' },
-  { dp: 62500,  reward: 'Special Player',          kind: 'player' },
-  { dp: 70000,  reward: 'Common Special Coach',    kind: 'coach' },
-  { dp: 80000,  reward: 'Legendary Scout',         kind: 'scout' },
-  { dp: 90000,  reward: '750 coins',               kind: 'coins', n: 750 },
-  { dp: 100000, reward: 'Legendary Dream Point Boost (+150%)', kind: 'dpboost' },
-  { dp: 115000, reward: 'Special Player',          kind: 'player' },
-  { dp: 130000, reward: 'Rare Fitness Coach',      kind: 'coach' },
-  { dp: 145000, reward: '75 gems',                 kind: 'gems', n: 75 },
-  { dp: 160000, reward: 'Rare Agent',              kind: 'agent' },
-  { dp: 175000, reward: 'Special Player',          kind: 'player' },
-  { dp: 200000, reward: 'Common Special Coach',    kind: 'coach' },
-  { dp: 225000, reward: 'Rare Scout',              kind: 'scout' },
-  { dp: 250000, reward: 'Special Player',          kind: 'player' }
+  { dp: null,   reward: 'Rare Dream Point Boost',  kind: 'dpboost', icon: 'dpboost', rar: 'rare' },
+  { dp: null,   reward: '250 coins',               kind: 'coins', n: 250, icon: 'coins' },
+  { dp: null,   reward: 'Common Fitness Coach',    kind: 'coach', icon: 'fitness', rar: 'common' },
+  { dp: 3000,   reward: '25 gems',                 kind: 'gems', n: 25, icon: 'gems' },
+  { dp: 4000,   reward: 'Rare Special Coach',      kind: 'coach', icon: 'special', rar: 'rare' },
+  { dp: 5000,   reward: 'Rare Agent',              kind: 'agent', icon: 'agent', rar: 'rare' },
+  { dp: 6000,   reward: '300 coins',               kind: 'coins', n: 300, icon: 'coins' },
+  { dp: 7000,   reward: 'Common Dream Point Boost (+50%)', kind: 'dpboost', icon: 'dpboost', rar: 'common' },
+  { dp: 8500,   reward: 'Rare Scout',              kind: 'scout', icon: 'scout', rar: 'rare' },
+  { dp: 10000,  reward: '30 gems',                 kind: 'gems', n: 30, icon: 'gems' },
+  { dp: 11500,  reward: 'Legendary Physio',        kind: 'physio', icon: 'physio', rar: 'legendary' },
+  { dp: 13000,  reward: 'Rare Fitness Coach',      kind: 'coach', icon: 'fitness', rar: 'rare' },
+  { dp: 14500,  reward: 'Legendary Form Boost',    kind: 'form', icon: 'form', rar: 'legendary' },
+  { dp: 16000,  reward: '400 coins',               kind: 'coins', n: 400, icon: 'coins' },
+  { dp: 17500,  reward: 'Legendary Scout',         kind: 'scout', icon: 'scout', rar: 'legendary' },
+  { dp: 19500,  reward: 'Rare Dream Point Boost (+75%)', kind: 'dpboost', icon: 'dpboost', rar: 'rare' },
+  { dp: 21500,  reward: 'Legendary Physio',        kind: 'physio', icon: 'physio', rar: 'legendary' },
+  { dp: 23500,  reward: '40 gems',                 kind: 'gems', n: 40, icon: 'gems' },
+  { dp: 26000,  reward: 'Legendary Form Boost',    kind: 'form', icon: 'form', rar: 'legendary' },
+  { dp: 28500,  reward: 'Rare Agent',              kind: 'agent', icon: 'agent', rar: 'rare' },
+  { dp: 31000,  reward: 'Legendary Physio',        kind: 'physio', icon: 'physio', rar: 'legendary' },
+  { dp: 34000,  reward: '500 coins',               kind: 'coins', n: 500, icon: 'coins' },
+  { dp: 37000,  reward: 'Rare Scout',              kind: 'scout', icon: 'scout', rar: 'rare' },
+  { dp: 41000,  reward: 'Common Fitness Coach',    kind: 'coach', icon: 'fitness', rar: 'common' },
+  { dp: 45000,  reward: 'Legendary Form Boost',    kind: 'form', icon: 'form', rar: 'legendary' },
+  { dp: 50000,  reward: '50 gems',                 kind: 'gems', n: 50, icon: 'gems' },
+  { dp: 55000,  reward: 'Legendary Physio',        kind: 'physio', icon: 'physio', rar: 'legendary' },
+  { dp: 62500,  reward: 'Special Player',          kind: 'player', icon: 'player', rar: 'legendary' },
+  { dp: 70000,  reward: 'Common Special Coach',    kind: 'coach', icon: 'special', rar: 'common' },
+  { dp: 80000,  reward: 'Legendary Scout',         kind: 'scout', icon: 'scout', rar: 'legendary' },
+  { dp: 90000,  reward: '750 coins',               kind: 'coins', n: 750, icon: 'coins' },
+  { dp: 100000, reward: 'Legendary Dream Point Boost (+150%)', kind: 'dpboost', icon: 'dpboost', rar: 'legendary' },
+  { dp: 115000, reward: 'Special Player',          kind: 'player', icon: 'player', rar: 'legendary' },
+  { dp: 130000, reward: 'Rare Fitness Coach',      kind: 'coach', icon: 'fitness', rar: 'rare' },
+  { dp: 145000, reward: '75 gems',                 kind: 'gems', n: 75, icon: 'gems' },
+  { dp: 160000, reward: 'Rare Agent',              kind: 'agent', icon: 'agent', rar: 'rare' },
+  { dp: 175000, reward: 'Special Player',          kind: 'player', icon: 'player', rar: 'legendary' },
+  { dp: 200000, reward: 'Common Special Coach',    kind: 'coach', icon: 'special', rar: 'common' },
+  { dp: 225000, reward: 'Rare Scout',              kind: 'scout', icon: 'scout', rar: 'rare' },
+  { dp: 250000, reward: 'Special Player',          kind: 'player', icon: 'player', rar: 'legendary' }
 ];
 
 /* Earning. A win pays a flat rate; watching an ad after it adds more. Boosts
@@ -70,6 +70,20 @@ const LADDER = [
    multiply this, so the figures below are the unboosted floor. */
 const DP_PER_WIN = 120;
 const DP_PER_AD = 40;
+
+/* Dream Point boosts. Crucially these last a FIXED NUMBER OF GAMES rather
+   than a stretch of time, which is what makes them worth so little: a
+   Legendary boost is the biggest one in the game and still only covers eight
+   matches. They are buyable with gems, but Francisco says nobody does that —
+   they come from the season pass, the ladder itself, and challenges. */
+const DP_BOOSTS = [
+  { rarity: 'Common',    pct: 50,  games: 3 },
+  { rarity: 'Rare',      pct: 75,  games: 5 },
+  { rarity: 'Legendary', pct: 150, games: 8 }
+];
+
+/* Extra DP a boost is worth, over playing the same games unboosted. */
+function boostWorth(b, perWin) { return perWin * (b.pct / 100) * b.games; }
 
 /* Buying. The daily offers all resolve to one rate per currency, which is
    what makes them comparable at all. */
@@ -90,8 +104,15 @@ const LADDER_NOTES = [
     src: 'Francisco' },
   { text: 'A win pays ' + DP_PER_WIN + ' DP, plus ' + DP_PER_AD + ' more for watching an ad after it.',
     src: 'Francisco' },
-  { text: 'The ladder hands out three Dream Point Boosts along the way (+50% at 7,000, +75% at 19,500, +150% at 100,000), so the later rungs come faster than the earlier ones.',
-    src: 'Prize Ladder screenshots' },
+  { text: 'Dream Point boosts last a set number of games, not a stretch of time: +50% for 3, +75% for 5, +150% for 8. That is why they barely move a 250,000 target: the ones this ladder hands out are worth '
+      + LADDER.filter(function (r) { return r.icon === 'dpboost'; }).reduce(function (a, r) {
+          var b = DP_BOOSTS.find(function (x) { return x.rarity.toLowerCase() === r.rar; });
+          return a + (b ? boostWorth(b, DP_PER_WIN + DP_PER_AD) : 0);
+        }, 0).toLocaleString('en-CA')
+      + ' DP between them, about one percent of the way.',
+    src: 'Francisco + Prize Ladder screenshots' },
+  { text: 'Boosts can be bought with gems, but nobody does. They come from the season pass, this ladder, and challenges.',
+    src: 'Francisco' },
   { text: 'Screenshots are from another account, so the rungs are right but no progress figure on them is yours.',
     src: 'Carrick / Manchester Utd — 2,020 DP' }
 ];
