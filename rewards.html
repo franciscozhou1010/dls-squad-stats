@@ -406,11 +406,12 @@
 
   <nav class="tabs" id="tabs">
     <button class="tab is-on" data-tab="ladder">Prize Ladder<small id="tab-ladder-sub">—</small></button>
+    <button class="tab" data-tab="planner">Planner<small>where you land</small></button>
     <button class="tab" data-tab="pass" disabled>Season Pass<small>not built</small></button>
     <button class="tab" data-tab="challenges" disabled>Challenges<small>not built</small></button>
   </nav>
 
-  <!-- ================= PRIZE LADDER ================= -->
+  <!-- ================= THE LADDER ITSELF ================= -->
   <section class="pane is-on" id="pane-ladder">
 
     <div class="dls-panel squad-strip" id="season"></div>
@@ -429,8 +430,24 @@
     </div>
 
     <div class="dls-panel">
-      <div class="rows" id="routes"></div>
+      <div class="rows__cap" id="track-cap">—</div>
+      <div class="track" id="track"></div>
     </div>
+
+    <div class="duo">
+      <div class="dls-panel block block--how">
+        <h2>How it works</h2>
+        <ul id="how"></ul>
+      </div>
+      <div class="dls-panel block block--gaps">
+        <h2>Not solid yet</h2>
+        <ul id="gaps"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PLANNER ================= -->
+  <section class="pane" id="pane-planner">
 
     <div class="dls-panel plan">
       <div class="plan__lab">Where will I land? — a rough estimate</div>
@@ -461,22 +478,11 @@
     </div>
 
     <div class="dls-panel">
-      <div class="rows" id="boosts"></div>
+      <div class="rows" id="routes"></div>
     </div>
 
     <div class="dls-panel">
-      <div class="track" id="track"></div>
-    </div>
-
-    <div class="duo">
-      <div class="dls-panel block block--how">
-        <h2>How it works</h2>
-        <ul id="how"></ul>
-      </div>
-      <div class="dls-panel block block--gaps">
-        <h2>Not solid yet</h2>
-        <ul id="gaps"></ul>
-      </div>
+      <div class="rows" id="boosts"></div>
     </div>
   </section>
 
@@ -708,22 +714,26 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
 
     el('plan-out').innerHTML =
       (gapToFinish > 0
-        ? 'Finishing outright wants <b>' + num(gapToFinish) + ' DP</b> more — '
+        ? 'Buying the lot instead of playing at all would be <b>' + num(gapToFinish) + ' DP</b> — '
           + num(Math.ceil(gapToFinish / cr)) + ' Career games or ' + num(Math.ceil(gapToFinish / dr))
-          + ' DLL games, against the ' + days + ' days you have left.'
+          + ' DLL games if you played it out, against the ' + days + ' days you have left.'
         : 'Nothing left to earn.')
       + '<br>Per-game rates are averages, not published numbers. If you want a real one, note your DP '
       + 'today and again tomorrow — the difference beats every estimate on this page.';
 
     /* --- buy the rest --- */
-    if (gapToFinish <= 0) {
-      el('buy-cap').textContent = 'Nothing left to buy';
+    /* Priced against what playing LEAVES you short, not the whole remainder —
+       otherwise none of these figures move when the play rate changes, which
+       is exactly the bug this replaces. */
+    var shortAfterPlay = LADDER_TARGET - landed;
+    if (shortAfterPlay <= 0) {
+      el('buy-cap').innerHTML = 'Playing at that rate finishes it — <b>nothing left to buy</b>';
       el('buy').innerHTML = '';
     } else {
-      var opts = buyGap(gapToFinish);
+      var opts = buyGap(shortAfterPlay);
       var cheapest = opts.reduce(function (a, b) { return b.cad < a.cad ? b : a; });
-      el('buy-cap').innerHTML = 'Or buy the whole remainder — <b>' + num(gapToFinish)
-        + ' DP</b>, sold only in whole blocks';
+      el('buy-cap').innerHTML = 'Play at that rate and you are still <b>' + num(shortAfterPlay)
+        + ' DP</b> short — covering it costs, in whole blocks';
       el('buy').innerHTML = opts.map(function (o) {
         var isCoins = o.b.currency === 'coins';
         var cls = isCoins ? ' buy--free' : (o === cheapest ? ' buy--cheap' : '');
@@ -739,6 +749,12 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
           + '</div></div>';
       }).join('');
     }
+
+    el('track-cap').innerHTML = daily === 0
+      ? 'Set a play rate in the <b>Planner</b> tab to see how far you get'
+      : 'At ' + num(daily) + ' DP a day you land at <b>' + num(landed) + ' DP</b> — '
+        + reachedPlayers.length + ' of ' + playerRungs.length
+        + ' players. Rate is set in the <b>Planner</b> tab.';
 
     drawTrack(landed);
   }
