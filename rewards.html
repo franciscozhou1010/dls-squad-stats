@@ -70,6 +70,33 @@
 .card__big small { font-size: 13px; font-weight: 700; letter-spacing: 0; color: var(--dls-ink-dim); }
 .card__sub { margin-top: 9px; font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
 
+/* --- This season's four --------------------------------------------------- */
+
+.squad-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 18px; }
+.squad-strip__lab {
+  margin-right: 4px;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.plyr {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 9px;
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  background: linear-gradient(150deg, rgba(253, 230, 138, .22), rgba(251, 191, 36, .12));
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, .45);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  color: #ffe9a8;
+}
+.plyr svg { width: 16px; height: 16px; fill: none; stroke: var(--dls-amber); stroke-width: 1.8; stroke-linejoin: round; }
+.plyr em { font-style: normal; font-family: var(--dls-mono); font-size: 9px; letter-spacing: 1px; color: var(--dls-ink-faint); }
+
 /* --- Routes and boosts --------------------------------------------------- */
 
 .rows { display: grid; gap: 1px; background: var(--dls-edge-soft); }
@@ -266,6 +293,8 @@
   <!-- ================= PRIZE LADDER ================= -->
   <section class="pane is-on" id="pane-ladder">
 
+    <div class="dls-panel squad-strip" id="season"></div>
+
     <div class="duo">
       <div class="dls-panel card">
         <div class="card__lab">Finish the ladder</div>
@@ -399,6 +428,21 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
     LADDER_EVENT + ' · ' + LADDER.length + ' rewards over ' + LADDER_DAYS + ' days';
   document.getElementById('tab-ladder-sub').textContent = LADDER.length + ' rungs';
 
+  /* --- this season's four ---
+     Deliberately NOT paired one-to-one with the rungs: which player lands on
+     which threshold is random, so lining them up would invent a mapping the
+     game does not have. The four names and the four thresholds are shown as
+     two separate sets. */
+  var playerRungs = LADDER.filter(function (r) { return r.icon === 'player'; });
+  document.getElementById('season').innerHTML =
+    '<span class="squad-strip__lab">This season</span>'
+    + LADDER_SEASON.players.map(function (nm) {
+        return '<span class="plyr">' + icon('player') + nm + '</span>';
+      }).join('')
+    + '<span class="squad-strip__lab">one at each of '
+    + playerRungs.map(function (r) { return num(r.dp); }).join(' · ')
+    + ' DP, in random order</span>';
+
   /* --- headline --- */
   document.getElementById('target').innerHTML = num(LADDER_TARGET) + '<small> DP</small>';
   document.getElementById('target-sub').textContent =
@@ -505,6 +549,10 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
   document.getElementById('gaps').innerHTML = [
     'Three early rungs are claimed in the screenshots, so their rewards are known but '
       + '<b>their thresholds are not</b>. They are drawn without a number rather than guessed.',
+    '<b>The rungs are last season\u2019s.</b> They were read off the Classic WC Players ladder '
+      + '(Bergkamp, Desailly, Rivaldo, Cannavaro); this season is ' + LADDER_SEASON.players.join(', ')
+      + '. A ladder almost certainly keeps its shape, but not one threshold here has been checked '
+      + 'against the current one — this is the biggest reason to distrust the page.',
     'Francisco put the first player rung at 67,500; the ladder shows <b>62,500</b>.',
     'The screenshots show <b>3 hours left</b> while the event is described as running 90 days — '
       + 'either it repeats, or the 90 days covers something wider.',

@@ -14,7 +14,18 @@
    win: he put the first Special Player at 67,500 (the ladder shows 62,500),
    and wrote the completion target as 25,000 (his own list ends at 250,000).  */
 
-const LADDER_EVENT = 'Classic WC Players';
+/* The season that is running NOW. The rungs below, however, were read off the
+   PREVIOUS season's ladder (Classic WC Players — Bergkamp, Desailly, Rivaldo,
+   Cannavaro). The shape of a ladder almost certainly repeats season to season,
+   but no threshold here has been checked against this one, and that is the
+   single biggest reason to distrust this page right now. */
+const LADDER_SEASON = {
+  players: ['Essien', 'Berbatov', 'Andy Cole', 'Petit'],
+  name: null,                    // not captured yet
+  rungsFrom: 'Classic WC Players (previous season)'
+};
+
+const LADDER_EVENT = 'Prize Ladder';
 const LADDER_TARGET = 250000;
 const LADDER_DAYS = 90;
 
@@ -113,6 +124,6 @@ const LADDER_NOTES = [
     src: 'Francisco + Prize Ladder screenshots' },
   { text: 'Boosts can be bought with gems, but nobody does. They come from the season pass, this ladder, and challenges.',
     src: 'Francisco' },
-  { text: 'Screenshots are from another account, so the rungs are right but no progress figure on them is yours.',
+  { text: 'Screenshots are from another account, so no progress figure on them is yours.',
     src: 'Carrick / Manchester Utd — 2,020 DP' }
 ];
