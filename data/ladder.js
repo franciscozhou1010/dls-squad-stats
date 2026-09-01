@@ -116,9 +116,14 @@ const DP_BOOSTS = [
   { rarity: 'Legendary', pct: 150, games: 8 }
 ];
 
-/* Extra DP a boost is worth, over playing the same games unboosted.
-   Scales with the mode you play, so a boost is worth more in DLL. */
-function boostWorth(b, perWin) { return perWin * (b.pct / 100) * b.games; }
+/* The percentage comes off a FLAT 120 DP, not off whatever the mode you are
+   playing pays. A Legendary boost adds 180 DP a game in Career and the same
+   180 in DLL — so a boost is proportionally worth LESS the better your mode,
+   which is the opposite of what scaling it with the rate would imply. */
+const BOOST_BASE_DP = 120;
+
+/* Extra DP a boost is worth over playing the same games unboosted. */
+function boostWorth(b) { return BOOST_BASE_DP * (b.pct / 100) * b.games; }
 
 /* Buying. The daily offers resolve to one rate per currency, which is what
    makes them comparable — but they also come in fixed blocks, and that is what
@@ -150,12 +155,12 @@ const LADDER_NOTES = [
     src: 'Francisco' },
   { text: 'Playing DLL with ads instead of Career cuts the climb by roughly 40% — 1,250 games against 2,084 for the same 250,000.',
     src: 'Derived from the rates above' },
-  { text: 'Dream Point boosts last a set number of games, not a stretch of time: +50% for 3, +75% for 5, +150% for 8. That is why they barely move a 250,000 target: the ones this ladder hands out are worth '
+  { text: 'Dream Point boosts last a set number of games, not a stretch of time: +50% for 3, +75% for 5, +150% for 8. The percentage comes off a flat 120 DP whatever mode you are in, so a boost is worth the same in Career and DLL — which means it is proportionally worth less in the mode that already pays more. That is why they barely move a 250,000 target: the ones this ladder hands out are worth '
       + LADDER.filter(function (r) { return r.icon === 'dpboost'; }).reduce(function (a, r) {
           var b = DP_BOOSTS.find(function (x) { return x.rarity.toLowerCase() === r.rar; });
-          return a + (b ? boostWorth(b, DP_RATES[0].dp) : 0);
+          return a + (b ? boostWorth(b) : 0);
         }, 0).toLocaleString('en-CA')
-      + ' DP between them at the Career rate — about one percent of the way, and the reason the planner leaves them optional.',
+      + ' DP between them — about one percent of the way, and the reason the planner treats them as a rounding item.',
     src: 'Francisco + Prize Ladder screenshots' },
   { text: 'Boosts can be bought with gems, but nobody does. They come from the season pass, this ladder, and challenges.',
     src: 'Francisco' },

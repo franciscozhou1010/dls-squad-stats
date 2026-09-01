@@ -631,9 +631,9 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
   var el = function (id) { return document.getElementById(id); };
   var val = function (id, min) { return Math.max(min === undefined ? 0 : min, parseInt(el(id).value, 10) || 0); };
 
-  function boostsHeld(perGame) {
+  function boostsHeld() {
     return DP_BOOSTS.reduce(function (a, b) {
-      return a + val('b-' + b.rarity.toLowerCase()) * boostWorth(b, perGame);
+      return a + val('b-' + b.rarity.toLowerCase()) * boostWorth(b);
     }, 0);
   }
 
@@ -664,22 +664,19 @@ window.addEventListener('hashchange', function () { showTab(location.hash.slice(
 
     var days = val('days', 1) || 1;
     var have = val('have-dp');
-    /* Boosts are valued at whichever mode you play more of — they scale with
-       the per-game rate, so pretending otherwise would over- or under-count. */
-    var boostRate = dg * dr > cg * cr ? dr : cr;
-    var fromBoosts = boostsHeld(boostRate);
+    var fromBoosts = boostsHeld();
 
     var landed = Math.min(LADDER_TARGET, have + fromBoosts + daily * days);
     var gapToFinish = LADDER_TARGET - have - fromBoosts;
 
-    /* boosts panel follows the same rate */
+    /* Fixed figures: the percentage is off a flat 120, not off your mode. */
     el('boosts').innerHTML =
-      '<div class="rows__cap">Dream Point boosts — measured in games, not time · valued at '
-      + boostRate + ' DP a game</div>'
+      '<div class="rows__cap">Dream Point boosts — a set number of games, and the % comes off a flat '
+      + BOOST_BASE_DP + ' DP whatever mode you play</div>'
       + DP_BOOSTS.map(function (b) {
           return '<div class="row"><b>' + b.rarity + ' · +' + b.pct + '%</b>'
-            + '<span>lasts ' + b.games + ' games</span>'
-            + '<em>+' + num(boostWorth(b, boostRate)) + ' DP</em></div>';
+            + '<span>' + b.games + ' games × +' + (BOOST_BASE_DP * b.pct / 100) + ' DP</span>'
+            + '<em>+' + num(boostWorth(b)) + ' DP</em></div>';
         }).join('');
 
     /* --- where you land --- */
