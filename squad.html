@@ -610,6 +610,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
     <span class="xi-label">Saved</span>
     <select id="tm-load" class="xi-select tm-load"></select>
     <button class="tm-btn tm-btn-del" id="tm-delete" type="button">Delete</button>
+    <button class="tm-btn" id="tm-new" type="button">+ New team</button>
   </div>
   <div class="tm-bar">
     <input id="tm-name" class="tm-input tm-name" type="text" placeholder="Team name…" autocomplete="off" maxlength="40">
@@ -1885,6 +1886,19 @@ function tmDelete(i){
   if(tmLoaded === t.name){ tmLoaded = null; tmDirty = true; }
   renderTeam();
 }
+/* The counterpart to picking a saved team. The pitch, the name box and the
+   dropdown have to let go together: clearing only the pitch leaves the name
+   still filled and the dropdown still pointing at the team you walked away
+   from, so the next Save offers to overwrite it. */
+function tmNew(){
+  var occupied = tmXI.filter(Boolean).length + tmBench.filter(Boolean).length > 0;
+  if(occupied && !confirm(tmDirty ? 'Start a new team? The pitch has changes that are not saved.'
+                                  : 'Start a new team? This clears the pitch.')) return;
+  tmXI = tmBlank(11); tmBench = tmBlank(TM_BENCH_N);
+  tmLoaded = null; tmDirty = false; tmMissingKeys = [];
+  document.getElementById('tm-name').value = '';
+  renderTeam();          // re-points the dropdown at the placeholder and disables Delete
+}
 function tmClear(){
   if(tmXI.filter(Boolean).length + tmBench.filter(Boolean).length === 0) return;
   if(!confirm('Clear the pitch and the bench?')) return;
@@ -1969,6 +1983,7 @@ function initTeams(){
   document.getElementById('tm-name').addEventListener('input', tmSyncButtons);
   document.getElementById('tm-save').addEventListener('click', tmSave);
   document.getElementById('tm-clear').addEventListener('click', tmClear);
+  document.getElementById('tm-new').addEventListener('click', tmNew);
   document.getElementById('tm-load').addEventListener('change', tmLoadPicked);
   document.getElementById('tm-delete').addEventListener('click', tmDeletePicked);
   document.getElementById('tm-picker-list').addEventListener('click', tmPickerClick);
