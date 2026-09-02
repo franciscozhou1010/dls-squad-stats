@@ -324,13 +324,16 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
    highlighted name of the player about to be swapped out. On touch it also
    keeps the card clear of the finger. */
 .drag-ghost { position: fixed; transform: translate(-50%, calc(-100% - 30px)); z-index: 100; pointer-events: none; width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.98), rgba(13,17,23,.98)); border: 2px solid; border-radius: 10px; padding: 5px 3px 6px; text-align: center; }   /* no drop shadow: a 28px blur at 70% black smears a dark blob across the pitch behind the card */
-.drag-ghost.below { transform: translate(-50%, 30px); }
-/* Carried out past the pitch and the bench, the card says what letting go does. */
-.ghost-cut { display: none; position: absolute; left: 50%; top: calc(100% + 7px); transform: translateX(-50%);
-  white-space: nowrap; font-size: 9px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
-  color: #fff; background: var(--danger); padding: 3px 8px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,.45); }
-.drag-ghost.cutting .ghost-cut { display: block; }
-.drag-ghost.cutting .chip-name { text-decoration: line-through; opacity: .75; }   /* no room above — the top row of the pitch — so flip under the pointer */
+.drag-ghost.below { transform: translate(-50%, 30px); }   /* no room above — the top row of the pitch — so flip under the pointer */
+/* The notice belongs on the target, not under the finger: a label hung off the
+   ghost sat in the very gap the ghost is raised 30px to keep clear. */
+.drag-ghost.cutting .chip-name { text-decoration: line-through; opacity: .75; }
+.tm-find { position: relative; }
+.tm-find.cut-armed::after {
+  content: "Release to remove"; position: absolute; inset: -4px; z-index: 6;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 13px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
+  color: #fff; background: rgba(248,81,73,.88); border-radius: 12px; pointer-events: none; }
 .xi-reset { background: var(--bg-surface); border: 1.5px solid var(--border); color: var(--text-muted); font-size: 12px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 .xi-reset:hover { border-color: var(--accent); color: var(--text); }
 .picker { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center; justify-content: center; z-index: 50; }
@@ -640,7 +643,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
   <div class="tm-summary" id="tm-summary"></div>
 
   <div class="tm-layout">
-    <div class="tm-find">
+    <div class="tm-find" id="tm-find">
       <div class="tm-find-row">
         <input id="tm-search" class="tm-input tm-search" type="search" placeholder="Search players…" autocomplete="off">
         <select id="tm-posfilter" class="tm-input tm-posfilter" title="Filter by position">
@@ -1492,8 +1495,7 @@ function chipGhost(pidx){
   g.className = 'drag-ghost'; g.style.borderColor = col;
   g.dataset.col = col;          // kept so the border can go back after a trip outside
   g.innerHTML = '<span class="chip-ovr" style="color:' + col + '">' + p.ovr + '</span>'
-    + '<span class="chip-name">' + shortName(p) + '</span>'
-    + '<span class="ghost-cut">Release to remove</span>';
+    + '<span class="chip-name">' + shortName(p) + '</span>';
   return g;
 }
 function initChipDrag(cfg){
@@ -1512,6 +1514,21 @@ function initChipDrag(cfg){
                  return { el: c, cx: cr.left + cr.width / 2, cy: cr.top + cr.height / 2 };
                }) };
     });
+  }
+  /* Removing used to mean "let go anywhere that is not a slot", which quietly
+     made a remove target out of the 62px band between pitch and bench — the
+     band holding the words "drag here or onto the pitch" — and out of the
+     search list, the page margins, and any touch scroll that began on a card.
+     Removing now needs its own visible target, and everything else is a miss
+     that puts the player back where he was. */
+  function measureCut(){
+    var z = cfg.cutZone && document.getElementById(cfg.cutZone);
+    return z ? { el: z, r: z.getBoundingClientRect() } : null;
+  }
+  function inCut(x, y, d){
+    if(!d.cut || !d.canCut) return false;
+    var sx = window.scrollX - d.scroll.x, sy = window.scrollY - d.scroll.y, r = d.cut.r;
+    return x >= r.left - sx && x <= r.right - sx && y >= r.top - sy && y <= r.bottom - sy;
   }
   function under(x, y, d){
     var el = document.elementFromPoint(x, y);
@@ -1538,6 +1555,11 @@ function initChipDrag(cfg){
   }
   function onDown(e){
     var chip = e.target.closest(cfg.grabSel); if(!chip) return;
+    /* A second finger landing mid-drag used to overwrite chipDrag, orphaning
+       the first drag's ghost on document.body — where no re-render can reach
+       it — and leaving userSelect stuck at 'none' for the whole page. */
+    if(chipDrag) return;
+    document.querySelectorAll('.drag-ghost').forEach(function(g){ g.remove(); });   // belt and braces
     hideXiTip();
     var pidx = chip.dataset.pidx;
     chipDrag = {
@@ -1560,6 +1582,7 @@ function initChipDrag(cfg){
       if(Math.abs(e.clientX - d.startX) < 6 && Math.abs(e.clientY - d.startY) < 6) return;
       d.moved = true;
       d.zones = measureZones();
+      d.cut = measureCut();
       d.scroll = { x: window.scrollX, y: window.scrollY };
       d.ghost = chipGhost(d.pidx); document.body.appendChild(d.ghost);
       d.ghostH = d.ghost.offsetHeight;
@@ -1571,9 +1594,10 @@ function initChipDrag(cfg){
     d.ghost.classList.toggle('below', e.clientY - d.ghostH - GHOST_GAP - 8 < 0);   // height read once, at pick-up
     document.querySelectorAll(cfg.dropSel).forEach(function(c){ c.classList.remove('drop-target'); });
     var over = under(e.clientX, e.clientY, d); if(over) over.classList.add('drop-target');
-    var cutting = !over && d.canCut;
+    var cutting = !over && inCut(e.clientX, e.clientY, d);
     d.ghost.classList.toggle('cutting', cutting);
     d.ghost.style.borderColor = cutting ? d.cutCol : d.ghost.dataset.col;
+    if(d.cut) d.cut.el.classList.toggle('cut-armed', cutting);
   }
   function onUp(e){
     window.removeEventListener('pointermove', onMove);
@@ -1590,9 +1614,10 @@ function initChipDrag(cfg){
       document.body.style.userSelect = '';
       var cancelled = e.type === 'pointercancel';   // interrupted, not "dropped outside" — must not remove anyone
       var over = cancelled ? null : under(e.clientX, e.clientY, d);
+      if(d.cut) d.cut.el.classList.remove('cut-armed');
       if(over) cfg.onDrop(d.pidx, over);
-      else if(!cancelled && d.canCut) cfg.onDropOutside(d.pidx);
-      else cfg.rerender();
+      else if(!cancelled && inCut(e.clientX, e.clientY, d)) cfg.onDropOutside(d.pidx);
+      else cfg.rerender();   // a miss is a miss: he goes back where he was
     } else if(e.type !== 'pointercancel'
               && Math.abs(e.clientX - d.startX) < 6 && Math.abs(e.clientY - d.startY) < 6){
       cfg.onTap(d.ds);   // a press that stayed put. A swipe down a scrollable
@@ -1944,7 +1969,7 @@ function tmDelete(i){
    themed page. Ours reuses the picker's panel, so it inherits light/dark like
    everything else. It is also asynchronous, which is why every caller below
    hands in a callback instead of testing a return value. */
-var tmAskYes = null, tmAskNo = null, tmAskShownAt = 0, tmAskReturn = null;
+var tmAskYes = null, tmAskNo = null, tmAskShownAt = 0, tmAskReturn = null, tmAskChaining = false;
 /* A dialog that opens from another dialog's callback lands its confirm button
    under the pointer that just clicked — right-aligned, the two overlap almost
    exactly — so a double-click answers BOTH, and the second warning is agreed
@@ -1964,7 +1989,10 @@ function tmAsk(o){
   /* Remember the button that opened this, so focus goes back there on close —
      but only for the first dialog of a chain, or we would hand focus back to
      the previous dialog's (now hidden) confirm button. */
-  if(!tmAskOpen()) tmAskReturn = document.activeElement;
+  /* tmAskClose hides the dialog before running the callback, so tmAskOpen() is
+     already false by the time a chained dialog opens — the flag is what tells
+     the two apart. */
+  if(!tmAskChaining && !tmAskOpen()) tmAskReturn = document.activeElement;
   document.getElementById('tm-ask').style.display = 'flex';
   tmAskShownAt = Date.now();
   yes.focus();
@@ -1974,9 +2002,13 @@ function tmAskClose(answer){
   document.getElementById('tm-ask').style.display = 'none';
   var y = tmAskYes, n = tmAskNo, back = tmAskReturn;
   tmAskYes = tmAskNo = null;      // cleared before running, so a callback may open the next dialog
+  tmAskChaining = true;
   if(answer === 'yes'){ if(y) y(); }
   else if(n) n();
-  if(!tmAskOpen() && back && back.focus && document.body.contains(back)){ tmAskReturn = null; back.focus(); }
+  tmAskChaining = false;
+  if(!tmAskOpen() && back && back.focus && !back.disabled && document.body.contains(back)){
+    tmAskReturn = null; back.focus();     // a disabled button silently swallows focus()
+  }
 }
 function tmAskOpen(){ return document.getElementById('tm-ask').style.display === 'flex'; }
 function tmNoStorage(){ tmAsk({ msg: 'Could not save: this browser is blocking local storage.' }); }
@@ -2096,7 +2128,7 @@ function initTeams(){
   document.addEventListener('keydown', function(e){
     if(!tmAskOpen()) return;
     if(e.key === 'Escape'){ e.preventDefault(); tmAskClose('no'); }
-    else if(e.key === 'Enter'){ e.preventDefault(); tmAskClose('yes'); }   // or the focused button fires a click too
+    else if(e.key === 'Enter'){ e.preventDefault(); if(!e.repeat) tmAskClose('yes'); }   // held Enter must not answer a chain
     else if(e.key === 'Tab'){
       /* Only two focusable things in here, and the overlay stops the mouse but
          not the keyboard — without this, Shift+Tab walks onto the live buttons
@@ -2117,6 +2149,7 @@ function initTeams(){
     grabSel: '.chip, .bench-chip, .tm-res',
     dropSel: '#tm-pitch .chip[data-slot], #tm-bench .bench-chip[data-bslot]',
     zones: ['tm-pitch', 'tm-bench'],
+    cutZone: 'tm-find',
     // The results list has to stay scrollable under a finger, so on touch a row
     // is tap-to-add only; dragging out of it is a mouse affordance.
     noTouchDragFrom: 'tm-res',
