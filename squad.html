@@ -437,6 +437,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 /* .picker-box is a flex column that clips its overflow, so a long message (the
    departed-cards list can run to 19 lines) would push the buttons out of the
    box and leave nothing to click. The message scrolls; the buttons never move. */
+.tm-ask-msg:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .tm-ask-msg { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
   margin: 0 0 16px; font-size: 13.5px; line-height: 1.55; color: var(--text);
   white-space: pre-line; overflow-wrap: anywhere; }
@@ -1910,8 +1911,13 @@ function tmSave(){
       bench: tmBench.map(function(p){ return p ? tmKey(p) : null; }),
       saved: new Date().toISOString().slice(0, 10)
     };
-    if(at >= 0) list[at] = rec; else list.push(rec);
-    if(!tmSaveAll(list)) return tmNoStorage();
+    /* Re-read rather than write back the copy taken before the dialog opened:
+       every GitHub Pages site under this account shares the origin, so another
+       tab may have added or removed teams while it sat there. */
+    var now = tmLoadAll(), i2 = -1;
+    for(var j = 0; j < now.length; j++) if(now[j].name.toLowerCase() === name.toLowerCase()) i2 = j;
+    if(i2 >= 0) now[i2] = rec; else now.push(rec);
+    if(!tmSaveAll(now)) return tmNoStorage();
     tmLoaded = name; tmDirty = false; tmMissingKeys = [];   // whatever was gone is now gone from the file too
     renderTeam();
   }
@@ -1932,8 +1938,11 @@ function tmSave(){
    load went through or was declined. */
 function tmLoad(i, after){
   var t = tmLoadAll()[i]; if(!t){ if(after) after(); return; }
-  if(tmDirty && (tmXI.some(Boolean) || tmBench.some(Boolean)))
-    return tmAsk({ msg: 'The pitch holds a team that is not saved.\n\nLoad “' + t.name + '” and lose it?',
+  /* Emptying the pitch is an edit like any other: gating the warning on "are
+     there players on it" meant cutting everyone made the warning disappear
+     along with them, and the next load discarded the edit in silence. */
+  if(tmDirty)
+    return tmAsk({ msg: 'The pitch has changes that are not saved.\n\nLoad “' + t.name + '” and lose them?',
                    yes: 'Load', onYes: function(){ tmLoadGo(t, after); }, onNo: after });
   tmLoadGo(t, after);
 }
@@ -1959,8 +1968,13 @@ function tmLoadGo(t, after){
 function tmDelete(i){
   var list = tmLoadAll(), t = list[i]; if(!t) return;
   tmAsk({ msg: 'Delete “' + t.name + '”?\n\nThere is no undo.', yes: 'Delete', danger: true, onYes: function(){
-    list.splice(i, 1);
-    if(!tmSaveAll(list)) return tmNoStorage();
+    /* Same reason as tmSave: find him again by name, since the index taken
+       before the dialog opened may point at a different team by now. */
+    var now = tmLoadAll(), at = -1;
+    for(var j = 0; j < now.length; j++) if(now[j].name === t.name) at = j;
+    if(at < 0) return renderTeam();          // already gone somewhere else
+    now.splice(at, 1);
+    if(!tmSaveAll(now)) return tmNoStorage();
     if(tmLoaded === t.name){ tmLoaded = null; tmDirty = true; }
     renderTeam();   // renderTeamSaved re-points the dropdown; the deleted index is gone
   }});
@@ -1995,6 +2009,10 @@ function tmAsk(o){
   if(!tmAskChaining && !tmAskOpen()) tmAskReturn = document.activeElement;
   document.getElementById('tm-ask').style.display = 'flex';
   tmAskShownAt = Date.now();
+  /* Only a message that actually overflows becomes a tab stop; measured after
+     display, since a hidden element reports no scroll height. */
+  var m = document.getElementById('tm-ask-msg');
+  m.tabIndex = m.scrollHeight > m.clientHeight + 1 ? 0 : -1;
   yes.focus();
 }
 function tmAskClose(answer){
@@ -2088,9 +2106,10 @@ function tmPickerClick(e){
 }
 
 /* --- wiring -------------------------------------------------------------- */
-/* Dropped clear of both the pitch and the bench: take him out of the team.
-   Nothing is deleted anywhere else — he is still in the squad and still in the
-   search list, so putting him back is one tap. */
+/* Dropped on the remove panel: take him out of the team. Nothing is deleted
+   anywhere else — he is still in the squad and still in the search list. Note
+   that adding him again goes through tmAdd, which takes the first free slot he
+   fits, so he does not necessarily land back in the seat he was cut from. */
 function tmCut(pidx){
   var p = PLAYERS[pidx]; if(!p) return renderTeam();
   var w = tmWhere(p); if(!w) return renderTeam();
@@ -2130,11 +2149,14 @@ function initTeams(){
     if(e.key === 'Escape'){ e.preventDefault(); tmAskClose('no'); }
     else if(e.key === 'Enter'){ e.preventDefault(); if(!e.repeat) tmAskClose('yes'); }   // held Enter must not answer a chain
     else if(e.key === 'Tab'){
-      /* Only two focusable things in here, and the overlay stops the mouse but
-         not the keyboard — without this, Shift+Tab walks onto the live buttons
-         behind the dialog and a Space there opens a second one over this. */
-      var f = [document.getElementById('tm-ask-no'), document.getElementById('tm-ask-yes')]
-                .filter(function(b){ return b.offsetParent; });
+      /* The overlay stops the mouse but not the keyboard — without this,
+         Shift+Tab walks onto the live buttons behind the dialog and a Space
+         there opens a second one over this. The message joins the cycle when
+         it scrolls, or the list of cards about to be dropped could not be read
+         without a mouse. */
+      var f = [document.getElementById('tm-ask-msg'), document.getElementById('tm-ask-no'),
+               document.getElementById('tm-ask-yes')]
+                .filter(function(b){ return b.offsetParent && b.tabIndex >= 0; });
       var i = f.indexOf(document.activeElement);
       e.preventDefault();
       f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
