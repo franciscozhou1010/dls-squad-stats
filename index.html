@@ -72,7 +72,10 @@
 .tile--store { --accent: var(--dls-amber); }
 .tile--coaches { --accent: var(--dls-violet); }
 .tile--rewards { --accent: var(--dls-rose); }
-.tile--packs { --accent: var(--dls-magenta); }
+/* Packs became a Store tab, so six tiles are five and the 3-column grid loses a
+   cell. Rewards is the one auto-placement puts at row 3 col 1, so it is the one
+   that can widen without pushing Store out of row 1. */
+.tile--rewards { grid-column: span 2; }
 .tile--ask { --accent: var(--dls-mint); }
 
 /* --- Readouts on the squad tile ------------------------------------------ */
@@ -138,6 +141,7 @@
 @media (max-width: 1080px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
   .tile--live { grid-row: auto; }
+  .tile--rewards { grid-column: auto; }
 }
 @media (max-width: 620px) {
   .grid { grid-template-columns: 1fr; }
@@ -185,7 +189,7 @@
         <h2 class="tile__title">Store</h2>
         <span class="dls-flag dls-flag--live"><i></i>Online</span>
       </div>
-      <p class="tile__desc">Gem and coin tiers in CAD — rate per dollar, which tiers are worse than a cheaper one, and the cheapest route to an amount.</p>
+      <p class="tile__desc">Gem and coin tiers in CAD — rate per dollar, which tiers are worse than a cheaper one, the cheapest route to an amount, and every real-money pack scored against what its contents would cost you to buy one at a time.</p>
       <div class="tile__foot"><a class="dls-btn" href="store.html">Enter</a></div>
     </section>
 
@@ -205,15 +209,6 @@
       </div>
       <p class="tile__desc">The Prize Ladder drawn rung by rung, what a Dream Point costs three ways, and how many wins finishing actually takes.</p>
       <div class="tile__foot"><a class="dls-btn" href="rewards.html">Enter</a></div>
-    </section>
-
-    <section class="dls-panel tile tile--packs">
-      <div class="tile__head">
-        <h2 class="tile__title">Packs</h2>
-        <span class="dls-flag dls-flag--live"><i></i>Online</span>
-      </div>
-      <p class="tile__desc">Every real-money pack scored against what its contents would cost you to buy one at a time.</p>
-      <div class="tile__foot"><a class="dls-btn" href="packs.html">Enter</a></div>
     </section>
 
     <section class="dls-panel tile tile--soon tile--ask">

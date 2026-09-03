@@ -28,12 +28,13 @@
   cursor: pointer;
   transition: color .14s, background .14s;
 }
-.tab:hover { color: var(--dls-ink); background: var(--dls-panel-lit); }
+.tab:hover:not(:disabled) { color: var(--dls-ink); background: var(--dls-panel-lit); }
 .tab.is-on {
   background: linear-gradient(100deg, var(--dls-cyan), var(--dls-blue));
   box-shadow: 0 0 20px rgba(34, 211, 238, .3);
   color: #04121a;
 }
+.tab:disabled { color: var(--dls-ink-faint); cursor: not-allowed; }
 .tab small {
   display: block;
   margin-top: 2px;
@@ -46,6 +47,12 @@
 
 .pane { display: none; }
 .pane.is-on { display: grid; gap: 16px; }
+/* A grid item defaults to min-width:auto, so it refuses to shrink below its
+   content's min-content width — the tables' min-width propagated all the way up
+   and burst the page sideways on a phone instead of letting .tbl-scroll scroll.
+   Pre-dates the Packs merge (Gems already overflowed at 375px); the 700px packs
+   table just made it impossible to miss. */
+.pane.is-on > * { min-width: 0; }
 
 /* --- Headline rate card -------------------------------------------------- */
 
@@ -70,6 +77,7 @@
 .rate-card { background: color-mix(in srgb, var(--accent, var(--dls-cyan)) 46%, var(--dls-edge-soft)); }
 .pane--gem { --accent: var(--dls-cyan); }
 .pane--coin { --accent: var(--dls-amber); }
+.pane--packs { --accent: var(--dls-magenta); }
 .pane--gem .rate-card__big { color: var(--dls-cyan); text-shadow: 0 0 22px rgba(34, 211, 238, .4); }
 .pane--coin .rate-card__big { color: var(--dls-amber); text-shadow: 0 0 22px rgba(251, 191, 36, .35); }
 
@@ -98,6 +106,14 @@ td {
   white-space: nowrap;
 }
 tbody tr:hover td { background: rgba(34, 211, 238, .04); }
+
+/* Packs' table differs from the tier tables in exactly three ways. Scoped, not
+   rewritten: an unscoped copy would give the 6-column tier tables a 700px floor
+   (they scroll on phones where they fit today) and push the 7px value bar to the
+   top of its cell. */
+.pane--packs table { min-width: 700px; }
+.pane--packs td { padding: 12px 10px; vertical-align: top; }
+.pane--packs tbody tr:hover td { background: rgba(244, 114, 182, .04); }
 
 .pack { font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #eef6ff; }
 .get { color: var(--dls-ink-dim); }
@@ -136,6 +152,134 @@ tbody tr:hover td { background: rgba(34, 211, 238, .04); }
 .tag--trap { background: rgba(244, 114, 182, .16); color: var(--dls-magenta); }
 tr.is-trap td { background: rgba(244, 114, 182, .045); }
 
+/* --- Headline card + prose blocks (house idiom, shared with coaches/rewards) -- */
+
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.duo > * { min-width: 0; }
+
+/* The fallback matters: outside a pane there is no --accent, and a color-mix()
+   with an undefined custom property is invalid at computed-value time — the card
+   would lose its background entirely rather than fall back. */
+.card { padding: 18px 20px; background: color-mix(in srgb, var(--accent, var(--dls-magenta)) 46%, var(--dls-edge-soft)); }
+.card__lab {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.card__big {
+  margin-top: 8px;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -.5px;
+  color: var(--dls-magenta);
+  text-shadow: 0 0 22px rgba(244, 114, 182, .3);
+  font-variant-numeric: tabular-nums;
+}
+.card__big small { font-size: 13px; font-weight: 700; letter-spacing: 0; color: var(--dls-ink-dim); }
+.card__sub { margin-top: 9px; font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
+
+.block { padding: 16px 18px; }
+.block h2 {
+  margin: 0 0 10px;
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+.block--how h2 { color: var(--dls-cyan); }
+.block--gaps h2 { color: var(--dls-magenta); }
+.block ul { margin: 0; padding-left: 18px; }
+.block li { margin-bottom: 9px; font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
+.block li:last-child { margin-bottom: 0; }
+.block li b { color: #eef6ff; font-weight: 700; }
+
+/* --- Packs table cells (pane-scoped: generic names a fourth tab will want) --- */
+
+.pane--packs .name { font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; color: #eef6ff; }
+.pane--packs .where {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+}
+.pane--packs .badge {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 2px 7px;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+  background: rgba(244, 114, 182, .16);
+  color: var(--dls-magenta);
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+.pane--packs .price { font-weight: 900; font-size: 15px; color: #eef6ff; }
+
+.pane--packs .contents { text-align: left; white-space: normal; min-width: 260px; }
+.pane--packs .contents div { font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
+.pane--packs .contents b { color: var(--dls-ink); font-weight: 700; }
+.pane--packs .contents u {
+  text-decoration: none;
+  border-bottom: 1px dashed var(--dls-amber);
+  color: var(--dls-amber);
+  cursor: help;
+}
+.pane--packs .contents s { color: var(--dls-ink-faint); text-decoration: none; }
+
+.pane--packs .worth { font-weight: 900; font-size: 15px; color: var(--dls-ink); }
+.pane--packs .worth small { display: block; font-size: 10.5px; font-weight: 600; color: var(--dls-ink-faint); }
+.pane--packs .verdict { font-weight: 900; font-size: 15px; }
+.pane--packs .verdict small {
+  display: block;
+  font-family: var(--dls-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.pane--packs .good { color: var(--dls-mint); }
+.pane--packs .bad { color: var(--dls-magenta); }
+.pane--packs .unk { color: var(--dls-ink-faint); font-weight: 700; font-size: 13px; }
+
+/* A table wider than its panel is only reachable if you can tell it scrolls —
+   .dls-panel's clip-path eats the scrollbar and iOS hides overlay bars at rest,
+   so on a phone the Verdict column was simply gone with no affordance. */
+.tbl-scroll { position: relative; }
+.has-scroll { position: relative; }
+.has-scroll::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 44px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--dls-panel));
+  opacity: .95;
+  transition: opacity .15s;
+}
+.has-scroll.at-end::after { opacity: 0; }
+.has-scroll .swipe-hint {
+  position: absolute;
+  right: 10px; bottom: 8px;
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--dls-mono);
+  font-size: 8.5px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+  transition: opacity .15s;
+}
+.has-scroll.at-end .swipe-hint { opacity: 0; }
+
 /* --- Solver -------------------------------------------------------------- */
 
 .solve { padding: 16px 18px; }
@@ -167,6 +311,8 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
 .solve__up { display: inline-block; margin-top: 6px; color: var(--dls-ink-faint); }
 .solve__up b, .solve__up em { color: var(--dls-cyan); }
 
+
+@media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
 </style>
 </head>
 
@@ -181,9 +327,12 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
   </header>
 
   <nav class="tabs" id="tabs">
-    <button class="tab is-on" data-tab="gems">Gems<small>5 tiers</small></button>
-    <button class="tab" data-tab="coins">Coins<small>6 tiers</small></button>
+    <button class="tab is-on" data-tab="gems">Gems<small id="tab-gems-sub">—</small></button>
+    <button class="tab" data-tab="coins">Coins<small id="tab-coins-sub">—</small></button>
+    <button class="tab" data-tab="packs">Packs<small id="tab-packs-sub">—</small></button>
   </nav>
+
+  <div id="panes">
 
   <!-- ================= GEMS ================= -->
   <section class="pane pane--gem is-on" id="pane-gems">
@@ -249,10 +398,53 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
     </div>
   </section>
 
+  <!-- ================= PACKS ================= -->
+  <section class="pane pane--packs" id="pane-packs">
+    <div class="duo">
+      <div class="dls-panel card">
+        <div class="card__lab">Best value pack</div>
+        <div class="card__big" id="pack-top">—</div>
+        <div class="card__sub" id="pack-top-sub"></div>
+      </div>
+      <div class="dls-panel card">
+        <div class="card__lab">Worst value pack</div>
+        <div class="card__big" id="pack-bottom">—</div>
+        <div class="card__sub" id="pack-bottom-sub"></div>
+      </div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Pack</th><th>Price</th><th>What is in it</th>
+            <th>Worth to you</th><th>Verdict</th>
+          </tr></thead>
+          <tbody id="pack-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="duo">
+      <div class="dls-panel block block--how">
+        <h2>How a pack is scored</h2>
+        <ul id="pack-how"></ul>
+      </div>
+      <div class="dls-panel block block--gaps">
+        <h2>Check these before trusting a row</h2>
+        <ul id="pack-gaps"></ul>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- /#panes -->
+
   <p class="note" id="foot"></p>
 
 </div>
 
+<script src="data/packs.js"></script>
+<script src="data/coaches.js"></script>
 <script src="data/store.js"></script>
 <script src="assets/shell.js" defer></script>
 <script>
@@ -266,25 +458,74 @@ var num = function (n) { return n.toLocaleString('en-CA'); };
 
 /* --- Tabs ----------------------------------------------------------------- */
 
+var DEFAULT_TAB = 'gems';
+
+/* One header rule and one footnote serve all tabs, so each tab carries its own
+   text. Packs needs the "scored against your own prices" caveat — that is what
+   makes its verdicts honest — and that same caveat is wrong on Gems. Filled in
+   boot, once the rates it quotes have been computed. */
+var TAB_TEXT = {};
+
 function showTab(name) {
-  var found = false;
-  document.querySelectorAll('.tab').forEach(function (b) {
-    var on = b.dataset.tab === name;
-    b.classList.toggle('is-on', on);
-    if (on) found = true;
-  });
-  if (!found) return showTab('gems');
-  document.querySelectorAll('.pane').forEach(function (p) {
+  /* Resolve the target BEFORE touching any button. Deciding first and painting
+     second is what stops a rejected name from leaving every tab unhighlighted
+     while the old pane is still showing. */
+  var btns = [].slice.call(document.querySelectorAll('#tabs .tab'));
+  var live = btns.filter(function (b) { return b.dataset.tab === name && !b.disabled; });
+  if (!live.length) {
+    if (name === DEFAULT_TAB) return;          // the default itself is gone — stop, don't recurse
+    return showTab(DEFAULT_TAB);
+  }
+  btns.forEach(function (b) { b.classList.toggle('is-on', b.dataset.tab === name && !b.disabled); });
+  /* Scoped to #panes so a future tab can hold its own nested tabs without this
+     stripping them on every top-level switch. */
+  document.querySelectorAll('#panes > .pane').forEach(function (p) {
     p.classList.toggle('is-on', p.id === 'pane-' + name);
   });
+  var t = TAB_TEXT[name];
+  if (t) {
+    document.getElementById('head-rule').textContent = t.rule;
+    document.getElementById('foot').innerHTML = t.foot;
+    /* A shared store.html#packs otherwise previews as "Store · DLS" with a page
+       headed "Prices", and the only thing saying Packs is one highlighted chip. */
+    if (t.title) document.title = t.title;
+  }
+  syncScrollHints();
   if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
 }
 
+/* Marks the panel around any table that is currently wider than its box, and
+   clears the mark once you have scrolled to the end. Re-run on tab switch and on
+   resize, since both change which tables overflow. */
+function syncScrollHints() {
+  document.querySelectorAll('.tbl-scroll').forEach(function (sc) {
+    var panel = sc.parentElement;
+    var over = sc.scrollWidth > sc.clientWidth + 1;
+    panel.classList.toggle('has-scroll', over);
+    if (over && !sc.dataset.hinted) {
+      sc.dataset.hinted = '1';
+      var h = document.createElement('span');
+      h.className = 'swipe-hint';
+      h.textContent = 'swipe →';
+      panel.appendChild(h);
+      sc.addEventListener('scroll', function () {
+        panel.classList.toggle('at-end', sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 2);
+      });
+    }
+    if (!over) panel.classList.remove('at-end');
+  });
+}
+window.addEventListener('resize', syncScrollHints);
+
 document.getElementById('tabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab');
-  if (b) showTab(b.dataset.tab);
+  if (b && !b.disabled) showTab(b.dataset.tab);
 });
-window.addEventListener('hashchange', function () { showTab(location.hash.slice(1) || 'gems'); });
+window.addEventListener('hashchange', function () { showTab(location.hash.slice(1) || DEFAULT_TAB); });
+
+/* Assigned in boot from annotate()'s own results, so the Packs verdicts and the
+   Gems / Coins tables can never disagree about the best rate on the same page. */
+var GEM_RATE, COIN_RATE;
 
 /* --- Gem / coin tiers ----------------------------------------------------- */
 
@@ -387,6 +628,61 @@ function renderSolve(outId, packs, amountOf, target, have, unit, single) {
   }
 }
 
+/* --- Pack pricing --------------------------------------------------------- */
+
+/* A pack is worth what its contents would cost you to buy one at a time, at your
+   own prices: coaches from data/coaches.js through your Training Centre discount,
+   gems and coins through the best tier above. */
+function coachPrice(base) {
+  return base == null ? null : Math.floor(base * (100 - COACH_DISCOUNT_PCT) / 100);
+}
+
+/* Every item resolves to a CAD figure or to null. One null anywhere and the
+   whole pack goes unscored — a partial total would read as a verdict while
+   quietly leaving out the expensive half. */
+function priceItem(it) {
+  if (it.kind === 'gems') return { cad: it.n / GEM_RATE, label: num(it.n) + ' gems' };
+  if (it.kind === 'coins') return { cad: it.n / COIN_RATE, label: num(it.n) + ' coins' };
+  if (it.kind === 'dp') {
+    return { cad: (it.n / DP_PER_GEM) / GEM_RATE, label: num(it.n) + ' Dream Points' };
+  }
+  if (it.kind === 'coach') {
+    var c = COACHES.find(function (x) { return x.type === it.type && x.rarity === it.rarity; });
+    var gems = c ? coachPrice(c.base) : null;
+    return {
+      cad: gems == null ? null : it.n * gems / GEM_RATE,
+      label: it.n + ' × ' + it.rarity + ' ' + it.type + ' coach',
+      each: gems
+    };
+  }
+  var p = ITEM_PRICES[it.key] || {};
+  return {
+    cad: p.gems == null ? null : it.n * p.gems / GEM_RATE,
+    label: it.n + ' × ' + it.key,
+    each: p.gems,
+    why: p.note
+  };
+}
+
+function scorePack(pk) {
+  if (pk.unscored) return { unscored: pk.unscored };
+  var parts = pk.items.map(priceItem);
+  /* Number.isFinite, not the global isFinite and not == null. The global coerces,
+     so isFinite(null) is true and every unpriced item would count as priced — a
+     pack of unknowns would score 0% instead of "can't price". The bare == null
+     has the opposite hole: NaN slips through. This rule is load-bearing; a pack
+     is never partly scored. */
+  var missing = parts.filter(function (p) { return !Number.isFinite(p.cad); });
+  var cad = missing.length ? null : parts.reduce(function (a, p) { return a + p.cad; }, 0);
+  return {
+    parts: parts,
+    missing: missing,
+    cad: cad,
+    ratio: cad == null ? null : cad / pk.price,
+    unsure: pk.items.some(function (i) { return i.sure === false; })
+  };
+}
+
 /* --- Boot ----------------------------------------------------------------- */
 
 (function () {
@@ -396,8 +692,12 @@ function renderSolve(outId, packs, amountOf, target, have, unit, single) {
   var gems = annotate(GEM_PACKS, gemAmt);
   var coins = annotate(COIN_PACKS, coinAmt);
 
-  document.getElementById('head-rule').textContent =
-    'Prices in ' + STORE_CURRENCY + ' · read off the store ' + STORE_CHECKED;
+  GEM_RATE = gems.best;
+  COIN_RATE = coins.best;
+
+  document.getElementById('tab-gems-sub').textContent = GEM_PACKS.length + ' tiers';
+  document.getElementById('tab-coins-sub').textContent = COIN_PACKS.length + ' tiers';
+  document.getElementById('tab-packs-sub').textContent = PACKS.length + ' packs';
 
   document.getElementById('best-gem').innerHTML = gems.best.toFixed(1) + '<small> gems / C$1</small>';
   document.getElementById('best-gem-sub').textContent =
@@ -434,14 +734,121 @@ function renderSolve(outId, packs, amountOf, target, have, unit, single) {
   updateGem();
   updateCoin();
 
-  document.getElementById('foot').innerHTML =
+  /* --- Packs pane --- */
+
+  var scored = PACKS.map(function (pk) { return { pk: pk, s: scorePack(pk) }; });
+
+  document.getElementById('pack-rows').innerHTML = scored.map(function (r) {
+    var pk = r.pk, s = r.s;
+
+    var contents = s.unscored
+      ? '<div>' + pk.unscored + '</div>'
+      : s.parts.map(function (p, i) {
+          var it = pk.items[i];
+          var text = it.sure === false
+            ? '<u title="Rarity read off an icon colour — worth confirming in game">' + p.label + '</u>'
+            : '<b>' + p.label + '</b>';
+          var each = p.each != null ? ' <s>· ' + p.each + ' gems each</s>'
+                   : p.cad != null ? ''
+                   : ' <s>· price unknown</s>';
+          return '<div>' + text + each + '</div>';
+        }).join('');
+
+    var worth = s.unscored ? '<span class="unk">—</span>'
+      : s.cad == null ? '<span class="unk">can’t price</span>'
+      : '<span class="worth">' + money(s.cad) + '<small>' + Math.round(s.ratio * 100) + '% of price</small></span>';
+
+    var verdict;
+    if (s.unscored || s.cad == null) {
+      verdict = '<span class="unk">—</span>';
+    } else {
+      var diff = s.cad - pk.price;
+      var cls = diff >= 0 ? 'good' : 'bad';
+      verdict = '<span class="verdict ' + cls + '">' + (diff >= 0 ? '+' : '−') + money(Math.abs(diff)).slice(2)
+        + '<small>' + (diff >= 0 ? 'better than buying parts' : 'worse than buying parts') + '</small></span>';
+    }
+
+    return '<tr>'
+      + '<td><span class="name">' + pk.name + '</span>'
+      + (pk.badge ? '<span class="badge">' + pk.badge + '</span>' : '')
+      /* "in-game" because this page now has a tab called Packs of its own — a bare
+         "PACKS TAB" here would read as a pointer to the tab you are already on. */
+      + '<span class="where">in-game ' + pk.where + ' tab</span></td>'
+      + '<td><span class="price">' + money(pk.price) + '</span>'
+      + (pk.alsoGems ? '<span class="where">or ' + pk.alsoGems + ' gems</span>' : '') + '</td>'
+      + '<td class="contents">' + contents + '</td>'
+      + '<td>' + worth + '</td>'
+      + '<td>' + verdict + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var ranked = scored.filter(function (r) { return r.s.ratio != null; })
+                     .sort(function (a, b) { return b.s.ratio - a.s.ratio; });
+
+  function fillPack(id, r) {
+    if (!r) return;
+    document.getElementById(id).innerHTML =
+      Math.round(r.s.ratio * 100) + '%<small> of what you pay</small>';
+    document.getElementById(id + '-sub').textContent =
+      r.pk.name + ' ' + money(r.pk.price) + ' — contents would cost you ' + money(r.s.cad)
+      + ' bought separately' + (r.s.unsure ? '. Contents not fully confirmed.' : '.');
+  }
+  fillPack('pack-top', ranked[0]);
+  fillPack('pack-bottom', ranked[ranked.length - 1]);
+
+  document.getElementById('pack-how').innerHTML = [
+    'A pack is worth what its contents would cost <b>you</b> to buy one at a time. Gems and coins '
+      + 'convert at the best tier in the store (' + GEM_RATE.toFixed(1) + ' gems and '
+      + num(Math.round(COIN_RATE)) + ' coins per C$1); coaches use your discounted price.',
+    'That makes pack value <b>account-specific and self-defeating</b>: the better your Training Centre '
+      + 'gets, the cheaper coaches become on their own, and the worse every coach pack scores.',
+    'A pack with <b>any unpriced item is left unscored</b> rather than partly scored. A partial total '
+      + 'looks like a verdict while silently omitting whatever is missing.',
+    'Dream Points are pinned by the store selling 5,000 of them for either C$9.99 or 500 gems, '
+      + 'which fixes the rate at ' + DP_PER_GEM + ' points per gem.',
+    'Value here ignores <b>whether you want the contents</b>. A pack of coaches you have no use for '
+      + 'is a bad buy at any ratio.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  var unsurePacks = scored.filter(function (r) { return r.s.unsure; }).length;
+  var unpriced = Object.keys(ITEM_PRICES).filter(function (k) { return ITEM_PRICES[k].gems == null; });
+
+  document.getElementById('pack-gaps').innerHTML = [
+    '<b>Contents are read off icon colours</b>, and colour is what encodes rarity — silver Common, '
+      + 'blue Rare, gold Legendary. ' + unsurePacks + ' of ' + PACKS.length + ' packs have at least one '
+      + 'item whose rarity I inferred rather than read. Those are underlined in the table. '
+      + 'Tapping the ⓘ on a pack in game gives the exact list.',
+    '<b>' + unpriced.length + ' item prices are missing</b>: ' + unpriced.join(', ')
+      + '. Every pack containing one of them is unscored.',
+    '<b>Legendary Agent is guessed at 356 gems</b> and does not reconcile — agents get 5% off, so 356 '
+      + 'implies a base near 375 rather than the 480 you estimated. Two packs lean on it.',
+    'Champions Arena is not scored at all: it changes stadium income, so its payback is measured in '
+      + 'matches played, not in gems.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  /* --- Per-tab header rule and footnote --- */
+
+  /* Each tab quotes its OWN data file's checked date. They happen to match today,
+     which is exactly why crossing them is dangerous: re-check the gem tiers alone
+     and the Packs tab would silently claim its contents were read that day too. */
+  var storeRule = 'Prices in ' + STORE_CURRENCY + ' · read off the store ' + STORE_CHECKED;
+  var packRule  = 'Prices in ' + PACK_CURRENCY + ' · read off the store ' + PACK_CHECKED
+                + ' · scored against your own gem, coin and coach prices';
+  var storeFoot =
     'Gem and coin tiers are the only store items facility upgrades do not discount, so these rates '
     + 'apply to anyone — unlike <b>coach prices</b>, which are discounted per account and live on '
     + 'their own page. At the best rate on each side, <b>1 gem costs about '
     + (coins.best / gems.best).toFixed(1) + ' coins</b> of real money. '
-    + 'Scouts, agents, real-money packs and the season pass are not built yet.';
+    + 'Scouts, agents and the season pass are not built yet.';
+  var packFoot =
+    'Verdicts compare a pack against buying the same things yourself at your own prices — not against '
+    + 'the store’s own “3× value” badges, which are measured against something the store does not explain.';
 
-  showTab(location.hash.slice(1) || 'gems');
+  TAB_TEXT.gems  = { rule: storeRule, foot: storeFoot, title: 'Store · DLS' };
+  TAB_TEXT.coins = { rule: storeRule, foot: storeFoot, title: 'Store · DLS' };
+  TAB_TEXT.packs = { rule: packRule,  foot: packFoot,  title: 'Packs · Store · DLS' };
+
+  showTab(location.hash.slice(1) || DEFAULT_TAB);
 })();
 </script>
 </body>
