@@ -511,6 +511,20 @@ html.dragging-noselect, html.dragging-noselect * {
    empty slots (nobody to displace) and the card being dragged (that one would
    just be naming itself). Same blue as the drop ring: one indicator, two
    halves — where it lands, and who leaves. */
+/* An empty slot has no name to light up, so the slot itself has to carry the
+   signal. It also had none: `.tm-bench .bench-chip.empty` sets box-shadow:none
+   at (0,3,0), which outranked the (0,2,0) drop ring — leaving the empty
+   substitute slots as the one target that never showed it was the target. */
+.chip.empty.drop-target,
+.tm-bench .bench-chip.empty.drop-target {
+  /* !important is not decoration here: renderTeamPitch writes the placeholder
+     colour into the slot's own style attribute, and an inline declaration
+     outranks any selector. */
+  border-style: solid !important; border-color: #58a6ff !important;
+  background: rgba(88,166,255,.22) !important;
+  box-shadow: 0 0 0 3px #58a6ff, 0 2px 12px rgba(0,0,0,.55) !important; }
+.chip.empty.drop-target .chip-pos,
+.tm-bench .bench-chip.empty.drop-target .chip-pos { color: #cfe6ff; }
 .chip.drop-target:not(.empty):not(.dragging) .chip-name,
 .bench-chip.drop-target:not(.empty):not(.dragging) .chip-name {
   background: #58a6ff; color: #08131f; font-weight: 800;
