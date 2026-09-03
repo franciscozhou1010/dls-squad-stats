@@ -303,7 +303,11 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .xi-tip .t-v { color: var(--text); font-weight: 700; font-size: 11.5px; }
 .xi-tip .t-total { text-align: right; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--total-accent); }
 .chip { position: absolute; transform: translate(-50%,-50%); width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.97), rgba(13,17,23,.97)); border: 1.5px solid #30363d; border-radius: 10px; padding: 5px 3px 6px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.55); cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; transition: transform .1s ease, box-shadow .1s ease; }
-.chip:hover { transform: translate(-50%,-50%) scale(1.08); z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+/* Hover is for a pointer that is looking around, not one that is carrying a
+   card. Dragging across the pitch used to pop and shadow every chip the
+   cursor crossed, which reads as a smear travelling with your hand. These
+   simply do not exist while a drag is in progress. */
+html:not(.is-dragging) .chip:hover { transform: translate(-50%,-50%) scale(1.08); z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
 .chip:active { cursor: grabbing; }
 .chip.empty { background: rgba(13,17,23,.5); border-style: dashed; box-shadow: none; }
 .chip.locked { box-shadow: 0 0 0 2px #3fb950, 0 2px 10px rgba(0,0,0,.55); }
@@ -321,7 +325,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
 .bench-hint { text-align: center; font-size: 10px; color: var(--text-subtle); margin: 0 0 10px; }
 .bench { display: flex; flex-direction: column; gap: 8px; }
 .bench-chip { width: 104px; background: linear-gradient(180deg, rgba(30,37,48,.97), rgba(13,17,23,.97)); border: 1.5px solid #30363d; border-radius: 10px; padding: 6px 4px 7px; text-align: center; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; box-shadow: 0 2px 8px rgba(0,0,0,.45); transition: transform .1s ease, border-color .1s ease; }
-.bench-chip:hover { transform: translateY(-2px); border-color: #58a6ff; }
+html:not(.is-dragging) .bench-chip:hover { transform: translateY(-2px); border-color: #58a6ff; }
 .bench-chip:active { cursor: grabbing; }
 /* The ghost rides ABOVE the pointer, not under it: centred on the cursor it
    covered the very card you are aiming at, hiding both who is there and the
@@ -332,7 +336,7 @@ tr.r-standard:hover td { background: var(--row-standard-hover) !important; }
    a drag painted a selection from where the press began all the way to the
    pointer, tinting whatever it crossed. Clamped on pointerdown now, on the root
    and everything under it, so nothing can opt back in. */
-html.dragging-noselect, html.dragging-noselect * {
+html.is-dragging, html.is-dragging * {
   -webkit-user-select: none !important; user-select: none !important; }
 .drag-ghost { position: fixed; transform: translate(-50%, calc(-100% - 30px)); z-index: 100; pointer-events: none; width: 78px; background: linear-gradient(180deg, rgba(30,37,48,.98), rgba(13,17,23,.98)); border: 2px solid; border-radius: 10px; padding: 5px 3px 6px; text-align: center; }   /* no drop shadow: a 28px blur at 70% black smears a dark blob across the pitch behind the card */
 .drag-ghost.below { transform: translate(-50%, 30px); }   /* no room above — the top row of the pitch — so flip under the pointer */
@@ -479,7 +483,7 @@ html.dragging-noselect, html.dragging-noselect * {
 .tm-posfilter { width: 78px; cursor: pointer; }
 .tm-results { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-surface); max-height: 560px; overflow-y: auto; padding: 4px; }
 .tm-res { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: grab; font-size: 12.5px; color: var(--text); touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-.tm-res:hover { background: var(--bg-inset); }
+html:not(.is-dragging) .tm-res:hover { background: var(--bg-inset); }
 .tm-res:active { cursor: grabbing; }
 .tm-res.used { opacity: .38; }
 .tm-res-ovr { font-weight: 800; width: 24px; text-align: center; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
@@ -1600,7 +1604,7 @@ function initChipDrag(cfg){
     document.querySelectorAll('.drag-ghost').forEach(function(g){ g.remove(); });   // belt and braces
     /* Before the threshold, not after: the selection starts on the very first
        move. Any range already painted gets dropped too. */
-    document.documentElement.classList.add('dragging-noselect');
+    document.documentElement.classList.add('is-dragging');
     var sel = window.getSelection && window.getSelection();
     if(sel && sel.removeAllRanges) sel.removeAllRanges();
     hideXiTip();
@@ -1646,7 +1650,7 @@ function initChipDrag(cfg){
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('pointercancel', onUp);
-    document.documentElement.classList.remove('dragging-noselect');
+    document.documentElement.classList.remove('is-dragging');
     var d = chipDrag; chipDrag = null; if(!d) return;
     if(d.moved){
       if(d.ghost) d.ghost.remove();
