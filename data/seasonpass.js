@@ -31,24 +31,29 @@
 
    WHY THE TOTAL IS A FLOOR, NOT A TOTAL
    --------------------------------------------------------------------------
-   Six of the 21 tiers offer two items this site has no price for, and six more
-   offer one priced and one unpriced. The scorer takes the best PRICEABLE
-   option at each tier and adds them up, which is a genuine lower bound: every
-   missing price can only push the number up.
+   Some tiers offer two items this site has no price for, and others offer one
+   priced and one unpriced. The scorer takes the best PRICEABLE option at each
+   tier and adds them up, which is a genuine lower bound: every missing price
+   can only push the number up. The counts are computed on the page rather than
+   stated here, because they move whenever a price is filled in — as three of
+   them did on 2026-09-04, when scout and Dream Point Boost prices arrived and
+   the floor roughly doubled.
 
    That is a different rule from the Packs tab, and deliberately so. A pack is
    one purchase — pricing half its contents and calling it a verdict hides the
    other half, so packs.js refuses to score partially. A track is 21 separate
    prizes, so a partial sum really is a floor and says so on its face.
 
-   Weak cross-check, not a confirmation: the game will sell you a skipped tier
-   for 75 gems, so it prices the whole 21-tier track at 1,575 gems. The floor
-   computed from the contents lands near that by a completely different route —
-   but the skip price is what the publisher charges for NOT WAITING, a price on
-   time rather than on prizes, and the closeness partly survives because the
-   floor is incomplete. Fill in the missing prices and the two move apart. The
-   percentage is computed on the page, never restated here, so the two cannot
-   disagree. */
+   Weak cross-check, and it has already failed once. The game will sell you a
+   skipped tier for 75 gems, which — IF that price is the same at every tier,
+   which nobody has checked; it was seen once, between tiers 6 and 7 — prices
+   the whole track at 1,575 gems. On 2026-09-04 the floor overtook that figure
+   and is now well above it. Two readings, and this file picks neither: either
+   the skip price is not uniform, or the publisher prices skipping below what a
+   tier is worth. Either way it was never a confirmation — a skip price is a
+   price on NOT WAITING, which is a price on time rather than on prizes. The
+   page computes the gap and its direction and words itself accordingly; no
+   percentage is restated here, so the two cannot disagree. */
 
 const PASS_CURRENCY = 'CAD';
 const PASS_CHECKED = '2026-09-04';
@@ -97,9 +102,17 @@ const PASS_EXTRAS = {
 };
 
 /* item kinds match store.html's priceItem(): gems | coins | coach | item.
-   'boost' is this file's own: a percentage multiplier on what you earn, not a
-   quantity of anything. It has no price and cannot get one — the same reason
-   packs.js leaves Champions Arena unscored. */
+   'boost' is this file's own, and it is kept as its own kind ONLY so the label
+   can carry the percentage — "Legendary DP Boost +150%" says more than
+   "1 x DP Boost Legendary". It resolves against ITEM_PRICES like any other item.
+
+   It used to be treated as unpriceable, on the argument that a percentage
+   multiplier is not a quantity of anything. That was wrong, and worth recording
+   as wrong: what the boost DOES is a multiplier, but the boost ITSELF is an item
+   the store sells for gems, and this site prices an item by what it would cost
+   to buy separately. Champions Arena over in packs.js really is unpriceable —
+   it changes match income and is not sold as an object — but that is not the
+   same case. Corrected 2026-09-04 when the prices arrived. */
 const PASS_TRACK = [
   { tier: 1,  paid: [{ kind: 'coins', n: 500 }, { kind: 'gems', n: 20 }],
               free: { kind: 'coins', n: 20 } },
@@ -174,9 +187,22 @@ const PASS_UNKNOWNS = [
        + 'deliver the full track.',
     direction: 'unknown' },
 
-  { q: 'Six tiers offer two items with no price on this site.',
-    why: 'Scouts, Physios and Form Boosts have never been priced, and Dream Point Boosts are a '
-       + 'percentage rather than a quantity so they cannot be. The floor skips those tiers entirely, '
-       + 'so the real figure is higher than the one shown.',
-    direction: 'better' }
+  { q: 'Physios and Form Boosts have never been priced.',
+    why: 'The floor skips any tier whose only two options are among them, so the real figure is '
+       + 'higher than the one shown. Scouts and Dream Point Boosts were in this list until '
+       + '2026-09-04; filling those two in roughly doubled the floor, which is a fair measure of '
+       + 'how much the remaining gaps could still be worth.',
+    direction: 'better' },
+
+  { q: 'Is 75 gems the price to skip EVERY tier, or only the one it was seen on?',
+    why: 'It was read once, between tiers 6 and 7. The page multiplies it by 21 to build its '
+       + 'cross-check, which is an extrapolation from a single observation and is the likeliest '
+       + 'reason that cross-check now disagrees with the floor.',
+    direction: 'unknown' },
+
+  { q: 'Are the Dream Point Boost prices before or after a facility discount?',
+    why: 'Scouts were given as a base price plus a 15% facility discount; the boost figures came '
+       + 'with neither. A 15% swing on them moves less than 1% of the total, so it is recorded '
+       + 'rather than chased.',
+    direction: 'unknown' }
 ];

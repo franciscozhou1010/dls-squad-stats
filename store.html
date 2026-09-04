@@ -848,10 +848,18 @@ function scoreClub(t) {
    anything, so there is no amount to convert. Same reason packs.js leaves
    Champions Arena unscored: an income change is not a bag of goods. */
 function pricePassItem(it) {
+  /* A boost is priced like any other item; the separate kind exists only so the
+     label can carry the percentage. It was once treated as unpriceable because a
+     multiplier is not a quantity — but what the boost DOES is a multiplier, while
+     the boost ITSELF is sold for gems, and this site prices an item by what it
+     would cost to buy separately. */
   if (it.kind === 'boost') {
-    return { cad: null,
+    var b = ITEM_PRICES[it.of + ' Boost ' + it.rarity] || {};
+    return { cad: b.gems == null ? null : b.gems / GEM_RATE,
              label: it.rarity + ' ' + it.of + ' Boost +' + it.pct + '%',
-             why: 'A multiplier on what you earn, not a quantity — nothing to price.' };
+             each: b.gems,
+             why: b.note,
+             unsure: b.sure === false && b.gems != null };
   }
   var p = priceItem(it);
   /* priceItem hands back the note but not the flag, and the flag is the point:
@@ -1204,9 +1212,10 @@ function scorePassTrack(track) {
      a mistake and should not pass silently. */
   PASS_TRACK.forEach(function (t) {
     t.paid.concat([t.free]).forEach(function (i) {
-      if (i.kind === 'item' && !(i.key in ITEM_PRICES)
-          && PASS_KEYS_NOT_IN_PACKS.indexOf(i.key) === -1) {
-        console.warn('seasonpass.js tier ' + t.tier + ': item key "' + i.key + '" is in neither '
+      var k = i.kind === 'item' ? i.key
+            : i.kind === 'boost' ? i.of + ' Boost ' + i.rarity : null;
+      if (k && !(k in ITEM_PRICES) && PASS_KEYS_NOT_IN_PACKS.indexOf(k) === -1) {
+        console.warn('seasonpass.js tier ' + t.tier + ': item key "' + k + '" is in neither '
           + 'ITEM_PRICES nor PASS_KEYS_NOT_IN_PACKS — it renders as unpriced. Check for a typo.');
       }
     });
@@ -1333,28 +1342,46 @@ function scorePassTrack(track) {
     'Every tier is a <b>choose one of two</b>, so a tier is worth the better option and not both. '
       + 'The track is worth considerably less than the sum of what is printed on it.',
     '<b>The number is a floor.</b> ' + pass.blank + ' of ' + PASS_TRACK.length + ' tiers offer two items '
-      + 'this site has never priced &mdash; scouts, physios, form boosts &mdash; and Dream Point Boosts are a '
-      + 'percentage rather than a quantity, so they cannot be priced at all. Those tiers count as zero, '
-      + 'and ' + pass.partial + ' more are scored on their priced option even where you would probably '
-      + 'take the other. Every missing price can only push the figure up.',
+      + 'this site has never priced &mdash; physios and form boosts &mdash; so they count as zero, and '
+      + pass.partial + ' more are scored on their priced option even where you would probably take the '
+      + 'other. Every missing price can only push the figure up, and that is not a small caveat: scout '
+      + 'and Dream Point Boost prices arriving on 2026-09-04 roughly doubled this figure on their own.',
     '<b>A second route lands ' + (skipClose ? 'close' : 'a long way off') + '.</b> The game sells a '
       + 'skipped tier for ' + PASS_SKIP_GEMS + ' gems, so it prices the full ' + PASS_TRACK.length
       + '-tier track at ' + num(skipGems) + ' gems &mdash; ' + money(skipCad) + '. The floor built from the '
       + 'contents lands ' + skipGap + '% ' + (skipDelta < 0 ? 'below' : 'above') + ' it. '
       + '<b>Treat that as a sanity check, not a confirmation</b>: the skip price is what the publisher '
-      + 'charges for not waiting, which is a price on time rather than on prizes, and the two sit close '
-      + 'partly because the floor is incomplete. Price the missing items and they move apart.',
+      + 'charges for not waiting, which is a price on time rather than on prizes'
+      + (skipClose
+          ? ', and the two sit close partly because the floor is incomplete. Price the missing items '
+            + 'and they move apart.'
+          /* It was close until scout and boost prices landed. Saying so is more
+             use than pretending the check still passes. */
+          : '. It was also read once, at a single tier, and multiplied by ' + PASS_TRACK.length + ' here. '
+            + 'Either the skip price is not the same at every tier, or the publisher prices skipping '
+            + 'below what a tier is actually worth &mdash; this page does not know which, and the gap is '
+            + 'listed as an open question rather than resolved.'),
     '<b>' + pass.repeats + ' of ' + PASS_TRACK.length + ' tiers repeat another tier exactly.</b> '
       + (scoringRepeats.length
-          ? 'Only ' + scoringRepeats.length + ' of them carries a price at all &mdash; '
+          /* Nothing here may name what the prize IS. This bullet once said "a
+             second identical coach"; a later price arriving moved the scoring
+             repeat to a tier of scouts and boosts and the sentence went quietly
+             wrong. Say "prize", and list the pairs from the data. */
+          ? 'Only ' + scoringRepeats.length + ' of them '
+            + (scoringRepeats.length === 1 ? 'carries' : 'carry') + ' a price at all &mdash; '
             + money(repeatCad) + ', ' + Math.round(repeatCad / pass.floor * 100) + '% of the total &mdash; '
-            + 'and it is counted in full: tier ' + scoringRepeats[0].tier + ' offers the same pair as tier '
-            + scoringRepeats[0].sameAs + ', and a second identical coach is not worth what the first was. '
-            + 'The other ' + (pass.repeats - scoringRepeats.length) + ' repeats sit among the tiers with no '
-            + 'price, so they add nothing either way.'
+            + 'and ' + (scoringRepeats.length === 1 ? 'it is' : 'they are') + ' counted in full ('
+            + scoringRepeats.map(function (r) { return 'tier ' + r.tier + ' repeats tier ' + r.sameAs; }).join(', ')
+            + '). A second identical prize is not worth what the first was, and no price here captures that. '
+            + (pass.repeats > scoringRepeats.length
+                ? 'The other ' + (pass.repeats - scoringRepeats.length) + ' sit among the tiers with no '
+                  + 'price, so they add nothing either way.' : '')
           : 'None of them carries a price, so the repetition costs the total nothing.'),
-    'Value ignores <b>whether you want the contents</b>. Coaches you have no room for are worth '
-      + 'nothing at any ratio.'
+    'Value ignores <b>whether you want the contents</b>, and tier 13 is the clearest case: the engine '
+      + 'takes the Legendary Goalkeeping coach over 1,000 coins because it costs more, but a squad '
+      + 'that is already maxed has no use for another keeper coach and every use for coins. The page '
+      + 'keeps the price ranking anyway &mdash; it is the right default for anyone whose squad is still '
+      + 'growing &mdash; but on a finished squad, read the two options and pick for yourself.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   var passGaps = PASS_UNKNOWNS.map(function (u) {
@@ -1366,11 +1393,17 @@ function scorePassTrack(track) {
   /* The biggest single line in the total is also the least certain one, and that
      belongs at the top of this list rather than only in a tooltip. */
   if (unsurePicks.length) {
+    /* Each unsure price gets its OWN reason. One shared note read as though the
+       Legendary Agent's "does not reconcile" applied to the boosts too, which
+       is a different doubt entirely. */
     passGaps.unshift('<b>' + money(unsureCad) + ' of the total &mdash; '
-      + Math.round(unsureCad / pass.floor * 100) + '% &mdash; rests on a price this site is not sure of.</b> '
-      + unsurePicks.map(function (r) { return 'Tier ' + r.tier + ', ' + r.best.label; }).join('; ')
-      + '. ' + (unsurePicks[0].best.why || '')
-      + ' It carries a dashed underline in the table. <s>(could go either way)</s>');
+      + Math.round(unsureCad / pass.floor * 100) + '% &mdash; rests on '
+      + (unsurePicks.length === 1 ? 'a price' : 'prices') + ' this site is not sure of.</b> '
+      + unsurePicks.map(function (r) {
+          return '<b>Tier ' + r.tier + ', ' + r.best.label + '</b> &mdash; ' + (r.best.why || 'unconfirmed.');
+        }).join(' ')
+      + ' ' + (unsurePicks.length === 1 ? 'It carries' : 'They carry')
+      + ' a dashed underline in the table. <s>(could go either way)</s>');
   }
   if (STORE_CHECKED !== PASS_CHECKED) {
     passGaps.unshift('<b>Two dates are in play.</b> The track was read ' + PASS_CHECKED

@@ -30,14 +30,36 @@ const ITEM_PRICES = {
   'Agent Rare':        { gems: null, sure: false, note: 'Hidden behind the USE button in the screenshot.' },
   'Agent Legendary':   { gems: 356,  sure: false,
                          note: 'Francisco recalls 356. Does not reconcile: agents get 5% off, so 356 implies a base near 375, not the 480 he guessed.' },
-  'Scout Common':      { gems: null, sure: false, note: 'Not collected.' },
-  'Scout Rare':        { gems: null, sure: false, note: 'Not collected.' },
-  'Scout Legendary':   { gems: null, sure: false, note: 'Not collected.' },
+  /* Scouts, from Francisco 2026-09-04: base 75 / 250 / 650, and the scout
+     facility tops out at 15% off. Stored net like every other row here, with the
+     base kept in the note so the arithmetic can be rechecked. Flooring follows
+     the rule coaches.js settled — 250 x 0.85 and 650 x 0.85 both land on .5, and
+     the game rounds those down (15 x 0.70 = 10.5 shows as 10). */
+  'Scout Common':      { gems: 63,  sure: true,
+                         note: 'Base 75, less the 15% scout-facility discount.' },
+  'Scout Rare':        { gems: 212, sure: true,
+                         note: 'Base 250, less 15%. 212.5 floored, per the coaches.js rounding rule.' },
+  'Scout Legendary':   { gems: 552, sure: true,
+                         note: 'Base 650, less 15%. 552.5 floored. The dearest single item on this site.' },
   'Physio Rare':       { gems: null, sure: false, note: 'Not collected.' },
   'Physio Legendary':  { gems: null, sure: false, note: 'Not collected.' },
   'Form Boost Common': { gems: null, sure: false, note: 'Not collected.' },
   'Form Boost Rare':   { gems: null, sure: false, note: 'Not collected.' },
-  'Form Boost Legendary': { gems: null, sure: false, note: 'Not collected.' }
+  'Form Boost Legendary': { gems: null, sure: false, note: 'Not collected.' },
+
+  /* Dream Point Boosts, from Francisco 2026-09-04. These were previously treated
+     as unpriceable on the grounds that a percentage multiplier is not a quantity
+     of anything — which was wrong. What the boost DOES is a multiplier, but the
+     boost ITSELF is an item the store sells for gems, and this whole site prices
+     an item by what it would cost you to buy separately. Whether these figures
+     are before or after a facility discount was not stated; a 15% swing on them
+     moves less than 1% of any total they appear in. */
+  'DP Boost Common':    { gems: 25,  sure: false,
+                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' },
+  'DP Boost Rare':      { gems: 35,  sure: false,
+                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' },
+  'DP Boost Legendary': { gems: 125, sure: false,
+                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' }
 };
 
 /* 5,000 Dream Points sells for either C$9.99 or 500 gems, which pins the
