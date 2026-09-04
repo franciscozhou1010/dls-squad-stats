@@ -71,6 +71,36 @@ const PASS_SKIP_GEMS = 75;
    computed from his figures rather than as something he said. */
 const PASS_SP = { perMatch: 150, perTier: 400 };
 
+/* Coins or gems — the one choice on this track where the CAD ranking is wrong
+   for this account, and the reason is worth writing down rather than quietly
+   patching the number.
+
+   BOTH currencies can be farmed. That was stated wrongly once and corrected:
+   the difference is not that gems are unobtainable, it is RATE. Coins come in
+   from ordinary play; gems only from Dream League Live and a trickle when a
+   season ends, roughly an order of magnitude slower. So a coin's marginal value
+   on this account is close to nothing — Francisco is sitting on six figures of
+   them — while gems are the binding constraint.
+
+   What the gems are FOR, which is what makes them binding: gold agents and
+   Special coaches, to finish special players and to bank for future
+   special-player events. That is also why tier 14's Legendary Agent is worth
+   more than its 356-gem sticker suggests — it is the thing the gems were being
+   saved for in the first place.
+
+   The page does NOT fold this into the ranking. It prints the exchange rate the
+   game is offering at each fork and leaves the choice, because the rate is a
+   fact and the valuation is a judgement. The CAD figure keeps ranking by store
+   price, which is the site's method everywhere else; where that method and this
+   account disagree, the page shows the disagreement instead of hiding it. */
+const PASS_PREFERENCE = {
+  takeAtForks: 'gems',
+  why: 'Both can be farmed, but gems arrive about an order of magnitude slower, '
+     + 'and coins are the one thing this account is not short of.',
+  goal: 'Gems go to gold agents and Special coaches — finishing special players, '
+      + 'and banking for the next special-player event.'
+};
+
 /* Keys the track uses that packs.js has no ITEM_PRICES entry for at all. An
    absent key prices as null, which is exactly what a misspelt key does, so the
    ones we know about are listed and anything else is shouted about in the

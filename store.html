@@ -539,6 +539,11 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
       </div>
     </div>
 
+    <div class="dls-panel block block--gaps">
+      <h2>Coins or gems &mdash; the one choice this page will not make for you</h2>
+      <ul id="pass-fork"></ul>
+    </div>
+
     <div class="dls-panel block block--how">
       <h2>Extra daily and weekly challenges</h2>
       <ul id="pass-extras"></ul>
@@ -918,14 +923,33 @@ function scorePassTrack(track) {
        only the first as "the pick" would read as though it were the better one,
        so ties are flagged and both sides get the mark. */
     var tied = best && priced.filter(function (o) { return o.cad === best.cad; }).length > 1;
+
+    /* A tier offering coins OR gems is not a tier the CAD ranking can settle:
+       it is an exchange, and what it is worth depends on a rate only the owner
+       knows. Detected from the data so a new tier of this shape joins in
+       without anyone remembering to add it. */
+    var gi = t.paid.filter(function (i) { return i.kind === 'gems'; })[0];
+    var ci = t.paid.filter(function (i) { return i.kind === 'coins'; })[0];
+    var fork = (gi && ci) ? { gems: gi.n, coins: ci.n, rate: ci.n / gi.n } : null;
+
     return {
-      tier: t.tier, opts: opts, best: best, sameAs: sameAs, tied: !!tied,
+      tier: t.tier, opts: opts, best: best, sameAs: sameAs, tied: !!tied, fork: fork,
       partial: priced.length === 1 && opts.length > 1,
       free: pricePassItem(t.free)
     };
   });
+  /* What the same track comes to if every coins-or-gems fork is answered with
+     gems. Lower at store prices by construction — that is the whole point. */
+  var gemsFirst = rows.reduce(function (a, r) {
+    if (!r.best) return a;
+    /* From the fork's own numbers, not by matching a rendered label. */
+    return a + (r.fork ? r.fork.gems / GEM_RATE : r.best.cad);
+  }, 0);
+
   return {
     rows: rows,
+    forks: rows.filter(function (r) { return r.fork; }),
+    gemsFirstFloor: gemsFirst,
     floor: rows.reduce(function (a, r) { return a + (r.best ? r.best.cad : 0); }, 0),
     scored: rows.filter(function (r) { return r.best; }).length,
     blank: rows.filter(function (r) { return !r.best; }).length,
@@ -1271,8 +1295,12 @@ function scorePassTrack(track) {
 
   document.getElementById('pass-rows').innerHTML = pass.rows.map(function (r) {
     var opts = r.opts.map(function (o) {
-      /* By value, not identity — a tie has two winners. */
-      var isPick = r.best && Number.isFinite(o.cad) && o.cad === r.best.cad;
+      /* By value, not identity — a tie has two winners. A coins-or-gems fork has
+         two legitimate answers as well, and marking only the cheaper-per-dollar
+         one reads as advice this page is not entitled to give. */
+      var isPick = r.fork
+        ? Number.isFinite(o.cad)
+        : (r.best && Number.isFinite(o.cad) && o.cad === r.best.cad);
       var price = Number.isFinite(o.cad) ? '<s> &middot; ' + money(o.cad) + '</s>'
                                          : '<s> &middot; no price</s>';
       /* Same dashed amber the Packs tab uses for a fact it inferred rather than
@@ -1285,7 +1313,8 @@ function scorePassTrack(track) {
 
     var worth = r.best
       ? '<span class="worth">' + money(r.best.cad)
-        + '<small>' + (r.tied ? 'either &mdash; same price'
+        + '<small>' + (r.fork ? num(r.fork.rate) + ' coins per gem &mdash; your call'
+                     : r.tied ? 'either &mdash; same price'
                      : r.partial ? 'other option unpriced'
                      : 'better of the two') + '</small></span>'
       : '<span class="unk">can&rsquo;t price</span>';
@@ -1299,6 +1328,43 @@ function scorePassTrack(track) {
       + '<td><span class="free-cell">' + r.free.label + '</span></td>'
       + '</tr>';
   }).join('');
+
+  /* --- Coins or gems --- */
+
+  var forkRates = pass.forks.map(function (r) { return r.fork.rate; });
+  var forkUniform = forkRates.length > 1 && forkRates.every(function (x) {
+    return Math.abs(x - forkRates[0]) < 1e-9;
+  });
+  var storeRate = COIN_RATE / GEM_RATE;
+  var coinsForgone = pass.forks.reduce(function (a, r) { return a + r.fork.coins; }, 0);
+  var gemsGained = pass.forks.reduce(function (a, r) { return a + r.fork.gems; }, 0);
+  var gemsFirstCost = pass.floor - pass.gemsFirstFloor;
+
+  document.getElementById('pass-fork').innerHTML = (pass.forks.length ? [
+    '<b>' + pass.forks.length + ' tiers offer coins <em>or</em> gems</b> (' 
+      + pass.forks.map(function (r) { return 'tier ' + r.tier; }).join(', ') + '), and '
+      + (forkUniform
+          ? 'every one of them is priced at exactly <b>' + num(forkRates[0]) + ' coins per gem</b>.'
+          : 'they run from <b>' + num(Math.min.apply(null, forkRates)) + '</b> to <b>'
+            + num(Math.max.apply(null, forkRates)) + ' coins per gem</b>.')
+      + ' The store sells the two at about <b>' + storeRate.toFixed(1) + ' coins per gem</b>, so by the '
+      + 'store\u2019s own prices the coins are the better half of every one of these deals &mdash; which is '
+      + 'why the ranking above takes them.',
+
+    '<b>The whole question is one number:</b> is a gem worth more than '
+      + (forkUniform ? num(forkRates[0]) : num(Math.max.apply(null, forkRates)))
+      + ' coins <em>to you</em>? Above that, take gems; below it, take coins. Nothing else about these '
+      + 'four tiers matters.',
+
+    '<b>Francisco takes gems.</b> ' + PASS_PREFERENCE.why + ' ' + PASS_PREFERENCE.goal,
+
+    'Taking gems at all ' + pass.forks.length + ' forks trades <b>' + num(coinsForgone) + ' coins</b> for '
+      + '<b>' + num(gemsGained) + ' gems</b>, and drops the figure at the top of this page from '
+      + money(pass.floor) + ' to ' + money(pass.gemsFirstFloor) + ' &mdash; a loss of ' + money(gemsFirstCost)
+      + '. <b>That drop is the yardstick disagreeing, not the choice being wrong.</b> It prices a coin at '
+      + 'what the store charges for one, and coins are the thing this account already has six figures of.'
+  ] : ['No tier on this track offers coins against gems.'])
+    .map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   /* Rates, not a bundle: what the extra challenges are worth depends on how much
      you play, so they are quoted per week and per day and never folded into the
