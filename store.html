@@ -79,11 +79,20 @@
 .pane--coin { --accent: var(--dls-amber); }
 .pane--packs { --accent: var(--dls-magenta); }
 .pane--club { --accent: var(--dls-violet); }
+.pane--pass { --accent: var(--dls-mint); }
 .pane--gem .rate-card__big { color: var(--dls-cyan); text-shadow: 0 0 22px rgba(34, 211, 238, .4); }
 .pane--coin .rate-card__big { color: var(--dls-amber); text-shadow: 0 0 22px rgba(251, 191, 36, .35); }
 /* .card__big defaults to magenta, which is Packs' accent. Every other pane
    colours its headline figure to match its own tint. */
 .pane--club .card__big { color: var(--dls-violet); text-shadow: 0 0 22px rgba(167, 139, 250, .35); }
+.pane--pass .card__big { color: var(--dls-mint); text-shadow: 0 0 22px rgba(52, 211, 153, .3); }
+/* The second card's headline is a phrase, not a figure — the whole point is
+   that there is no extra number to show. Sized so it does not shout over the
+   card that does carry one. */
+.pane--pass .card__big--words { font-size: 26px; letter-spacing: -0.5px; }
+/* The option the engine would take, against the one it would leave. */
+.pane--pass .contents .pick { color: var(--dls-mint); font-weight: 800; }
+.pane--pass .free-cell { color: var(--dls-ink-dim); font-size: 12.5px; line-height: 1.5; }
 
 /* --- Tables -------------------------------------------------------------- */
 
@@ -124,6 +133,12 @@ tbody tr:hover td { background: rgba(34, 211, 238, .04); }
 .pane--club table { min-width: 660px; }
 .pane--club td { padding: 12px 10px; vertical-align: top; }
 .pane--club tbody tr:hover td { background: rgba(167, 139, 250, .05); }
+
+/* Four columns, but two of them are stacked option lists, so it needs about
+   as much width as Packs. */
+.pane--pass table { min-width: 700px; }
+.pane--pass td { padding: 12px 10px; vertical-align: top; }
+.pane--pass tbody tr:hover td { background: rgba(52, 211, 153, .05); }
 
 .pack { font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #eef6ff; }
 .get { color: var(--dls-ink-dim); }
@@ -208,14 +223,14 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
 .block li b { color: #eef6ff; font-weight: 700; }
 .block li s { color: var(--dls-ink-faint); text-decoration: none; }
 
-/* --- Row-table cells, shared by the Packs and Dream Club panes ---------------
+/* --- Row-table cells, shared by the Packs, Dream Club and Season Pass panes ---------------
    Two selectors rather than one unscoped `.name`, because the Gems and Coins
    tables are built from different markup and would inherit the wrong padding
    and weights. Any future tab rendering name/price/contents/worth/verdict rows
    joins by adding itself to these lists. */
 
-.pane--packs .name, .pane--club .name { font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; color: #eef6ff; }
-.pane--packs .where, .pane--club .where {
+.pane--packs .name, .pane--club .name, .pane--pass .name { font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; color: #eef6ff; }
+.pane--packs .where, .pane--club .where, .pane--pass .where {
   display: block;
   margin-top: 3px;
   font-family: var(--dls-mono);
@@ -224,7 +239,7 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
   text-transform: uppercase;
   color: var(--dls-ink-faint);
 }
-.pane--packs .badge, .pane--club .badge {
+.pane--packs .badge, .pane--club .badge, .pane--pass .badge {
   display: inline-block;
   margin-left: 7px;
   padding: 2px 7px;
@@ -238,23 +253,24 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
   text-transform: uppercase;
 }
 .pane--club .badge { background: rgba(167, 139, 250, .16); color: var(--dls-violet); }
-.pane--packs .price, .pane--club .price { font-weight: 900; font-size: 15px; color: #eef6ff; }
+.pane--pass .badge { background: rgba(52, 211, 153, .16); color: var(--dls-mint); }
+.pane--packs .price, .pane--club .price, .pane--pass .price { font-weight: 900; font-size: 15px; color: #eef6ff; }
 
-.pane--packs .contents, .pane--club .contents { text-align: left; white-space: normal; min-width: 260px; }
-.pane--packs .contents div, .pane--club .contents div { font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
-.pane--packs .contents b, .pane--club .contents b { color: var(--dls-ink); font-weight: 700; }
-.pane--packs .contents u, .pane--club .contents u {
+.pane--packs .contents, .pane--club .contents, .pane--pass .contents { text-align: left; white-space: normal; min-width: 260px; }
+.pane--packs .contents div, .pane--club .contents div, .pane--pass .contents div { font-size: 12.5px; line-height: 1.5; color: var(--dls-ink-dim); }
+.pane--packs .contents b, .pane--club .contents b, .pane--pass .contents b { color: var(--dls-ink); font-weight: 700; }
+.pane--packs .contents u, .pane--club .contents u, .pane--pass .contents u {
   text-decoration: none;
   border-bottom: 1px dashed var(--dls-amber);
   color: var(--dls-amber);
   cursor: help;
 }
-.pane--packs .contents s, .pane--club .contents s { color: var(--dls-ink-faint); text-decoration: none; }
+.pane--packs .contents s, .pane--club .contents s, .pane--pass .contents s { color: var(--dls-ink-faint); text-decoration: none; }
 
-.pane--packs .worth, .pane--club .worth { font-weight: 900; font-size: 15px; color: var(--dls-ink); }
-.pane--packs .worth small, .pane--club .worth small { display: block; font-size: 10.5px; font-weight: 600; color: var(--dls-ink-faint); }
-.pane--packs .verdict, .pane--club .verdict { font-weight: 900; font-size: 15px; }
-.pane--packs .verdict small, .pane--club .verdict small {
+.pane--packs .worth, .pane--club .worth, .pane--pass .worth { font-weight: 900; font-size: 15px; color: var(--dls-ink); }
+.pane--packs .worth small, .pane--club .worth small, .pane--pass .worth small { display: block; font-size: 10.5px; font-weight: 600; color: var(--dls-ink-faint); }
+.pane--packs .verdict, .pane--club .verdict, .pane--pass .verdict { font-weight: 900; font-size: 15px; }
+.pane--packs .verdict small, .pane--club .verdict small, .pane--pass .verdict small {
   display: block;
   font-family: var(--dls-mono);
   font-size: 9px;
@@ -262,9 +278,9 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-.pane--packs .good, .pane--club .good { color: var(--dls-mint); }
-.pane--packs .bad, .pane--club .bad { color: var(--dls-magenta); }
-.pane--packs .unk, .pane--club .unk { color: var(--dls-ink-faint); font-weight: 700; font-size: 13px; }
+.pane--packs .good, .pane--club .good, .pane--pass .good { color: var(--dls-mint); }
+.pane--packs .bad, .pane--club .bad, .pane--pass .bad { color: var(--dls-magenta); }
+.pane--packs .unk, .pane--club .unk, .pane--pass .unk { color: var(--dls-ink-faint); font-weight: 700; font-size: 13px; }
 
 /* A table wider than its panel is only reachable if you can tell it scrolls —
    .dls-panel's clip-path eats the scrollbar and iOS hides overlay bars at rest,
@@ -349,6 +365,7 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
     <button class="tab" data-tab="coins">Coins<small id="tab-coins-sub">—</small></button>
     <button class="tab" data-tab="packs">Packs<small id="tab-packs-sub">—</small></button>
     <button class="tab" data-tab="club">Dream Club<small id="tab-club-sub">—</small></button>
+    <button class="tab" data-tab="pass">Season Pass<small id="tab-pass-sub">—</small></button>
   </nav>
 
   <div id="panes">
@@ -495,6 +512,50 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
     </div>
   </section>
 
+  <!-- ================= SEASON PASS ================= -->
+  <section class="pane pane--pass" id="pane-pass">
+    <div class="duo">
+      <div class="dls-panel card">
+        <div class="card__lab">What the track is worth</div>
+        <div class="card__big" id="pass-worth">&mdash;</div>
+        <div class="card__sub" id="pass-worth-sub"></div>
+      </div>
+      <div class="dls-panel card">
+        <div class="card__lab">What the dearer one adds</div>
+        <div class="card__big card__big--words" id="pass-gate">&mdash;</div>
+        <div class="card__sub" id="pass-gate-sub"></div>
+      </div>
+    </div>
+
+    <div class="dls-panel">
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Tier</th><th>Season pass &mdash; pick one</th>
+            <th>Worth to you</th><th>Free pass</th>
+          </tr></thead>
+          <tbody id="pass-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dls-panel block block--how">
+      <h2>Extra daily and weekly challenges</h2>
+      <ul id="pass-extras"></ul>
+    </div>
+
+    <div class="duo">
+      <div class="dls-panel block block--how">
+        <h2>How the pass is scored</h2>
+        <ul id="pass-how"></ul>
+      </div>
+      <div class="dls-panel block block--gaps">
+        <h2>Check these before trusting a row</h2>
+        <ul id="pass-gaps"></ul>
+      </div>
+    </div>
+  </section>
+
   </div><!-- /#panes -->
 
   <p class="note" id="foot"></p>
@@ -505,6 +566,7 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
 <script src="data/coaches.js"></script>
 <script src="data/store.js"></script>
 <script src="data/dreamclub.js"></script>
+<script src="data/seasonpass.js"></script>
 <script src="assets/shell.js" defer></script>
 <script>
 /* Every figure on this page is derived from data/store.js — no rate, ranking
@@ -780,6 +842,90 @@ function scoreClub(t) {
   };
 }
 
+/* --- Season Pass scoring -------------------------------------------------- */
+
+/* A Dream Point Boost is a percentage on what you earn, not a quantity of
+   anything, so there is no amount to convert. Same reason packs.js leaves
+   Champions Arena unscored: an income change is not a bag of goods. */
+function pricePassItem(it) {
+  if (it.kind === 'boost') {
+    return { cad: null,
+             label: it.rarity + ' ' + it.of + ' Boost +' + it.pct + '%',
+             why: 'A multiplier on what you earn, not a quantity — nothing to price.' };
+  }
+  var p = priceItem(it);
+  /* priceItem hands back the note but not the flag, and the flag is the point:
+     the Legendary Agent is the single largest line in this track's total and
+     packs.js says outright that its price does not reconcile. Dropping that on
+     the floor would let a quarter of the headline rest on a figure the site
+     itself doubts, with nothing on screen to say so. */
+  if (it.kind === 'item') {
+    var e = ITEM_PRICES[it.key];
+    p.unsure = !!(e && e.sure === false && e.gems != null);
+  }
+  return p;
+}
+
+/* Two tiers are the same tier if they offer the same pair of things. Built from
+   the data rather than eyeballed, because the repeats are easy to miss reading
+   a track sideways and they are the reason a fifth Legendary Form Boost should
+   not be counted like the first. */
+function passTierSig(t) {
+  return t.paid.map(function (i) {
+    /* Quantity is part of the identity. Without it a tier offering one coach
+       and a tier offering two would sign identically and the second would be
+       badged a repeat of the first. Nothing on today's track has n > 1, which
+       is exactly why it would go unnoticed. */
+    return i.kind + ':' + (i.key || (i.type ? i.rarity + ' ' + i.type
+         : i.of ? i.rarity + ' ' + i.of + i.pct : '')) + ':' + (i.n == null ? '' : i.n);
+  }).slice().sort().join(' | ');
+}
+
+/* The track is 21 independent prizes, each a choose-one. Two things follow that
+   no other tab needs:
+
+     - value is a MAX inside a tier and a SUM across tiers, so the track is
+       worth much less than the sum of everything printed on it;
+     - a tier whose items have no price is SKIPPED, not fatal. Every skipped
+       tier can only push the true figure up, so what comes out is a floor, and
+       the page says floor everywhere it says the number.
+
+   That is the opposite of scorePack's never-partly-scored rule, and it is only
+   legitimate because these parts really are separable: a pack is one purchase
+   and half its contents is not a verdict, while 15 priced tiers out of 21 is a
+   genuine lower bound on the whole. */
+function scorePassTrack(track) {
+  var seen = {};
+  var rows = track.map(function (t) {
+    var sig = passTierSig(t);
+    var sameAs = Object.prototype.hasOwnProperty.call(seen, sig) ? seen[sig] : null;
+    if (sameAs === null) seen[sig] = t.tier;
+
+    var opts = t.paid.map(pricePassItem);
+    var priced = opts.filter(function (o) { return Number.isFinite(o.cad); });
+    var best = priced.length
+      ? priced.reduce(function (a, b) { return b.cad > a.cad ? b : a; })
+      : null;
+    /* Three of these tiers offer two things that cost exactly the same. Marking
+       only the first as "the pick" would read as though it were the better one,
+       so ties are flagged and both sides get the mark. */
+    var tied = best && priced.filter(function (o) { return o.cad === best.cad; }).length > 1;
+    return {
+      tier: t.tier, opts: opts, best: best, sameAs: sameAs, tied: !!tied,
+      partial: priced.length === 1 && opts.length > 1,
+      free: pricePassItem(t.free)
+    };
+  });
+  return {
+    rows: rows,
+    floor: rows.reduce(function (a, r) { return a + (r.best ? r.best.cad : 0); }, 0),
+    scored: rows.filter(function (r) { return r.best; }).length,
+    blank: rows.filter(function (r) { return !r.best; }).length,
+    partial: rows.filter(function (r) { return r.partial; }).length,
+    repeats: rows.filter(function (r) { return r.sameAs !== null; }).length
+  };
+}
+
 /* --- Boot ----------------------------------------------------------------- */
 
 (function () {
@@ -1051,6 +1197,190 @@ function scoreClub(t) {
   document.getElementById('club-gaps').innerHTML =
     clubGaps.map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
+  /* --- Season Pass pane --- */
+
+  /* An item key with no ITEM_PRICES entry prices as null — exactly what a typo
+     does. The ones we know about are declared in seasonpass.js; anything else is
+     a mistake and should not pass silently. */
+  PASS_TRACK.forEach(function (t) {
+    t.paid.concat([t.free]).forEach(function (i) {
+      if (i.kind === 'item' && !(i.key in ITEM_PRICES)
+          && PASS_KEYS_NOT_IN_PACKS.indexOf(i.key) === -1) {
+        console.warn('seasonpass.js tier ' + t.tier + ': item key "' + i.key + '" is in neither '
+          + 'ITEM_PRICES nor PASS_KEYS_NOT_IN_PACKS — it renders as unpriced. Check for a typo.');
+      }
+    });
+  });
+
+  var pass = scorePassTrack(PASS_TRACK);
+  var cheapEd = PASS_EDITIONS.filter(function (e) { return e.gated; })[0] || PASS_EDITIONS[0];
+  var dearEd  = PASS_EDITIONS.filter(function (e) { return !e.gated; })[0];
+
+  document.getElementById('tab-pass-sub').textContent = PASS_TRACK.length + ' tiers';
+
+  document.getElementById('pass-worth').innerHTML =
+    '&ge;&thinsp;' + Math.round(pass.floor / cheapEd.price * 100)
+    + '%<small> of the ' + money(cheapEd.price) + ' pass</small>';
+  document.getElementById('pass-worth-sub').innerHTML =
+    'The better option at each of the <b>' + pass.scored + ' tiers</b> this site can price comes to '
+    + money(pass.floor) + '. A <b>floor, not a total</b>: ' + pass.blank + ' more tiers offer two '
+    + 'items with no price yet and count as nothing at all.'
+    + (dearEd ? ' Against the ' + money(dearEd.price) + ' edition, which carries the same track, that is '
+              + Math.round(pass.floor / dearEd.price * 100) + '%.' : '');
+
+  /* 21 tiers with a gate between them is 20 gaps, not 21 — and that one-off is
+     the whole finding: at 20 the last tier lands exactly on the season's final
+     hour, at 21 it would land after the season is over. */
+  var gaps = PASS_TRACK.length - 1;
+  var gateDays = gaps * PASS_GATE_HOURS / 24;
+  var slack = PASS_SEASON_DAYS - gateDays;
+
+  document.getElementById('pass-gate').textContent = 'Nothing you can hold';
+  document.getElementById('pass-gate-sub').innerHTML =
+    dearEd
+      ? money(dearEd.price) + ' hands over the same ' + PASS_TRACK.length + ' prizes as '
+        + money(cheapEd.price) + '. What the extra ' + money(dearEd.price - cheapEd.price)
+        + ' removes is the <b>' + PASS_GATE_HOURS + '-hour gate</b> between tiers &mdash; and that gate is '
+        + 'tighter than it looks: ' + gaps + ' gaps at ' + PASS_GATE_HOURS + ' hours is <b>'
+        + gateDays + ' days</b> against a ' + PASS_SEASON_DAYS + '-day season, '
+        + (slack > 0 ? slack + ' days to spare'
+         : slack === 0 ? '<b>not one hour to spare</b>. Start on day two and the tail of the track is '
+                       + 'out of reach at any amount of play'
+         : '<b>' + Math.abs(slack) + ' days too long</b>')
+        + (dearEd.perks && dearEd.perks.length
+             /* Comma, not "and": the first perk already contains one. */
+             ? '. Plus ' + dearEd.perks.join(', ') + '.' : '.')
+        /* The headline says "nothing you can hold", which stays true of a
+           multiplier — but the store screen prints the XP, SP, DP and coin
+           boosts inside its PREMIUM column, and a reader deciding on the
+           strength of this card deserves that here, not only in the gaps
+           list two screens down. */
+        + ' <b>One thing is unsettled:</b> the store screen prints the XP, SP, DP and coin '
+        + 'boosts inside its premium column. If those are premium-only, the ' + money(dearEd.price - cheapEd.price)
+        + ' buys more than time &mdash; and nobody has confirmed which.'
+      : 'Only one edition is on file.';
+
+  document.getElementById('pass-rows').innerHTML = pass.rows.map(function (r) {
+    var opts = r.opts.map(function (o) {
+      /* By value, not identity — a tie has two winners. */
+      var isPick = r.best && Number.isFinite(o.cad) && o.cad === r.best.cad;
+      var price = Number.isFinite(o.cad) ? '<s> &middot; ' + money(o.cad) + '</s>'
+                                         : '<s> &middot; no price</s>';
+      /* Same dashed amber the Packs tab uses for a fact it inferred rather than
+         read — here it marks a PRICE the site is unsure of, not a content. */
+      var name = o.unsure
+        ? '<u title="' + (o.why || 'This price is not confirmed.') + '">' + o.label + '</u>'
+        : o.label;
+      return '<div>' + (isPick ? '<b class="pick">' : '<b>') + name + '</b>' + price + '</div>';
+    }).join('');
+
+    var worth = r.best
+      ? '<span class="worth">' + money(r.best.cad)
+        + '<small>' + (r.tied ? 'either &mdash; same price'
+                     : r.partial ? 'other option unpriced'
+                     : 'better of the two') + '</small></span>'
+      : '<span class="unk">can&rsquo;t price</span>';
+
+    return '<tr>'
+      + '<td><span class="name">Tier ' + r.tier + '</span>'
+      + (r.sameAs !== null ? '<span class="badge">same as tier ' + r.sameAs + '</span>' : '')
+      + '</td>'
+      + '<td class="contents">' + opts + '</td>'
+      + '<td>' + worth + '</td>'
+      + '<td><span class="free-cell">' + r.free.label + '</span></td>'
+      + '</tr>';
+  }).join('');
+
+  /* Rates, not a bundle: what the extra challenges are worth depends on how much
+     you play, so they are quoted per week and per day and never folded into the
+     headline above. */
+  var wkCad = PASS_EXTRAS.weeklyGems / GEM_RATE;
+  var dayCad = PASS_EXTRAS.dailyGemsMax / GEM_RATE;
+  var ladderWeek = PASS_EXTRAS.dailyLadder.reduce(function (a, b) { return a + b; }, 0);
+
+  document.getElementById('pass-extras').innerHTML = [
+    'Activating the pass unlocks a second set of daily and weekly challenges. The weekly pair is '
+      + 'worth <b>' + PASS_EXTRAS.weeklyGems + ' gems</b> a week &mdash; ' + money(wkCad) + ' &mdash; and the '
+      + 'dailies top out at <b>' + PASS_EXTRAS.dailyGemsMax + ' gems</b> on a day you clear everything, '
+      + money(dayCad) + '.',
+    'The daily figure is a <b>best day, not an average</b>. Its completion ladder climbs across the '
+      + 'week (' + PASS_EXTRAS.dailyLadder.join(', ') + ' gems), so a full week of clearing every day '
+      + 'is ' + num(ladderWeek) + ' gems from the ladder alone.',
+    'These are deliberately <b>left out of the figure above</b>. They are a rate, not a bundle: they '
+      + 'are worth whatever your playing habit makes them, and the track already clears the price '
+      + 'several times over without them.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  var skipGems = PASS_SKIP_GEMS * PASS_TRACK.length;
+  var skipCad = skipGems / GEM_RATE;
+  /* Signed, and tested. "Agrees" was a hardcoded word over a number nothing
+     compared to anything: price one of the missing items and the floor can
+     overshoot the skip price while the sentence still claimed agreement. */
+  var skipDelta = pass.floor - skipCad;
+  var skipGap = Math.round(Math.abs(skipDelta) / skipCad * 100);
+  var skipClose = skipGap <= 15;
+
+  var scoringRepeats = pass.rows.filter(function (r) { return r.sameAs !== null && r.best; });
+  var repeatCad = scoringRepeats.reduce(function (a, r) { return a + r.best.cad; }, 0);
+
+  var unsurePicks = pass.rows.filter(function (r) { return r.best && r.best.unsure; });
+  var unsureCad = unsurePicks.reduce(function (a, r) { return a + r.best.cad; }, 0);
+
+  document.getElementById('pass-how').innerHTML = [
+    '<b>Only the paid row counts.</b> The free row arrives whether or not you pay, so crediting the '
+      + 'purchase with it would price rewards the money did not buy. It is listed for context and '
+      + 'never enters a total.',
+    'Every tier is a <b>choose one of two</b>, so a tier is worth the better option and not both. '
+      + 'The track is worth considerably less than the sum of what is printed on it.',
+    '<b>The number is a floor.</b> ' + pass.blank + ' of ' + PASS_TRACK.length + ' tiers offer two items '
+      + 'this site has never priced &mdash; scouts, physios, form boosts &mdash; and Dream Point Boosts are a '
+      + 'percentage rather than a quantity, so they cannot be priced at all. Those tiers count as zero, '
+      + 'and ' + pass.partial + ' more are scored on their priced option even where you would probably '
+      + 'take the other. Every missing price can only push the figure up.',
+    '<b>A second route lands ' + (skipClose ? 'close' : 'a long way off') + '.</b> The game sells a '
+      + 'skipped tier for ' + PASS_SKIP_GEMS + ' gems, so it prices the full ' + PASS_TRACK.length
+      + '-tier track at ' + num(skipGems) + ' gems &mdash; ' + money(skipCad) + '. The floor built from the '
+      + 'contents lands ' + skipGap + '% ' + (skipDelta < 0 ? 'below' : 'above') + ' it. '
+      + '<b>Treat that as a sanity check, not a confirmation</b>: the skip price is what the publisher '
+      + 'charges for not waiting, which is a price on time rather than on prizes, and the two sit close '
+      + 'partly because the floor is incomplete. Price the missing items and they move apart.',
+    '<b>' + pass.repeats + ' of ' + PASS_TRACK.length + ' tiers repeat another tier exactly.</b> '
+      + (scoringRepeats.length
+          ? 'Only ' + scoringRepeats.length + ' of them carries a price at all &mdash; '
+            + money(repeatCad) + ', ' + Math.round(repeatCad / pass.floor * 100) + '% of the total &mdash; '
+            + 'and it is counted in full: tier ' + scoringRepeats[0].tier + ' offers the same pair as tier '
+            + scoringRepeats[0].sameAs + ', and a second identical coach is not worth what the first was. '
+            + 'The other ' + (pass.repeats - scoringRepeats.length) + ' repeats sit among the tiers with no '
+            + 'price, so they add nothing either way.'
+          : 'None of them carries a price, so the repetition costs the total nothing.'),
+    'Value ignores <b>whether you want the contents</b>. Coaches you have no room for are worth '
+      + 'nothing at any ratio.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  var passGaps = PASS_UNKNOWNS.map(function (u) {
+    var tag = u.direction === 'worse' ? 'would make this worse'
+            : u.direction === 'better' ? 'could only make this better'
+            : 'could go either way';
+    return '<b>' + u.q + '</b> ' + u.why + ' <s>(' + tag + ')</s>';
+  });
+  /* The biggest single line in the total is also the least certain one, and that
+     belongs at the top of this list rather than only in a tooltip. */
+  if (unsurePicks.length) {
+    passGaps.unshift('<b>' + money(unsureCad) + ' of the total &mdash; '
+      + Math.round(unsureCad / pass.floor * 100) + '% &mdash; rests on a price this site is not sure of.</b> '
+      + unsurePicks.map(function (r) { return 'Tier ' + r.tier + ', ' + r.best.label; }).join('; ')
+      + '. ' + (unsurePicks[0].best.why || '')
+      + ' It carries a dashed underline in the table. <s>(could go either way)</s>');
+  }
+  if (STORE_CHECKED !== PASS_CHECKED) {
+    passGaps.unshift('<b>Two dates are in play.</b> The track was read ' + PASS_CHECKED
+      + ', but every figure converts through gem and coin tiers read off the store ' + STORE_CHECKED
+      + '. The track itself does not go stale &mdash; the prizes repeat every season &mdash; but the prices it '
+      + 'is measured against do.');
+  }
+  document.getElementById('pass-gaps').innerHTML =
+    passGaps.map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
   /* --- Per-tab header rule and footnote --- */
 
   /* Each tab quotes its OWN data file's checked date. They happen to match today,
@@ -1064,7 +1394,7 @@ function scoreClub(t) {
     + 'apply to anyone — unlike <b>coach prices</b>, which are discounted per account and live on '
     + 'their own page. At the best rate on each side, <b>1 gem costs about '
     + (coins.best / gems.best).toFixed(1) + ' coins</b> of real money. '
-    + 'Scouts, agents and the season pass are not built yet.';
+    + 'Scouts and agents are not built yet.';
   var packFoot =
     'Verdicts compare a pack against buying the same things yourself at your own prices — not against '
     + 'the store’s own “3× value” badges, which are measured against something the store does not explain.';
@@ -1079,7 +1409,17 @@ function scoreClub(t) {
     + 'term is profit no matter how many days you miss.';
 
   TAB_TEXT.packs = { rule: packRule,  foot: packFoot,  title: 'Packs · Store · DLS' };
+  var passRule = 'Prices in ' + PASS_CURRENCY + ' · track read off the pass ' + PASS_CHECKED
+               + ' · the prizes repeat every season';
+  var passFoot =
+    'A pass is not a bundle: it is a track you have to walk. The figure above assumes you reach the '
+    + 'last tier. On Francisco\u2019s figures &mdash; ' + PASS_SP.perMatch + ' season points a match against '
+    + PASS_SP.perTier + ' a tier &mdash; that is ' + Math.ceil(PASS_SP.perTier / PASS_SP.perMatch)
+    + ' matches a tier, so the thing that actually decides whether you get it all is <b>when you buy</b>, '
+    + 'not how much you play.';
+
   TAB_TEXT.club  = { rule: clubRule,  foot: clubFoot,  title: 'Dream Club · Store · DLS' };
+  TAB_TEXT.pass  = { rule: passRule,  foot: passFoot,  title: 'Season Pass · Store · DLS' };
 
   showTab(location.hash.slice(1) || DEFAULT_TAB);
 })();
