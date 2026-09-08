@@ -78,7 +78,23 @@ const PASS_PREFERENCE = {
   why: 'Both can be farmed, but gems arrive about an order of magnitude slower, '
      + 'and coins are the one thing this account is not short of.',
   goal: 'Gems go to gold agents and Special coaches — finishing special players, '
-      + 'and banking for the next special-player event.'
+      + 'and banking for the next special-player event.',
+
+  /* Items worth NOTHING to this account whatever they cost — which is a
+     different claim from "unpriced", and has to be, because these are among the
+     dearest things the site prices. Held as data so the list can grow without
+     anyone editing the renderer, and so the page can show both totals rather
+     than quietly picking one.
+
+     Deliberately NOT in this list: core coaches. A maxed squad has no use for
+     another keeper coach either, but Francisco's call was to leave the price
+     ranking alone there — the tier is worth a couple of dollars and the ranking
+     is right for anyone still building. Scouts are two orders of magnitude more
+     of the total, which is what earns them the exception. */
+  worthless: ['Scout Common', 'Scout Rare', 'Scout Legendary'],
+  worthlessWhy: 'A scout surfaces two random players you can then sign with coins '
+              + 'at a discount — worth exactly nothing to a squad that already has '
+              + 'the players it wants.'
 };
 
 /* Keys the track uses that packs.js has no ITEM_PRICES entry for at all. An

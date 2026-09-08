@@ -571,6 +571,11 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
     </div>
 
     <details class="dls-panel block block--gaps">
+      <summary>By your own picks</summary>
+      <ul id="pass-mine"></ul>
+    </details>
+
+    <details class="dls-panel block block--gaps">
       <summary>Coins or gems &mdash; the one choice this page will not make for you</summary>
       <ul id="pass-fork"></ul>
     </details>
@@ -938,6 +943,13 @@ function passTierSig(t) {
    legitimate because these parts really are separable: a pack is one purchase
    and half its contents is not a verdict, while 15 priced tiers out of 21 is a
    genuine lower bound on the whole. */
+/* Worth nothing to this account whatever it costs — the list lives in
+   seasonpass.js, not here, so adding to it never means editing the engine. */
+function passWorthless(it) {
+  return it.kind === 'item'
+      && PASS_PREFERENCE.worthless.indexOf(it.key) > -1;
+}
+
 function scorePassTrack(track) {
   var seen = {};
   var rows = track.map(function (t) {
@@ -945,7 +957,9 @@ function scorePassTrack(track) {
     var sameAs = Object.prototype.hasOwnProperty.call(seen, sig) ? seen[sig] : null;
     if (sameAs === null) seen[sig] = t.tier;
 
-    var opts = t.paid.map(pricePassItem);
+    /* Carry the raw item on each priced option: the owner-preference pass below
+       has to ask what a thing IS, not what its label says. */
+    var opts = t.paid.map(function (i) { var o = pricePassItem(i); o.item = i; return o; });
     var priced = opts.filter(function (o) { return Number.isFinite(o.cad); });
     var best = priced.length
       ? priced.reduce(function (a, b) { return b.cad > a.cad ? b : a; })
@@ -963,8 +977,18 @@ function scorePassTrack(track) {
     var ci = t.paid.filter(function (i) { return i.kind === 'coins'; })[0];
     var fork = (gi && ci) ? { gems: gi.n, coins: ci.n, rate: ci.n / gi.n } : null;
 
+    /* What THIS account would take, which is not always what costs most:
+       skip anything on the worthless list, and answer a fork with gems. */
+    var usable = priced.filter(function (o) { return !passWorthless(o.item); });
+    var mine = null;
+    if (usable.length) {
+      var g = fork ? usable.filter(function (o) { return o.item.kind === 'gems'; })[0] : null;
+      mine = g || usable.reduce(function (a, b) { return b.cad > a.cad ? b : a; });
+    }
+
     return {
-      tier: t.tier, opts: opts, best: best, sameAs: sameAs, tied: !!tied, fork: fork,
+      tier: t.tier, opts: opts, best: best, mine: mine, sameAs: sameAs,
+      tied: !!tied, fork: fork,
       partial: priced.length === 1 && opts.length > 1,
       free: pricePassItem(t.free)
     };
@@ -981,6 +1005,8 @@ function scorePassTrack(track) {
     rows: rows,
     forks: rows.filter(function (r) { return r.fork; }),
     gemsFirstFloor: gemsFirst,
+    ownerFloor: rows.reduce(function (a, r) { return a + (r.mine ? r.mine.cad : 0); }, 0),
+    diverge: rows.filter(function (r) { return r.best && r.mine !== r.best; }),
     floor: rows.reduce(function (a, r) { return a + (r.best ? r.best.cad : 0); }, 0),
     scored: rows.filter(function (r) { return r.best; }).length,
     blank: rows.filter(function (r) { return !r.best; }).length,
@@ -1290,7 +1316,13 @@ function scorePassTrack(track) {
     + money(pass.floor) + '. A <b>floor, not a total</b>: ' + pass.blank + ' more tiers offer two '
     + 'items with no price yet and count as nothing at all.'
     + (dearEd ? ' Against the ' + money(dearEd.price) + ' edition, which carries the same track, that is '
-              + Math.round(pass.floor / dearEd.price * 100) + '%.' : '');
+              + Math.round(pass.floor / dearEd.price * 100) + '%.' : '')
+    /* The headline is the site's method. It is not the number that applies to
+       this account, and burying that difference in a panel nobody opens would
+       be the same failure as an unmarked fork. */
+    + (pass.diverge.length
+        ? ' <b>By your own picks it is ' + Math.round(pass.ownerFloor / cheapEd.price * 100)
+          + '%</b> &mdash; see below.' : '');
 
   /* 21 tiers with a gate between them is 20 gaps, not 21 — and that one-off is
      the whole finding: at 20 the last tier lands exactly on the season's final
@@ -1359,6 +1391,43 @@ function scorePassTrack(track) {
       + '<td><span class="free-cell">' + r.free.label + '</span></td>'
       + '</tr>';
   }).join('');
+
+  /* --- By your own picks --- */
+
+  var ownerPct = Math.round(pass.ownerFloor / cheapEd.price * 100);
+  var lostToPrefs = pass.floor - pass.ownerFloor;
+
+  document.getElementById('pass-mine').innerHTML = (pass.diverge.length ? [
+    'The figure at the top of this page is what the track costs to replace at store '
+      + 'prices. <b>It is not what the track is worth to you.</b> Applying the two things '
+      + 'you have actually said &mdash; take gems at a fork, and a scout is worth nothing to a '
+      + 'squad that already has its players &mdash; the same ' + PASS_TRACK.length + ' tiers come to '
+      + '<b>' + money(pass.ownerFloor) + ', ' + ownerPct + '% of ' + money(cheapEd.price) + '</b>, '
+      + 'against ' + money(pass.floor) + ' and ' + Math.round(pass.floor / cheapEd.price * 100) + '%. '
+      + 'A difference of ' + money(lostToPrefs) + ' &mdash; '
+      + Math.round(lostToPrefs / pass.floor * 100) + '% of the headline.',
+
+    '<b>' + pass.diverge.length + ' of ' + PASS_TRACK.length + ' tiers land differently:</b>'
+      + '<br>' + pass.diverge.map(function (r) {
+          var why = passWorthless(r.best.item) ? 'no use for a scout' : 'fork, gems preferred';
+          return '&nbsp;&nbsp;<b>Tier ' + r.tier + '</b> &mdash; ranking takes <b>' + r.best.label
+               + '</b> ' + money(r.best.cad) + ', you take <b>'
+               + (r.mine ? r.mine.label + '</b> ' + money(r.mine.cad) : 'nothing</b>')
+               + ' <s>· ' + why + '</s>';
+        }).join('<br>'),
+
+    '<b>' + PASS_PREFERENCE.worthlessWhy + '</b> That is why four tiers move at once here: '
+      + 'a Legendary Scout is the dearest single item this site prices, and the ranking takes it '
+      + 'every time it is offered.',
+
+    '<b>Neither number is wrong.</b> The ranking answers <em>what would this cost me to buy</em>, '
+      + 'which is the site\u2019s method everywhere and the only reason figures on different tabs are '
+      + 'comparable. This one answers <em>what is it worth to me</em>, which needs facts about the '
+      + 'account that no price list contains. The verdict survives either way &mdash; at '
+      + ownerPct + '% this is still comfortably the best thing on the site &mdash; but the margin is '
+      + 'roughly half what the headline suggests.'
+  ] : ['Nothing on this track turns on a preference: the ranking and your own picks agree at every tier.'])
+    .map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   /* --- Coins or gems --- */
 
