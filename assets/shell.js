@@ -20,6 +20,8 @@
       d: 'M3.5 12.5l9-9h8v8l-9 9zM16.4 7.6h.01' },
     { id: 'coaches', label: 'Coaches', href: 'coaches.html',
       d: 'M12 4l6 15H6zM4 19h16' },
+    { id: 'facilities', label: 'Facilities', href: 'facilities.html',
+      d: 'M3 21h18M5 21V8l7-5 7 5v13M10 21v-5h4v5' },
     { id: 'rewards', label: 'Rewards', href: 'rewards.html',
       d: 'M12 3l2.6 5.7 6.4.7-4.8 4.3 1.4 6.3L12 16.8 6.4 20l1.4-6.3L3 9.4l6.4-.7z' },
     { id: 'ask', label: 'Ask DLS', href: null,

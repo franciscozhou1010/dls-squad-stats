@@ -1,9 +1,10 @@
 /* Coach prices, in gems.
    ==========================================================================
 
-   `base` is the sticker price with no Training Centre discount. Francisco's
-   Training Centre is 5★ = 30% off coaches, so the price he actually pays is
-   derived, never typed in — upgrade the facility and one constant changes.
+   `base` is the sticker price with no Training Centre discount. The discount
+   itself lives in data/facilities.js, which holds the whole five-level ladder
+   and the reader's own setting, so the price shown is derived and never typed.
+   30% is this account's number, not the game's.
 
    Rounding is FLOOR, and Goalkeeping Common is the proof: base 15 at 30% off
    is 10.5 and Francisco reads 10, not 11. The Special prices all divide evenly
@@ -22,11 +23,12 @@
 
    Nothing derived from a non-'shot' row should be presented as fact. */
 
-/* Held as an integer percentage on purpose: base * (1 - 0.30) evaluates to
-   62.99999999999999 for a base of 90, which floors to 62 and contradicts the
-   63 on Francisco's own screen. base * 70 / 100 is exact. */
-const COACH_DISCOUNT_PCT = 30;        // Training Centre 5★
-const COACH_DISCOUNT_SOURCE = 'Training Centre 5★ — read off the facility screen';
+/* COACH_DISCOUNT_PCT used to be a hardcoded 30 here. It moved to
+   data/facilities.js on 2026-09-08 along with the integer-arithmetic rule that
+   guarded it — base * (1 - 0.30) evaluates to 62.99999999999999 for a base of
+   90, which floors to 62 and contradicts the 63 on screen, so the discount is
+   applied as base * (100 - pct) / 100 and floored. Use facilityNet(base,
+   'coach'). */
 
 const COACHES = [
   /* Special coaches — the price line verified on Francisco's own account.

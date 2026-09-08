@@ -389,6 +389,7 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
     <p class="eyebrow">// Store</p>
     <h1>Prices</h1>
     <p class="rule" id="head-rule">—</p>
+    <div id="fac-bar"></div>
   </header>
 
   <nav class="tabs" id="tabs">
@@ -605,6 +606,7 @@ tr.is-trap td { background: rgba(244, 114, 182, .045); }
 
 <script src="data/packs.js"></script>
 <script src="data/coaches.js"></script>
+<script src="data/facilities.js"></script>
 <script src="data/store.js"></script>
 <script src="data/dreamclub.js"></script>
 <script src="data/seasonpass.js"></script>
@@ -796,7 +798,7 @@ function renderSolve(outId, packs, amountOf, target, have, unit, single) {
    own prices: coaches from data/coaches.js through your Training Centre discount,
    gems and coins through the best tier above. */
 function coachPrice(base) {
-  return base == null ? null : Math.floor(base * (100 - COACH_DISCOUNT_PCT) / 100);
+  return facilityNet(base, 'coach');
 }
 
 /* Every item resolves to a CAD figure or to null. One null anywhere and the
@@ -818,10 +820,11 @@ function priceItem(it) {
     };
   }
   var p = ITEM_PRICES[it.key] || {};
+  var gems = itemGems(it.key);
   return {
-    cad: p.gems == null ? null : it.n * p.gems / GEM_RATE,
+    cad: gems == null ? null : it.n * gems / GEM_RATE,
     label: it.n + ' × ' + it.key,
-    each: p.gems,
+    each: gems,
     why: p.note
   };
 }
@@ -895,12 +898,14 @@ function pricePassItem(it) {
      the boost ITSELF is sold for gems, and this site prices an item by what it
      would cost to buy separately. */
   if (it.kind === 'boost') {
-    var b = ITEM_PRICES[it.of + ' Boost ' + it.rarity] || {};
-    return { cad: b.gems == null ? null : b.gems / GEM_RATE,
+    var bk = it.of + ' Boost ' + it.rarity;
+    var b = ITEM_PRICES[bk] || {};
+    var bg = itemGems(bk);
+    return { cad: bg == null ? null : bg / GEM_RATE,
              label: it.rarity + ' ' + it.of + ' Boost +' + it.pct + '%',
-             each: b.gems,
+             each: bg,
              why: b.note,
-             unsure: b.sure === false && b.gems != null };
+             unsure: b.sure === false && bg != null };
   }
   var p = priceItem(it);
   /* priceItem hands back the note but not the flag, and the flag is the point:
@@ -910,7 +915,7 @@ function pricePassItem(it) {
      itself doubts, with nothing on screen to say so. */
   if (it.kind === 'item') {
     var e = ITEM_PRICES[it.key];
-    p.unsure = !!(e && e.sure === false && e.gems != null);
+    p.unsure = !!(e && e.sure === false && itemGems(it.key) != null);
   }
   return p;
 }
@@ -1143,7 +1148,7 @@ function scorePassTrack(track) {
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   var unsurePacks = scored.filter(function (r) { return r.s.unsure; }).length;
-  var unpriced = Object.keys(ITEM_PRICES).filter(function (k) { return ITEM_PRICES[k].gems == null; });
+  var unpriced = Object.keys(ITEM_PRICES).filter(function (k) { return ITEM_PRICES[k].base == null; });
 
   document.getElementById('pack-gaps').innerHTML = [
     '<b>Contents are read off icon colours</b>, and colour is what encodes rarity — silver Common, '
@@ -1152,8 +1157,9 @@ function scorePassTrack(track) {
       + 'Tapping the ⓘ on a pack in game gives the exact list.',
     '<b>' + unpriced.length + ' item prices are missing</b>: ' + unpriced.join(', ')
       + '. Every pack containing one of them is unscored.',
-    '<b>Legendary Agent is guessed at 356 gems</b> and does not reconcile — agents get 5% off, so 356 '
-      + 'implies a base near 375 rather than the 480 you estimated. Two packs lean on it.',
+    '<b>Legendary Agent rests on a base of 375 gems</b>, which you confirmed rather than read off a '
+      + 'screen. It does now reconcile exactly — 375 less the 5% agent discount is 356.25, floored to '
+      + '356, and 375 is the only base that lands there. Two packs lean on it, so it stays flagged.',
     'Champions Arena is not scored at all: it changes stadium income, so its payback is measured in '
       + 'matches played, not in gems.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
@@ -1631,6 +1637,11 @@ function scorePassTrack(track) {
     if (!tag) { tag = document.createElement('span'); tag.className = 'block__n'; sum.appendChild(tag); }
     tag.textContent = n ? '(' + n + ')' : '';
   });
+
+  /* Whose prices these are. Coaches, scouts, agents and physios all resolve
+     through a facility discount, so the page has to say which levels it used. */
+  var facBar = document.getElementById('fac-bar');
+  if (facBar) facBar.innerHTML = facilityBannerHTML();
 
   showTab(location.hash.slice(1) || DEFAULT_TAB);
 })();

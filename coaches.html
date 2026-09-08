@@ -167,6 +167,7 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
     <p class="eyebrow">// Coaches</p>
     <h1>Coaches</h1>
     <p class="rule" id="head-rule">—</p>
+    <div id="fac-bar"></div>
   </header>
 
   <div class="duo">
@@ -209,6 +210,7 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
 
 </div>
 
+<script src="data/facilities.js"></script>
 <script src="data/coaches.js"></script>
 <script src="data/store.js"></script>
 <script src="data/players.js"></script>
@@ -223,8 +225,11 @@ tbody tr:hover td { background: rgba(167, 139, 250, .05); }
 var money = function (n) { return 'C$' + n.toFixed(2); };
 var num = function (n) { return n.toLocaleString('en-CA'); };
 
+/* Discounted at the reader's own Training Centre level — see data/facilities.js.
+   Defaults to Francisco's 5-star, which is what every dated figure in the notes
+   was computed at. */
 function coachPrice(base) {
-  return base == null ? null : Math.floor(base * (100 - COACH_DISCOUNT_PCT) / 100);
+  return facilityNet(base, 'coach');
 }
 
 /* Best value is judged inside each coach line, not across the whole table:
@@ -244,7 +249,11 @@ function bestPerType() {
   var best = bestPerType();
 
   document.getElementById('head-rule').textContent =
-    'Gem prices · your Training Centre discount applied · CAD at ' + gemRate.toFixed(1) + ' gems per C$1';
+    'Gem prices · Training Centre ' + facilityLevelLabel(facilityFor('coach').facility, facilityLevels().training)
+    + ' applied · CAD at ' + gemRate.toFixed(1) + ' gems per C$1';
+
+  var facBar = document.getElementById('fac-bar');
+  if (facBar) facBar.innerHTML = facilityBannerHTML();
 
   /* --- table --- */
   var lastType = null;
@@ -274,9 +283,13 @@ function bestPerType() {
   }).join('');
 
   /* --- headline cards --- */
+  var coachPct = facilityDiscountPct('coach');
   document.getElementById('disc').innerHTML =
-    COACH_DISCOUNT_PCT + '%<small> off every coach</small>';
-  document.getElementById('disc-sub').textContent = COACH_DISCOUNT_SOURCE + '.';
+    coachPct + '%<small> off every coach</small>';
+  document.getElementById('disc-sub').textContent =
+    'Training Centre ' + facilityLevelLabel(facilityFor('coach').facility, facilityLevels().training)
+    + '. The ladder runs 5 / 10 / 15 / 20 / 30% — the last star is worth double the others. '
+    + 'Set your own level on the Facilities page.';
 
   /* Which cards each coach line can be used on at all. Mapping card type to
      the split is an inference: "standard" is the regular card type in the

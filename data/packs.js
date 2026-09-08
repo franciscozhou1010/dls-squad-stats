@@ -23,44 +23,63 @@ const PACK_CURRENCY = 'CAD';
 const PACK_CHECKED = '2026-08-30';
 
 /* Gem prices for pack contents that are not coaches. Coaches resolve against
-   data/coaches.js instead, so they never have to be restated here. */
-const ITEM_PRICES = {
-  'Agent Common':      { gems: 38,   sure: true,
-                         note: 'Read off the Agents screen: 38 with 40 struck through, 5% facility discount.' },
-  'Agent Rare':        { gems: null, sure: false, note: 'Hidden behind the USE button in the screenshot.' },
-  'Agent Legendary':   { gems: 356,  sure: false,
-                         note: 'Francisco recalls 356. Does not reconcile: agents get 5% off, so 356 implies a base near 375, not the 480 he guessed.' },
-  /* Scouts, from Francisco 2026-09-04: base 75 / 250 / 650, and the scout
-     facility tops out at 15% off. Stored net like every other row here, with the
-     base kept in the note so the arithmetic can be rechecked. Flooring follows
-     the rule coaches.js settled — 250 x 0.85 and 650 x 0.85 both land on .5, and
-     the game rounds those down (15 x 0.70 = 10.5 shows as 10). */
-  'Scout Common':      { gems: 63,  sure: true,
-                         note: 'Base 75, less the 15% scout-facility discount.' },
-  'Scout Rare':        { gems: 212, sure: true,
-                         note: 'Base 250, less 15%. 212.5 floored, per the coaches.js rounding rule.' },
-  'Scout Legendary':   { gems: 552, sure: true,
-                         note: 'Base 650, less 15%. 552.5 floored. The dearest single item on this site.' },
-  'Physio Rare':       { gems: null, sure: false, note: 'Not collected.' },
-  'Physio Legendary':  { gems: null, sure: false, note: 'Not collected.' },
-  'Form Boost Common': { gems: null, sure: false, note: 'Not collected.' },
-  'Form Boost Rare':   { gems: null, sure: false, note: 'Not collected.' },
-  'Form Boost Legendary': { gems: null, sure: false, note: 'Not collected.' },
+   data/coaches.js instead, so they never have to be restated here.
 
-  /* Dream Point Boosts, from Francisco 2026-09-04. These were previously treated
-     as unpriceable on the grounds that a percentage multiplier is not a quantity
-     of anything — which was wrong. What the boost DOES is a multiplier, but the
-     boost ITSELF is an item the store sells for gems, and this whole site prices
-     an item by what it would cost you to buy separately. Whether these figures
-     are before or after a facility discount was not stated; a 15% swing on them
-     moves less than 1% of any total they appear in. */
-  'DP Boost Common':    { gems: 25,  sure: false,
-                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' },
-  'DP Boost Rare':      { gems: 35,  sure: false,
-                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' },
-  'DP Boost Legendary': { gems: 125, sure: false,
-                          note: 'Stated by Francisco. Unclear whether this is the base price or the discounted one.' }
+   Stored as BASE price plus which facility discounts it, never as the net figure
+   — see data/facilities.js. Before 2026-09-08 these were net values with the
+   base kept in a note, which meant every scout and agent price on this site was
+   silently Francisco's rather than the reader's, and no amount of reading the
+   page revealed it. `disc: null` means no facility touches this class. */
+const ITEM_PRICES = {
+  'Agent Common':      { base: 40,  disc: 'agent', sure: true,
+                         note: 'Read off the Agents screen: 38 with 40 struck through, and the card\'s own line reads "5% Facility Discount".' },
+  'Agent Rare':        { base: null, disc: 'agent', sure: false,
+                         note: 'Hidden behind the USE button in the screenshot — this account owns seven.' },
+  'Agent Legendary':   { base: 375, disc: 'agent', sure: false,
+                         note: 'Base confirmed by Francisco 2026-09-08. It reconciles exactly: 375 x 0.95 = 356.25, floored to 356, and 375 is the only integer that lands there. Still his recollection rather than a screen, so it stays flagged.' },
+
+  /* Scout bases recovered 2026-09-08 by running the paid prices backwards
+     through the confirmed 15% Recruitment Centre discount. Each base is forced,
+     not chosen: under floor rounding, 75 is the only integer that lands on 63,
+     250 the only one on 212, 650 the only one on 552. */
+  'Scout Common':      { base: 75,  disc: 'scout', sure: true,
+                         note: 'Base 75. The scout screen prints a separate 10% PLAYER discount — that is what the scout does, not what it costs.' },
+  'Scout Rare':        { base: 250, disc: 'scout', sure: true,
+                         note: 'Base 250. 212.5 floored, per the coaches.js rounding rule.' },
+  'Scout Legendary':   { base: 650, disc: 'scout', sure: true,
+                         note: 'Base 650. 552.5 floored. The dearest single item on this site.' },
+
+  /* Physios carry the deepest facility discount in the game (40% at Medical 5),
+     which is worth knowing before the price is ever captured: read on this
+     account it will be a discounted figure, and the base has to be recovered
+     from it the way the scout bases were. */
+  'Physio Rare':       { base: null, disc: 'physio', sure: false, note: 'Not collected.' },
+  'Physio Legendary':  { base: null, disc: 'physio', sure: false, note: 'Not collected.' },
+
+  'Form Boost Common': { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts, so this price will be universal once it is.' },
+  'Form Boost Rare':   { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts.' },
+  'Form Boost Legendary': { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts.' },
+
+  /* Dream Point Boosts, from Francisco 2026-09-04. These once carried a caveat
+     that nobody knew whether they were quoted before or after a discount.
+     Settled 2026-09-08: no facility discounts a boost, so these ARE the prices,
+     for everybody. They stay flagged only because they are stated rather than
+     read off a screen. */
+  'DP Boost Common':    { base: 25,  disc: null, sure: false,
+                          note: 'Stated by Francisco. Universal — no facility discounts boosts.' },
+  'DP Boost Rare':      { base: 35,  disc: null, sure: false,
+                          note: 'Stated by Francisco. Universal — no facility discounts boosts.' },
+  'DP Boost Legendary': { base: 125, disc: null, sure: false,
+                          note: 'Stated by Francisco. Universal — no facility discounts boosts.' }
 };
+
+/* The gem price of one item at the reader's facility levels. The single place
+   an ITEM_PRICES row turns into a number; nothing else should read `.base`. */
+function itemGems(key, levels) {
+  var p = ITEM_PRICES[key];
+  if (!p) return null;
+  return facilityNet(p.base, p.disc, levels);
+}
 
 /* 5,000 Dream Points sells for either C$9.99 or 500 gems, which pins the
    gem-to-DP rate without needing a separate price list. */

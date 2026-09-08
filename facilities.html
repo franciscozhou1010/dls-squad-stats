@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facilities · DLS</title>
+<meta name="theme-color" content="#04080f">
+
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+:root { color-scheme: dark; --accent: var(--dls-blue); }
+
+/* Blue is this section. Mint means one thing only, here and on the other pages:
+   the reader has set their own levels and is no longer seeing the default. */
+
+.stack { display: grid; gap: 16px; }
+
+/* --- Facility cards ------------------------------------------------------ */
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid > * { min-width: 0; }
+
+.fac { padding: 16px 18px; }
+.fac__top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.fac__name { font-size: 15px; font-weight: 800; letter-spacing: -.2px; }
+.fac__now {
+  margin-left: auto;
+  font-family: var(--dls-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.fac__now.is-zero { color: var(--dls-ink-faint); }
+
+.lvls { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0 2px; }
+.lvl {
+  min-width: 34px;
+  padding: 5px 6px;
+  background: var(--dls-panel-lit);
+  border: 1px solid var(--dls-edge-soft);
+  color: var(--dls-ink-dim);
+  font-family: var(--dls-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.lvl:hover { border-color: var(--dls-edge); color: var(--dls-ink); }
+.lvl.is-on {
+  background: color-mix(in srgb, var(--accent) 22%, var(--dls-panel-lit));
+  border-color: var(--accent);
+  color: var(--dls-ink);
+  font-weight: 700;
+}
+
+.eff { margin-top: 12px; display: grid; gap: 5px; }
+.eff__row { display: flex; gap: 10px; font-size: 12.5px; }
+.eff__lab { color: var(--dls-ink-dim); }
+.eff__val {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--dls-ink);
+  font-weight: 700;
+}
+.eff__val.is-priced { color: var(--dls-amber); }
+
+/* --- The payoff table ---------------------------------------------------- */
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--dls-edge-soft); }
+th {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+  font-weight: 600;
+}
+td.n { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+.was { color: var(--dls-ink-faint); text-decoration: line-through; margin-right: 6px; }
+.now { color: var(--accent); font-weight: 700; }
+.none { color: var(--dls-ink-faint); font-style: italic; }
+
+.block { padding: 0; }
+.block > summary {
+  padding: 13px 18px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.block > ul { margin: 0; padding: 0 20px 16px 36px; display: grid; gap: 9px; }
+.block li { font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
+.block li b { color: var(--dls-ink); }
+
+.panelpad { padding: 16px 18px; }
+.h2 { font-size: 13px; font-weight: 800; letter-spacing: .3px; margin-bottom: 4px; }
+.sub { font-size: 12.5px; line-height: 1.55; color: var(--dls-ink-dim); }
+.note { font-size: 12px; line-height: 1.6; color: var(--dls-ink-faint); }
+
+/* .dls-btn is block/full-width because tile footers need it to be. Here it is a
+   secondary action sitting next to a sentence, so it is pulled back to its own
+   width and given a real disabled look — it spends most of its life disabled. */
+.actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+.actions .dls-btn {
+  display: inline-block;
+  width: auto;
+  flex: 0 0 auto;
+  padding: 8px 15px;
+  font-size: 11.5px;
+  letter-spacing: 1.5px;
+}
+.actions .dls-btn[disabled] {
+  background: var(--dls-edge-soft);
+  color: var(--dls-ink-faint);
+  cursor: default;
+}
+.actions .dls-btn[disabled]:hover { filter: none; box-shadow: none; }
+.actions .note { flex: 1 1 260px; }
+
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-dls-page="facilities" data-dls-skin="hud">
+
+<div class="wrap stack">
+
+  <header class="head">
+    <p class="eyebrow">// Facilities</p>
+    <h1>Facilities</h1>
+    <p class="rule" id="head-rule">—</p>
+  </header>
+
+  <div class="dls-panel panelpad">
+    <div class="h2">Six buildings set six discounts</div>
+    <p class="sub" id="intro"></p>
+    <div class="actions">
+      <button class="dls-btn" id="reset" type="button">Reset to site default</button>
+      <span class="note" id="state"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="facs"></div>
+
+  <div class="dls-panel panelpad">
+    <div class="h2">What your levels do to the prices on this site</div>
+    <p class="sub">Base price is what the game charges with the building unbuilt. Everything
+      else on the site &mdash; pack scores, the season pass floor, coach value per point &mdash;
+      is computed from the right-hand column.</p>
+  </div>
+  <div class="dls-panel">
+    <table>
+      <thead><tr>
+        <th>Item class</th><th>Facility</th><th class="n">Your discount</th>
+        <th class="n">Dearest example</th>
+      </tr></thead>
+      <tbody id="effects"></tbody>
+    </table>
+  </div>
+
+  <details class="dls-panel block">
+    <summary>What no facility touches</summary>
+    <ul id="untouched"></ul>
+  </details>
+
+  <details class="dls-panel block">
+    <summary>How this was read, and what it does not settle</summary>
+    <ul id="gaps"></ul>
+  </details>
+
+  <p class="note" id="foot"></p>
+
+</div>
+
+<script src="data/facilities.js"></script>
+<script src="data/coaches.js"></script>
+<script src="data/packs.js"></script>
+<script src="assets/shell.js" defer></script>
+<script>
+/* Every figure on this page comes out of data/facilities.js. The level buttons
+   write to localStorage and re-render in place; the other pricing pages pick the
+   change up on their next load. */
+
+var num = function (n) { return n.toLocaleString('en-CA'); };
+
+function colValue(f, col, lvl) {
+  return lvl ? col.v[lvl - 1] : null;
+}
+
+function renderFacilities() {
+  var L = facilityLevels();
+
+  document.getElementById('facs').innerHTML = FACILITIES.map(function (f) {
+    var lvl = L[f.id];
+
+    var buttons = '<button class="lvl' + (lvl === 0 ? ' is-on' : '') + '" data-f="' + f.id
+      + '" data-l="0" type="button" title="Not built">&mdash;</button>';
+    for (var i = 1; i <= f.levels; i++) {
+      buttons += '<button class="lvl' + (lvl === i ? ' is-on' : '') + '" data-f="' + f.id
+        + '" data-l="' + i + '" type="button">' + (f.halfStar ? i / 2 : i) + '</button>';
+    }
+
+    var effects = f.cols.map(function (c) {
+      var v = colValue(f, c, lvl);
+      return '<div class="eff__row"><span class="eff__lab">' + c.label + '</span>'
+        + '<span class="eff__val' + (c.discounts ? ' is-priced' : '') + '">'
+        + (v == null ? '—' : v + c.suffix) + '</span></div>';
+    }).join('');
+
+    return '<div class="dls-panel fac">'
+      + '<div class="fac__top"><span class="fac__name">' + f.name + '</span>'
+      + '<span class="fac__now' + (lvl ? '' : ' is-zero') + '">' + facilityLevelLabel(f, lvl) + '</span></div>'
+      + '<div class="lvls">' + buttons + '</div>'
+      + '<div class="eff">' + effects + '</div>'
+      + '</div>';
+  }).join('');
+
+  /* The payoff. Each row names the dearest thing this site prices in that class,
+     so the discount is shown doing something rather than asserted. */
+  var dearestCoach = COACHES.reduce(function (a, c) { return c.base > a.base ? c : a; });
+  var rows = [
+    { kind: 'coach',   name: 'Coaches',
+      egLabel: dearestCoach.rarity + ' ' + dearestCoach.type, egBase: dearestCoach.base },
+    { kind: 'scout',   name: 'Scouts',
+      egLabel: 'Legendary Scout', egBase: ITEM_PRICES['Scout Legendary'].base },
+    { kind: 'agent',   name: 'Agents',
+      egLabel: 'Legendary Agent', egBase: ITEM_PRICES['Agent Legendary'].base },
+    { kind: 'physio',  name: 'Physios',
+      egLabel: 'price never captured', egBase: ITEM_PRICES['Physio Legendary'].base },
+    { kind: 'manager', name: 'Managers', egLabel: 'never captured', egBase: null },
+    { kind: 'lock',    name: 'Locking a player', egLabel: 'never captured', egBase: null },
+    { kind: 'stadium', name: 'Custom stadium', egLabel: 'never captured', egBase: null }
+  ];
+
+  document.getElementById('effects').innerHTML = rows.map(function (r) {
+    var hit = facilityFor(r.kind);
+    var pct = facilityDiscountPct(r.kind, L);
+    var eg;
+    if (r.egBase == null) {
+      eg = '<span class="none">' + r.egLabel + '</span>';
+    } else {
+      var net = facilityNet(r.egBase, r.kind, L);
+      eg = r.egLabel + ' &nbsp;'
+        + (pct ? '<span class="was">' + num(r.egBase) + '</span>' : '')
+        + '<span class="now">' + num(net) + '</span>';
+    }
+    return '<tr><td>' + r.name + '</td>'
+      + '<td>' + hit.facility.name.replace(' Centre', '') + '</td>'
+      + '<td class="n">' + (pct ? pct + '%' : '<span class="none">none</span>') + '</td>'
+      + '<td class="n">' + eg + '</td></tr>';
+  }).join('');
+
+  var mine = facilitiesAreDefault();
+  document.getElementById('state').textContent = mine
+    ? 'Currently showing the site default — one real account’s levels, the ones every dated figure in the notes was computed at.'
+    : 'Showing your levels. Every price on the Coaches and Store pages now uses them.';
+  document.getElementById('reset').disabled = mine;
+}
+
+document.getElementById('facs').addEventListener('click', function (e) {
+  var b = e.target.closest('.lvl');
+  if (!b) return;
+  setFacilityLevel(b.getAttribute('data-f'), parseInt(b.getAttribute('data-l'), 10));
+  renderFacilities();
+});
+
+document.getElementById('reset').addEventListener('click', function () {
+  resetFacilityLevels();
+  renderFacilities();
+});
+
+(function () {
+  document.getElementById('head-rule').textContent =
+    'Read off the facility panels · ' + FACILITY_CHECKED + ' · your settings are kept in this browser only';
+
+  document.getElementById('intro').innerHTML =
+    'A coach, scout, agent or physio price is <b>not one number</b> — it is a base price less '
+    + 'whatever your buildings take off, and the spread runs from 1% to 40%. Until this page existed '
+    + 'the whole site quietly published one account&rsquo;s prices. Set your own levels below and every '
+    + 'figure on the <a href="coaches.html">Coaches</a> and <a href="store.html">Store</a> pages '
+    + 'recomputes.';
+
+  document.getElementById('untouched').innerHTML = [
+    '<b>Form Boosts</b> and <b>Dream Point Boosts</b>. Twelve columns across six panels and not one '
+      + 'of them is a boost discount &mdash; so a boost price is the same for everybody. The Training '
+      + 'Centre moves how long a form boost <i>lasts</i>, never what it costs.',
+    '<b>The gem and coin tiers.</b> Never discounted, which is exactly why they can be used as the '
+      + 'yardstick the rest of the site converts through.',
+    'That makes the two uncaptured boost prices worth more than the rest of the gaps: once read, they '
+      + 'are usable by every reader without adjustment.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  document.getElementById('gaps').innerHTML = [
+    '<b>The list of six is complete</b>, not a sample &mdash; the club overview screen names all six '
+      + 'buildings, and there is a panel capture for each.',
+    '<b>Two ladders are not straight lines.</b> Medical jumps 28&rarr;40 at the last star and Training '
+      + '20&rarr;30, where every other building adds a constant step. Both happen to be maxed on the '
+      + 'default account, so its coach and physio prices sit on the steep part.',
+    '<b>Rounding is floor.</b> Settled by the cheapest coach in the game: Common Goalkeeping at '
+      + '15 &times; 0.70 = 10.5 shows in game as 10. That rule is what lets a discounted price be run '
+      + 'backwards to a unique base &mdash; it is how the scout bases and the Legendary Agent&rsquo;s '
+      + '375 were recovered.',
+    '<b>Physio and Form Boost prices have never been captured</b>, so those rows show a discount with '
+      + 'nothing to apply it to. Physios carry the deepest discount in the game at 40%.',
+    '<b>Managers are a whole item class nothing here tracks.</b> The Commercial Centre takes 25% off '
+      + 'them and no capture, note or page says what they are.'
+  ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
+
+  document.getElementById('foot').textContent =
+    'Levels are stored in this browser only — nothing is sent anywhere, and clearing site data resets '
+    + 'them to the default.';
+
+  renderFacilities();
+})();
+</script>
+</body>
+</html>

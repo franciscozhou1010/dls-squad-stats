@@ -374,3 +374,54 @@ body[data-dls-skin="hud"]::before {
   body[data-dls-skin="hud"] { padding: 26px 16px 40px calc(var(--dls-rail-w) + 14px); }
   .head h1 { font-size: 38px; }
 }
+
+/* --- Facility strip -------------------------------------------------------
+   Carried by every page that prints a discounted price. Quiet by default and
+   coloured once the reader has set their own levels, so "these numbers are not
+   yours" and "these numbers are yours" never look the same. */
+.dls-facbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 9px 14px;
+  background: var(--dls-panel);
+  border: 1px solid var(--dls-edge-soft);
+  border-left: 2px solid var(--dls-ink-faint);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  font-size: 12px;
+}
+.dls-facbar--custom { border-left-color: var(--dls-mint); }
+
+.dls-facbar__tag {
+  font-family: var(--dls-mono);
+  font-size: 9.5px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dls-ink-faint);
+  white-space: nowrap;
+}
+.dls-facbar--custom .dls-facbar__tag { color: var(--dls-mint); }
+
+.dls-facbar__body { display: flex; flex-wrap: wrap; gap: 4px 14px; min-width: 0; }
+.dls-facbar__lvl { color: var(--dls-ink-dim); white-space: nowrap; }
+.dls-facbar__lvl b {
+  margin-right: 5px;
+  color: var(--dls-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.dls-facbar__link {
+  margin-left: auto;
+  color: var(--dls-cyan);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dls-facbar__link:hover { text-decoration: underline; }
+
+@media (max-width: 620px) {
+  .dls-facbar__link { margin-left: 0; }
+}
+
+/* The strip sits inside the page header, under the rule line. */
+.head .dls-facbar { margin-top: 14px; }
