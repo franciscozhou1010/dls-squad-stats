@@ -1,18 +1,16 @@
 /* Dream Club — the subscription.
    ==========================================================================
 
-   Not a pack, and it must not be scored like one. A pack hands you everything
-   at the till. A subscription pays out once a day for a fixed term, which
-   changes the arithmetic twice over:
+   Not a pack, and it must not be scored like one. Two consequences the scorer
+   in store.html implements directly:
 
-     - The two tiers are the SAME product at different lengths, so comparing
-       them on price is meaningless — C$34.99 looks worse than C$24.99 and is
-       in fact less than half the cost. The comparison that decides the
-       purchase is cost PER DAY.
-     - A pack cannot be under-collected. Thirty daily rewards can. Value here
-       assumes you claim every single day of the term; the break-even day in
-       store.html is what turns that assumption into a number you can check
-       against your own habits.
+     - the tiers are the SAME product at different lengths, so price cannot
+       rank them — cost PER DAY does;
+     - every total assumes you claim every day of the term, and the break-even
+       day is what turns that assumption into something checkable.
+
+   Why those are the right two lenses, and what the answer means for buying:
+   vault note "Dream Club".
 
    Both tiers were read off the in-game store, INCLUDING the 30-day tier's
    daily reward — confirmed 2026-09-03, not carried over from the 10-day tier.

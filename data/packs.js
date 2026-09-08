@@ -1,11 +1,11 @@
 /* Real-money packs, and the unit prices needed to value them.
    ==========================================================================
 
-   A pack is worth what its contents would cost you to buy separately. That
+   A pack is worth what its contents would cost you to buy separately, which
    makes pack value ACCOUNT-SPECIFIC in a way the gem and coin tiers are not:
-   the coaches inside are priced at Francisco's discounted rate, so the better
-   his Training Centre gets, the cheaper the alternative becomes and the worse
-   every coach pack looks.
+   coaches resolve through Francisco's own Training Centre discount. Why that
+   makes the scoring self-defeating as the account improves — and why that is
+   the real economics rather than a scoring artefact: vault note "Packs".
 
    Contents were read off store screenshots. Names, prices and the discount
    badges are text and are reliable; the CONTENTS are icon + colour + count,

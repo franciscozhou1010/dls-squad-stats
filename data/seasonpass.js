@@ -13,11 +13,10 @@
    Francisco, and the reason the scorer values the track ONCE and treats the
    C$10 difference as buying time rather than goods.
 
-   The gate is tighter than it sounds. 21 tiers with a 12-hour gate is 20 gaps,
-   240 hours, exactly the 10-day season. Buy on day one and play to the last
-   hour and C$4.99 delivers everything with zero days to spare; buy late and
-   the tail of the track is unreachable at any amount of play. That is the real
-   question the C$10 answers, and it is a question about WHEN you buy.
+   The gate is tighter than it sounds — the tiers-times-hours arithmetic lands
+   exactly on the season length, so buying late puts the tail out of reach at
+   any amount of play. The page computes that; the reasoning is in the vault
+   note "Season Pass".
 
    WHAT IS BEING VALUED
    --------------------------------------------------------------------------
@@ -44,26 +43,20 @@
    other half, so packs.js refuses to score partially. A track is 21 separate
    prizes, so a partial sum really is a floor and says so on its face.
 
-   Weak cross-check, and it has already failed once. The game will sell you a
-   skipped tier for 75 gems, which — IF that price is the same at every tier,
-   which nobody has checked; it was seen once, between tiers 6 and 7 — prices
-   the whole track at 1,575 gems. On 2026-09-04 the floor overtook that figure
-   and is now well above it. Two readings, and this file picks neither: either
-   the skip price is not uniform, or the publisher prices skipping below what a
-   tier is worth. Either way it was never a confirmation — a skip price is a
-   price on NOT WAITING, which is a price on time rather than on prizes. The
-   page computes the gap and its direction and words itself accordingly; no
-   percentage is restated here, so the two cannot disagree. */
+   PASS_SKIP_GEMS feeds a cross-check that has already failed once. No
+   percentage is restated in this file — the page computes the gap AND its
+   direction and words itself accordingly, so the two cannot disagree. Why the
+   check is weak, and the two competing readings of its failure: vault note
+   "Season Pass". */
 
 const PASS_CURRENCY = 'CAD';
 const PASS_CHECKED = '2026-09-04';
 
 const PASS_SEASON_DAYS = 10;
 const PASS_GATE_HOURS = 12;
-/* What the game charges to unlock one tier without playing for it. Francisco:
-   "no one will pay for that" — which is the point. It is not a reward value,
-   it is the publisher's own asking price for a tier, and it is only used on
-   the page as a cross-check on a number derived a different way. */
+/* The publisher's own asking price for one tier — NOT a reward value. Seen
+   once, between tiers 6 and 7, and extrapolated to the whole track by the page.
+   Used only as a cross-check on a number derived a different way. */
 const PASS_SKIP_GEMS = 75;
 
 /* How fast the track moves, from Francisco. Held here rather than typed into a
@@ -71,28 +64,15 @@ const PASS_SKIP_GEMS = 75;
    computed from his figures rather than as something he said. */
 const PASS_SP = { perMatch: 150, perTier: 400 };
 
-/* Coins or gems — the one choice on this track where the CAD ranking is wrong
-   for this account, and the reason is worth writing down rather than quietly
-   patching the number.
+/* At a coins-or-gems fork the CAD ranking is wrong for this account, and the
+   page does NOT fold that in: it prints the exchange rate the game is offering
+   and leaves the choice, because the rate is a fact and the valuation is a
+   judgement. Ranking stays on store price — the site's method everywhere else —
+   so the disagreement is shown rather than hidden.
 
-   BOTH currencies can be farmed. That was stated wrongly once and corrected:
-   the difference is not that gems are unobtainable, it is RATE. Coins come in
-   from ordinary play; gems only from Dream League Live and a trickle when a
-   season ends, roughly an order of magnitude slower. So a coin's marginal value
-   on this account is close to nothing — Francisco is sitting on six figures of
-   them — while gems are the binding constraint.
-
-   What the gems are FOR, which is what makes them binding: gold agents and
-   Special coaches, to finish special players and to bank for future
-   special-player events. That is also why tier 14's Legendary Agent is worth
-   more than its 356-gem sticker suggests — it is the thing the gems were being
-   saved for in the first place.
-
-   The page does NOT fold this into the ranking. It prints the exchange rate the
-   game is offering at each fork and leaves the choice, because the rate is a
-   fact and the valuation is a judgement. The CAD figure keeps ranking by store
-   price, which is the site's method everywhere else; where that method and this
-   account disagree, the page shows the disagreement instead of hiding it. */
+   Why gems win here (both currencies farm, gems an order of magnitude slower;
+   what the gems are ultimately for): vault note "Gems beat coins". The two
+   strings below are what the page prints. */
 const PASS_PREFERENCE = {
   takeAtForks: 'gems',
   why: 'Both can be farmed, but gems arrive about an order of magnitude slower, '
