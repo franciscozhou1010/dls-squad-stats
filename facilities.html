@@ -159,6 +159,25 @@ tr:last-child td { border-bottom: 0; }
     </table>
   </div>
 
+  <div class="dls-panel panelpad">
+    <div class="h2">What taking a building to 5&#9733; is worth, per purchase</div>
+    <p class="sub">The same question asked of every building: take the dearest thing it discounts,
+      compare the unbuilt price with the maxed one, and convert both through the store tier that
+      buys that currency most cheaply. <b>This is per purchase.</b> How often you buy each of these
+      is not something this site knows &mdash; and it is the other half of the answer.
+      Worth noticing on the way past: <b>the deepest discount in the game is last on this
+      table.</b> 40% off a physio is 40% off a coin price.</p>
+  </div>
+  <div class="dls-panel">
+    <table>
+      <thead><tr>
+        <th>Building</th><th>Dearest thing it discounts</th>
+        <th class="n">Unbuilt</th><th class="n">At 5&#9733;</th><th class="n">Saved each</th>
+      </tr></thead>
+      <tbody id="worth"></tbody>
+    </table>
+  </div>
+
   <details class="dls-panel block">
     <summary>What no facility touches</summary>
     <ul id="untouched"></ul>
@@ -176,6 +195,7 @@ tr:last-child td { border-bottom: 0; }
 <script src="data/facilities.js"></script>
 <script src="data/coaches.js"></script>
 <script src="data/packs.js"></script>
+<script src="data/store.js"></script>
 <script src="assets/shell.js" defer></script>
 <script>
 /* Every figure on this page comes out of data/facilities.js. The level buttons
@@ -275,6 +295,54 @@ document.getElementById('reset').addEventListener('click', function () {
   resetFacilityLevels();
   renderFacilities();
 });
+
+/* Unbuilt versus maxed, which is the one comparison that does not depend on the
+   reader's own levels — so it renders once rather than on every change.
+
+   Built off the FACILITIES table rather than listed, so a building whose item
+   class gets a price for the first time joins the ranking without being told to.
+   The ordering is the point and it is computed, not chosen. */
+(function () {
+  var GEM_RATE  = Math.max.apply(null, GEM_PACKS.map(function (p) { return p.gems / p.price; }));
+  var COIN_RATE = Math.max.apply(null, COIN_PACKS.map(function (p) { return (p.base + p.bonus) / p.price; }));
+
+  var rows = [];
+  FACILITIES.forEach(function (f) {
+    f.cols.filter(function (c) { return c.discounts; }).forEach(function (c) {
+      var base = null, cur = 'gems', label = '';
+      if (c.discounts === 'coach') {
+        var d = COACHES.reduce(function (a, x) { return x.base > a.base ? x : a; });
+        base = d.base; label = d.rarity + ' ' + d.type + ' coach';
+      } else {
+        Object.keys(ITEM_PRICES).forEach(function (k) {
+          var it = ITEM_PRICES[k];
+          if (it.disc === c.discounts && it.base != null && (base == null || it.base > base)) {
+            base = it.base; cur = it.cur || 'gems'; label = k;
+          }
+        });
+      }
+      if (base == null) { rows.push({ f: f.name, label: null }); return; }
+      var max = Math.floor(base * (100 - c.v[f.levels - 1]) / 100);
+      rows.push({ f: f.name, label: label, base: base, max: max, cur: cur,
+                  saved: base - max,
+                  cad: (base - max) / (cur === 'coins' ? COIN_RATE : GEM_RATE) });
+    });
+  });
+  rows.sort(function (a, b) { return (b.cad || 0) - (a.cad || 0); });
+
+  document.getElementById('worth').innerHTML = rows.map(function (r) {
+    var name = '<td>' + r.f.replace(' Centre', '') + '</td>';
+    if (!r.label) {
+      return '<tr>' + name + '<td colspan="4"><span class="none">nothing in this class has a '
+        + 'price yet</span></td></tr>';
+    }
+    return '<tr>' + name + '<td>' + r.label + '</td>'
+      + '<td class="n">' + num(r.base) + '</td>'
+      + '<td class="n"><span class="now">' + num(r.max) + '</span></td>'
+      + '<td class="n"><b>' + num(r.saved) + '</b> <span class="none">' + r.cur + '</span>'
+      + ' &nbsp;&middot;&nbsp; C$' + r.cad.toFixed(2) + '</td></tr>';
+  }).join('');
+})();
 
 (function () {
   document.getElementById('head-rule').textContent =
