@@ -804,6 +804,10 @@ function coachPrice(base) {
 /* Every item resolves to a CAD figure or to null. One null anywhere and the
    whole pack goes unscored — a partial total would read as a verdict while
    quietly leaving out the expensive half. */
+/* Physios are charged in coins and every other item class in gems, so an
+   ITEM_PRICES amount cannot be converted without knowing which. */
+function rateFor(cur) { return cur === 'coins' ? COIN_RATE : GEM_RATE; }
+
 function priceItem(it) {
   if (it.kind === 'gems') return { cad: it.n / GEM_RATE, label: num(it.n) + ' gems' };
   if (it.kind === 'coins') return { cad: it.n / COIN_RATE, label: num(it.n) + ' coins' };
@@ -816,15 +820,17 @@ function priceItem(it) {
     return {
       cad: gems == null ? null : it.n * gems / GEM_RATE,
       label: it.n + ' × ' + it.rarity + ' ' + it.type + ' coach',
-      each: gems
+      each: gems,
+      eachCur: 'gems'
     };
   }
   var p = ITEM_PRICES[it.key] || {};
-  var gems = itemGems(it.key);
+  var q = itemPrice(it.key);
   return {
-    cad: gems == null ? null : it.n * gems / GEM_RATE,
+    cad: q == null ? null : it.n * q.n / rateFor(q.cur),
     label: it.n + ' × ' + it.key,
-    each: gems,
+    each: q && q.n,
+    eachCur: q && q.cur,
     why: p.note
   };
 }
@@ -900,12 +906,13 @@ function pricePassItem(it) {
   if (it.kind === 'boost') {
     var bk = it.of + ' Boost ' + it.rarity;
     var b = ITEM_PRICES[bk] || {};
-    var bg = itemGems(bk);
-    return { cad: bg == null ? null : bg / GEM_RATE,
+    var bq = itemPrice(bk);
+    return { cad: bq == null ? null : bq.n / rateFor(bq.cur),
              label: it.rarity + ' ' + it.of + ' Boost +' + it.pct + '%',
-             each: bg,
+             each: bq && bq.n,
+             eachCur: bq && bq.cur,
              why: b.note,
-             unsure: b.sure === false && bg != null };
+             unsure: b.sure === false && bq != null };
   }
   var p = priceItem(it);
   /* priceItem hands back the note but not the flag, and the flag is the point:
@@ -915,7 +922,7 @@ function pricePassItem(it) {
      itself doubts, with nothing on screen to say so. */
   if (it.kind === 'item') {
     var e = ITEM_PRICES[it.key];
-    p.unsure = !!(e && e.sure === false && itemGems(it.key) != null);
+    p.unsure = !!(e && e.sure === false && itemPrice(it.key) != null);
   }
   return p;
 }
@@ -1085,7 +1092,7 @@ function scorePassTrack(track) {
           var text = it.sure === false
             ? '<u title="Rarity read off an icon colour — worth confirming in game">' + p.label + '</u>'
             : '<b>' + p.label + '</b>';
-          var each = p.each != null ? ' <s>· ' + p.each + ' gems each</s>'
+          var each = p.each != null ? ' <s>· ' + p.each + ' ' + (p.eachCur || 'gems') + ' each</s>'
                    : p.cad != null ? ''
                    : ' <s>· price unknown</s>';
           return '<div>' + text + each + '</div>';
@@ -1155,8 +1162,12 @@ function scorePassTrack(track) {
       + 'blue Rare, gold Legendary. ' + unsurePacks + ' of ' + PACKS.length + ' packs have at least one '
       + 'item whose rarity I inferred rather than read. Those are underlined in the table. '
       + 'Tapping the ⓘ on a pack in game gives the exact list.',
-    '<b>' + unpriced.length + ' item prices are missing</b>: ' + unpriced.join(', ')
-      + '. Every pack containing one of them is unscored.',
+    (unpriced.length
+      ? '<b>' + unpriced.length + ' item prices are missing</b>: ' + unpriced.join(', ')
+        + '. Every pack containing one of them is unscored.'
+      : '<b>Every item price is captured</b>, as of 2026-09-08 — physios and form boosts were the '
+        + 'last two classes out, and no pack is unscored for want of a price any more. What is left '
+        + 'is contents read off icon colours, which is a different kind of doubt.'),
     '<b>Legendary Agent rests on a base of 375 gems</b>, which you confirmed rather than read off a '
       + 'screen. It does now reconcile exactly — 375 less the 5% agent discount is 356.25, floored to '
       + '356, and 375 is the only base that lands there. Two packs lean on it, so it stays flagged.',
@@ -1314,13 +1325,22 @@ function scorePassTrack(track) {
 
   document.getElementById('tab-pass-sub').textContent = PASS_TRACK.length + ' tiers';
 
+  /* The track was published as a floor for as long as any item on it had no
+     price. Every one is now captured, so the >= comes off — but the code still
+     decides which it is from the data rather than from a rewrite, because a new
+     unpriced item would put the floor back. */
+  var isFloor = pass.blank > 0;
   document.getElementById('pass-worth').innerHTML =
-    '&ge;&thinsp;' + Math.round(pass.floor / cheapEd.price * 100)
+    (isFloor ? '&ge;&thinsp;' : '') + Math.round(pass.floor / cheapEd.price * 100)
     + '%<small> of the ' + money(cheapEd.price) + ' pass</small>';
   document.getElementById('pass-worth-sub').innerHTML =
     'The better option at each of the <b>' + pass.scored + ' tiers</b> this site can price comes to '
-    + money(pass.floor) + '. A <b>floor, not a total</b>: ' + pass.blank + ' more tiers offer two '
-    + 'items with no price yet and count as nothing at all.'
+    + money(pass.floor) + '. '
+    + (isFloor
+        ? 'A <b>floor, not a total</b>: ' + pass.blank + ' more tiers offer two items with no price '
+          + 'yet and count as nothing at all.'
+        : 'That is <b>every tier on the track</b> — nothing on the pass is unpriced any more, so this '
+          + 'is a total rather than a floor.')
     + (dearEd ? ' Against the ' + money(dearEd.price) + ' edition, which carries the same track, that is '
               + Math.round(pass.floor / dearEd.price * 100) + '%.' : '')
     /* The headline is the site's method. It is not the number that applies to
@@ -1513,11 +1533,21 @@ function scorePassTrack(track) {
       + 'never enters a total.',
     'Every tier is a <b>choose one of two</b>, so a tier is worth the better option and not both. '
       + 'The track is worth considerably less than the sum of what is printed on it.',
-    '<b>The number is a floor.</b> ' + pass.blank + ' of ' + PASS_TRACK.length + ' tiers offer two items '
-      + 'this site has never priced &mdash; physios and form boosts &mdash; so they count as zero, and '
-      + pass.partial + ' more are scored on their priced option even where you would probably take the '
-      + 'other. Every missing price can only push the figure up, and that is not a small caveat: scout '
-      + 'and Dream Point Boost prices arriving on 2026-09-04 roughly doubled this figure on their own.',
+    (isFloor
+      ? '<b>The number is a floor.</b> ' + pass.blank + ' of ' + PASS_TRACK.length + ' tiers offer two '
+        + 'items this site has never priced, so they count as zero, and ' + pass.partial + ' more are '
+        + 'scored on their priced option even where you would probably take the other. Every missing '
+        + 'price can only push the figure up.'
+      /* C$64.05 over 18 tiers to C$65.56 over 21, measured 2026-09-08 by nulling
+         the seven new prices and re-running this same function. A snapshot: it
+         will drift if a price is corrected, so it is dated rather than derived. */
+      : '<b>The number is now a total, not a floor.</b> It was a floor for as long as physios and form '
+        + 'boosts had no price; both landed on 2026-09-08 and all ' + PASS_TRACK.length + ' tiers score. '
+        + 'Three tiers had been dark and three more were scored on whichever option happened to have a '
+        + 'price. Filling all seven gaps moved the figure by <b>C$1.51</b>, about 2% &mdash; so the '
+        + 'floor had been very close to the truth, which was not knowable until the prices existed. '
+        + 'That is the opposite of what happened on 2026-09-04, when scouts and Dream Point Boosts '
+        + 'roughly doubled it.'),
     '<b>A second route lands ' + (skipClose ? 'close' : 'a long way off') + '.</b> The game sells a '
       + 'skipped tier for ' + PASS_SKIP_GEMS + ' gems, so it prices the full ' + PASS_TRACK.length
       + '-tier track at ' + num(skipGems) + ' gems &mdash; ' + money(skipCad) + '. The floor built from the '
@@ -1525,8 +1555,10 @@ function scorePassTrack(track) {
       + '<b>Treat that as a sanity check, not a confirmation</b>: the skip price is what the publisher '
       + 'charges for not waiting, which is a price on time rather than on prizes'
       + (skipClose
-          ? ', and the two sit close partly because the floor is incomplete. Price the missing items '
-            + 'and they move apart.'
+          ? (isFloor
+              ? ', and the two sit close partly because the floor is incomplete. Price the missing '
+                + 'items and they move apart.'
+              : ', and there is no longer an incomplete-floor excuse for it: every tier is priced.')
           /* It was close until scout and boost prices landed. Saying so is more
              use than pretending the check still passes. */
           : '. It was also read once, at a single tier, and multiplied by ' + PASS_TRACK.length + ' here. '
@@ -1638,8 +1670,9 @@ function scorePassTrack(track) {
     tag.textContent = n ? '(' + n + ')' : '';
   });
 
-  /* Whose prices these are. Coaches, scouts, agents and physios all resolve
-     through a facility discount, so the page has to say which levels it used. */
+  /* Whose prices these are. Coaches, scouts and agents resolve through a facility
+     discount, so the page has to say which levels it used. Physios do not, and
+     stopped being listed here on 2026-09-08. */
   var facBar = document.getElementById('fac-bar');
   if (facBar) facBar.innerHTML = facilityBannerHTML();
 

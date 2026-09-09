@@ -10,9 +10,9 @@
    Until it did, this site published one account's prices as if they were
    everybody's. A coach cost "63 gems" here because Francisco's Training Centre
    is 5-star, and nothing on screen said so. Six of the item classes the site
-   values are discounted by a building, and the discount runs from a few percent
-   to forty — large enough that a stranger reading a coach price was reading a
-   number that was simply not theirs.
+   values are discounted by a building, and the discount runs from 1% to 30% —
+   large enough that a stranger reading a coach price was reading a number that
+   was simply not theirs.
 
    So prices are now stored as BASE and discounted at render time against
    whatever levels the reader has set.
@@ -37,10 +37,19 @@ const FACILITY_CHECKED = '2026-08-30';
 /* `discounts` names the item class a column applies to; columns without it are
    real effects the site does not price. Values are indexed by level - 1. */
 const FACILITIES = [
+  /* Until 2026-09-08 the first column here was published as a physio PRICE
+     discount, and it was wrong. Francisco reads the panel's 40 as injury
+     probability, and the Physios screen agrees with him: it prints no discount
+     line and no struck-through number where the Agents screen prints both.
+     Physios are now priced as undiscounted and universal.
+
+     That leaves one building with two injury-shaped ladders, which cannot both
+     be right — the Medical panel needs re-reading. Nothing on the site depends
+     on the answer, because neither column is wired to a price any more. */
   { id: 'medical', name: 'Medical Centre', levels: 5,
     cols: [
-      { label: 'Physio price',  discounts: 'physio', suffix: '% off', v: [10, 16, 22, 28, 40] },
-      { label: 'Injury chance', suffix: '%',         v: [-5, -10, -15, -20, -30] }
+      { label: 'Injury probability', suffix: '% less', v: [10, 16, 22, 28, 40] },
+      { label: 'Injury chance',      suffix: '%',      v: [-5, -10, -15, -20, -30] }
     ] },
 
   { id: 'recruitment', name: 'Recruitment Centre', levels: 5,
@@ -84,11 +93,16 @@ const FACILITY_DEFAULTS = {
   commercial: 5, accommodation: 8, fanzone: 0
 };
 
-/* Item classes NO facility touches. Twelve columns across six panels and not one
-   of them is a boost, which is what closed a long-standing open question: a
-   boost price is universal, in the same class as the store's gem and coin
-   tiers. Listed rather than implied so the answer is visible in the data. */
-const FACILITY_UNDISCOUNTED = ['Form Boost', 'Dream Point Boost', 'gem tiers', 'coin tiers'];
+/* Item classes NO facility touches, and therefore the classes whose prices are
+   the same for every reader. Twelve columns across six panels and not one of them
+   is a boost, which closed a long-standing open question: a boost price is
+   universal, in the same class as the store's gem and coin tiers.
+
+   Physios joined this list on 2026-09-08, moving the other way — off a discount
+   ladder rather than onto one. See the Medical Centre note above. It is the more
+   useful direction: a universal price is worth more than an account-specific one,
+   because everybody can read it off this site and it needs no adjustment. */
+const FACILITY_UNDISCOUNTED = ['Physio', 'Form Boost', 'Dream Point Boost', 'gem tiers', 'coin tiers'];
 
 /* --- state ---------------------------------------------------------------
    One key, read through a try/catch because a private window throws on the
@@ -176,10 +190,12 @@ function facilityLevelLabel(f, lvl) {
 function facilityBannerHTML() {
   var L = facilityLevels();
   var mine = facilitiesAreDefault();
+  /* Only buildings that move a price the site publishes. Medical was here until
+     2026-09-08, when physios turned out to be undiscounted — a strip that names
+     a level no printed number depends on is worse than a shorter strip. */
   var shown = [
     { id: 'training',    label: 'Training' },
-    { id: 'recruitment', label: 'Recruitment' },
-    { id: 'medical',     label: 'Medical' }
+    { id: 'recruitment', label: 'Recruitment' }
   ].map(function (b) {
     var f = FACILITIES.filter(function (x) { return x.id === b.id; })[0];
     return '<span class="dls-facbar__lvl"><b>' + facilityLevelLabel(f, L[b.id]) + '</b>'

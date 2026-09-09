@@ -133,7 +133,7 @@ tr:last-child td { border-bottom: 0; }
   </header>
 
   <div class="dls-panel panelpad">
-    <div class="h2">Six buildings set six discounts</div>
+    <div class="h2">Five of the six buildings set a discount</div>
     <p class="sub" id="intro"></p>
     <div class="actions">
       <button class="dls-btn" id="reset" type="button">Reset to site default</button>
@@ -146,7 +146,7 @@ tr:last-child td { border-bottom: 0; }
   <div class="dls-panel panelpad">
     <div class="h2">What your levels do to the prices on this site</div>
     <p class="sub">Base price is what the game charges with the building unbuilt. Everything
-      else on the site &mdash; pack scores, the season pass floor, coach value per point &mdash;
+      else on the site &mdash; pack scores, the season pass total, coach value per point &mdash;
       is computed from the right-hand column.</p>
   </div>
   <div class="dls-panel">
@@ -226,8 +226,6 @@ function renderFacilities() {
       egLabel: 'Legendary Scout', egBase: ITEM_PRICES['Scout Legendary'].base },
     { kind: 'agent',   name: 'Agents',
       egLabel: 'Legendary Agent', egBase: ITEM_PRICES['Agent Legendary'].base },
-    { kind: 'physio',  name: 'Physios',
-      egLabel: 'price never captured', egBase: ITEM_PRICES['Physio Legendary'].base },
     { kind: 'manager', name: 'Managers', egLabel: 'never captured', egBase: null },
     { kind: 'lock',    name: 'Locking a player', egLabel: 'never captured', egBase: null },
     { kind: 'stadium', name: 'Custom stadium', egLabel: 'never captured', egBase: null }
@@ -275,34 +273,43 @@ document.getElementById('reset').addEventListener('click', function () {
     'Read off the facility panels · ' + FACILITY_CHECKED + ' · your settings are kept in this browser only';
 
   document.getElementById('intro').innerHTML =
-    'A coach, scout, agent or physio price is <b>not one number</b> — it is a base price less '
-    + 'whatever your buildings take off, and the spread runs from 1% to 40%. Until this page existed '
+    'A coach, scout or agent price is <b>not one number</b> — it is a base price less '
+    + 'whatever your buildings take off, and the spread runs from 1% to 30%. Until this page existed '
     + 'the whole site quietly published one account&rsquo;s prices. Set your own levels below and every '
     + 'figure on the <a href="coaches.html">Coaches</a> and <a href="store.html">Store</a> pages '
     + 'recomputes.';
 
   document.getElementById('untouched').innerHTML = [
+    '<b>Physios.</b> This page said otherwise until 2026-09-08, and it was wrong: the Physios screen '
+      + 'prints no discount line and no struck-through price where the Agents screen prints both, and '
+      + 'the Medical Centre&rsquo;s 40 turns out to be injury probability rather than a price. Physios '
+      + 'are also the one class bought with <b>coins</b> instead of gems.',
     '<b>Form Boosts</b> and <b>Dream Point Boosts</b>. Twelve columns across six panels and not one '
       + 'of them is a boost discount &mdash; so a boost price is the same for everybody. The Training '
       + 'Centre moves how long a form boost <i>lasts</i>, never what it costs.',
     '<b>The gem and coin tiers.</b> Never discounted, which is exactly why they can be used as the '
       + 'yardstick the rest of the site converts through.',
-    'That makes the two uncaptured boost prices worth more than the rest of the gaps: once read, they '
-      + 'are usable by every reader without adjustment.'
+    'Everything in this list is worth more to a stranger than anything above it: an undiscounted price '
+      + 'is the same number for every reader and needs no adjustment before it can be used.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   document.getElementById('gaps').innerHTML = [
     '<b>The list of six is complete</b>, not a sample &mdash; the club overview screen names all six '
       + 'buildings, and there is a panel capture for each.',
-    '<b>Two ladders are not straight lines.</b> Medical jumps 28&rarr;40 at the last star and Training '
-      + '20&rarr;30, where every other building adds a constant step. Both happen to be maxed on the '
-      + 'default account, so its coach and physio prices sit on the steep part.',
+    '<b>The Training ladder is not a straight line.</b> It jumps 20&rarr;30 at the last star where '
+      + 'every other building adds a constant step, and it is maxed on the default account &mdash; so '
+      + 'the coach prices this site publishes sit on the steep part, and anyone below 5&#9733; pays a '
+      + 'good deal more than 30% less.',
     '<b>Rounding is floor.</b> Settled by the cheapest coach in the game: Common Goalkeeping at '
-      + '15 &times; 0.70 = 10.5 shows in game as 10. That rule is what lets a discounted price be run '
+      + '15 &times; 0.70 = 10.5 shows in game as 10, and confirmed on a second class by a Rare Agent '
+      + 'at 150 &times; 0.99 = 148.5 showing as 148. That rule is what lets a discounted price be run '
       + 'backwards to a unique base &mdash; it is how the scout bases and the Legendary Agent&rsquo;s '
       + '375 were recovered.',
-    '<b>Physio and Form Boost prices have never been captured</b>, so those rows show a discount with '
-      + 'nothing to apply it to. Physios carry the deepest discount in the game at 40%.',
+    '<b>Physios came off this page on 2026-09-08.</b> They were published here as carrying the '
+      + 'deepest discount in the game, 40% at Medical 5&#9733;. They carry none. That leaves the '
+      + 'Medical Centre showing two injury-shaped columns, which cannot both be right &mdash; its '
+      + 'panel is the one capture on this page still worth re-reading. Nothing priced depends on '
+      + 'the answer.',
     '<b>Managers are a whole item class nothing here tracks.</b> The Commercial Centre takes 25% off '
       + 'them and no capture, note or page says what they are.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');

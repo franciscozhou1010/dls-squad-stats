@@ -100,9 +100,12 @@ const PASS_PREFERENCE = {
 /* Keys the track uses that packs.js has no ITEM_PRICES entry for at all. An
    absent key prices as null, which is exactly what a misspelt key does, so the
    ones we know about are listed and anything else is shouted about in the
-   console at boot. Physio Common appears only on the free row, which never
-   enters a total. */
-const PASS_KEYS_NOT_IN_PACKS = ['Physio Common'];
+   console at boot.
+
+   Empty since 2026-09-08: Physio Common was the only entry, and it now has a
+   real price. The list stays because it is the escape hatch for a reward that
+   exists on the track and nowhere else, not because it happens to be needed. */
+const PASS_KEYS_NOT_IN_PACKS = [];
 
 const PASS_EDITIONS = [
   { name: 'Season Pass', price: 4.99, gated: true,
@@ -213,12 +216,13 @@ const PASS_UNKNOWNS = [
        + 'deliver the full track.',
     direction: 'unknown' },
 
-  { q: 'Physios and Form Boosts have never been priced.',
-    why: 'The floor skips any tier whose only two options are among them, so the real figure is '
-       + 'higher than the one shown. Scouts and Dream Point Boosts were in this list until '
-       + '2026-09-04; filling those two in roughly doubled the floor, which is a fair measure of '
-       + 'how much the remaining gaps could still be worth.',
-    direction: 'better' },
+  { q: 'Physio and Form Boost prices are one day old, and one of them is remembered.',
+    why: 'Both classes were unpriced until 2026-09-08, and the eight tiers they blocked are the '
+       + 'reason this figure was published as a floor. Physio Common and Rare were read off the '
+       + 'screen; Legendary Physio and all three Form Boosts are Francisco stating a number rather '
+       + 'than a capture. They are small — the eight tiers come to about C$6 together — so an error '
+       + 'in them moves the headline very little, which is also why the old floor was close.',
+    direction: 'unknown' },
 
   { q: 'Is 75 gems the price to skip EVERY tier, or only the one it was seen on?',
     why: 'It was read once, between tiers 6 and 7. The page multiplies it by 21 to build its '

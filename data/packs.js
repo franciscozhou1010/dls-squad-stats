@@ -33,8 +33,16 @@ const PACK_CHECKED = '2026-08-30';
 const ITEM_PRICES = {
   'Agent Common':      { base: 40,  disc: 'agent', sure: true,
                          note: 'Read off the Agents screen: 38 with 40 struck through, and the card\'s own line reads "5% Facility Discount".' },
-  'Agent Rare':        { base: null, disc: 'agent', sure: false,
-                         note: 'Hidden behind the USE button in the screenshot — this account owns seven.' },
+  /* Captured 2026-09-08 off a SECOND account, where this card shows a price
+     because that account owns none of them — on the main account it is hidden
+     behind USE, which is why it sat unpriced for so long. The card read 148 with
+     150 struck through and "1% Facility Discount", so that account is Recruitment
+     1-star. A struck-through number is the base, and a base is the same for
+     everybody; only the net differs. It also pins the agent ladder at both ends,
+     1% at one star and 5% at five, and confirms floor rounding on a second item
+     class: 150 x 0.99 = 148.5 shows as 148. */
+  'Agent Rare':        { base: 150, disc: 'agent', sure: true,
+                         note: 'Base 150, read off a second account as 148 with 150 struck through at a 1% discount. The main account pays 142.' },
   'Agent Legendary':   { base: 375, disc: 'agent', sure: false,
                          note: 'Base confirmed by Francisco 2026-09-08. It reconciles exactly: 375 x 0.95 = 356.25, floored to 356, and 375 is the only integer that lands there. Still his recollection rather than a screen, so it stays flagged.' },
 
@@ -49,16 +57,33 @@ const ITEM_PRICES = {
   'Scout Legendary':   { base: 650, disc: 'scout', sure: true,
                          note: 'Base 650. 552.5 floored. The dearest single item on this site.' },
 
-  /* Physios carry the deepest facility discount in the game (40% at Medical 5),
-     which is worth knowing before the price is ever captured: read on this
-     account it will be a discounted figure, and the base has to be recovered
-     from it the way the scout bases were. */
-  'Physio Rare':       { base: null, disc: 'physio', sure: false, note: 'Not collected.' },
-  'Physio Legendary':  { base: null, disc: 'physio', sure: false, note: 'Not collected.' },
+  /* Physios are bought with COINS. They are the only item class on this site that
+     is, and the reason an ITEM_PRICES row carries a currency at all.
 
-  'Form Boost Common': { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts, so this price will be universal once it is.' },
-  'Form Boost Rare':   { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts.' },
-  'Form Boost Legendary': { base: null, disc: null, sure: false, note: 'Not collected. No facility discounts form boosts.' },
+     Read off the Physios screen 2026-09-08, and discounted by nothing. The site
+     claimed a 40% Medical Centre discount on them until that day, and it was
+     wrong on two independent grounds: the Physios card prints no discount line
+     and no struck-through number where the Agents card prints both, and Francisco
+     reads the Medical Centre's 40 as injury probability rather than as a price.
+     So these are universal prices, the same for every reader, in the same class
+     as the store's gem and coin tiers.
+
+     They are also an order of magnitude smaller than the site assumed. A
+     Legendary Physio is 250 coins, about C$0.43 — not the expensive gem item
+     that made eight season pass tiers unscoreable. */
+  'Physio Common':     { base: 50,  cur: 'coins', disc: null, sure: true,
+                         note: 'Read off the Physios screen: 50 coins, no discount line. Recovers 10% squad energy.' },
+  'Physio Rare':       { base: 100, cur: 'coins', disc: null, sure: true,
+                         note: 'Read off the Physios screen: 100 coins, no discount line. Recovers 20% squad energy.' },
+  'Physio Legendary':  { base: 250, cur: 'coins', disc: null, sure: false,
+                         note: 'Stated by Francisco, not read — the card shows USE because he owns one. Recovers 50% energy and heals all active injuries.' },
+
+  /* Form Boosts, stated by Francisco 2026-09-08 rather than read off a screen.
+     Undiscounted, so universal: the Training Centre moves how long a form boost
+     LASTS, never what it costs. */
+  'Form Boost Common': { base: 5,  disc: null, sure: false, note: 'Stated by Francisco. Universal — no facility discounts form boosts.' },
+  'Form Boost Rare':   { base: 8,  disc: null, sure: false, note: 'Stated by Francisco. Universal — no facility discounts form boosts.' },
+  'Form Boost Legendary': { base: 10, disc: null, sure: false, note: 'Stated by Francisco. Universal — no facility discounts form boosts.' },
 
   /* Dream Point Boosts, from Francisco 2026-09-04. These once carried a caveat
      that nobody knew whether they were quoted before or after a discount.
@@ -73,12 +98,16 @@ const ITEM_PRICES = {
                           note: 'Stated by Francisco. Universal — no facility discounts boosts.' }
 };
 
-/* The gem price of one item at the reader's facility levels. The single place
-   an ITEM_PRICES row turns into a number; nothing else should read `.base`. */
-function itemGems(key, levels) {
+/* The price of one item at the reader's facility levels, as an amount plus the
+   currency it is charged in. The single place an ITEM_PRICES row turns into a
+   number; nothing else should read `.base`. Currency defaults to gems, which is
+   every class but physios — so a row only names `cur` when it is not gems.
+
+   Returns null for an uncaptured price, which is what leaves a pack unscored. */
+function itemPrice(key, levels) {
   var p = ITEM_PRICES[key];
-  if (!p) return null;
-  return facilityNet(p.base, p.disc, levels);
+  if (!p || p.base == null) return null;
+  return { n: facilityNet(p.base, p.disc, levels), cur: p.cur || 'gems' };
 }
 
 /* 5,000 Dream Points sells for either C$9.99 or 500 gems, which pins the
