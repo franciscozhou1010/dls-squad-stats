@@ -133,7 +133,7 @@ tr:last-child td { border-bottom: 0; }
   </header>
 
   <div class="dls-panel panelpad">
-    <div class="h2">Five of the six buildings set a discount</div>
+    <div class="h2">Six buildings set six discounts</div>
     <p class="sub" id="intro"></p>
     <div class="actions">
       <button class="dls-btn" id="reset" type="button">Reset to site default</button>
@@ -226,6 +226,10 @@ function renderFacilities() {
       egLabel: 'Legendary Scout', egBase: ITEM_PRICES['Scout Legendary'].base },
     { kind: 'agent',   name: 'Agents',
       egLabel: 'Legendary Agent', egBase: ITEM_PRICES['Agent Legendary'].base },
+    /* The one row in coins, and the one whose base is inferred rather than read
+       — see data/packs.js. The deepest discount in the game sits on it. */
+    { kind: 'physio',  name: 'Physios', cur: 'coins',
+      egLabel: 'Legendary Physio', egBase: ITEM_PRICES['Physio Legendary'].base },
     { kind: 'manager', name: 'Managers', egLabel: 'never captured', egBase: null },
     { kind: 'lock',    name: 'Locking a player', egLabel: 'never captured', egBase: null },
     { kind: 'stadium', name: 'Custom stadium', egLabel: 'never captured', egBase: null }
@@ -239,9 +243,13 @@ function renderFacilities() {
       eg = '<span class="none">' + r.egLabel + '</span>';
     } else {
       var net = facilityNet(r.egBase, r.kind, L);
+      /* Everything on this table is gems except physios, so the unit is named
+         only where it is not the default — a bare number here would read as gems
+         and be wrong by two orders of magnitude. */
       eg = r.egLabel + ' &nbsp;'
         + (pct ? '<span class="was">' + num(r.egBase) + '</span>' : '')
-        + '<span class="now">' + num(net) + '</span>';
+        + '<span class="now">' + num(net) + '</span>'
+        + (r.cur ? ' <span class="none">' + r.cur + '</span>' : '');
     }
     return '<tr><td>' + r.name + '</td>'
       + '<td>' + hit.facility.name.replace(' Centre', '') + '</td>'
@@ -273,43 +281,43 @@ document.getElementById('reset').addEventListener('click', function () {
     'Read off the facility panels · ' + FACILITY_CHECKED + ' · your settings are kept in this browser only';
 
   document.getElementById('intro').innerHTML =
-    'A coach, scout or agent price is <b>not one number</b> — it is a base price less '
-    + 'whatever your buildings take off, and the spread runs from 1% to 30%. Until this page existed '
+    'A coach, scout, agent or physio price is <b>not one number</b> — it is a base price less '
+    + 'whatever your buildings take off, and the spread runs from 1% to 40%. Until this page existed '
     + 'the whole site quietly published one account&rsquo;s prices. Set your own levels below and every '
     + 'figure on the <a href="coaches.html">Coaches</a> and <a href="store.html">Store</a> pages '
     + 'recomputes.';
 
   document.getElementById('untouched').innerHTML = [
-    '<b>Physios.</b> This page said otherwise until 2026-09-08, and it was wrong: the Physios screen '
-      + 'prints no discount line and no struck-through price where the Agents screen prints both, and '
-      + 'the Medical Centre&rsquo;s 40 turns out to be injury probability rather than a price. Physios '
-      + 'are also the one class bought with <b>coins</b> instead of gems.',
     '<b>Form Boosts</b> and <b>Dream Point Boosts</b>. Twelve columns across six panels and not one '
       + 'of them is a boost discount &mdash; so a boost price is the same for everybody. The Training '
       + 'Centre moves how long a form boost <i>lasts</i>, never what it costs.',
     '<b>The gem and coin tiers.</b> Never discounted, which is exactly why they can be used as the '
       + 'yardstick the rest of the site converts through.',
-    'Everything in this list is worth more to a stranger than anything above it: an undiscounted price '
-      + 'is the same number for every reader and needs no adjustment before it can be used.'
+    'Everything in this list is worth more to a stranger than anything on the table above: an '
+      + 'undiscounted price is the same number for every reader and needs no adjustment before it can '
+      + 'be used. <b>Physios spent an afternoon on this list on 2026-09-08 and came back off it</b> '
+      + '&mdash; the Medical Centre does discount them, and by more than any building discounts '
+      + 'anything else.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
 
   document.getElementById('gaps').innerHTML = [
     '<b>The list of six is complete</b>, not a sample &mdash; the club overview screen names all six '
       + 'buildings, and there is a panel capture for each.',
-    '<b>The Training ladder is not a straight line.</b> It jumps 20&rarr;30 at the last star where '
-      + 'every other building adds a constant step, and it is maxed on the default account &mdash; so '
-      + 'the coach prices this site publishes sit on the steep part, and anyone below 5&#9733; pays a '
-      + 'good deal more than 30% less.',
+    '<b>Two ladders are not straight lines.</b> Medical jumps 28&rarr;40 at the last star and Training '
+      + '20&rarr;30, where every other building adds a constant step. Both are maxed on the default '
+      + 'account, so its coach and physio prices sit on the steep part &mdash; anyone below 5&#9733; '
+      + 'pays a good deal more than the headline discount suggests.',
     '<b>Rounding is floor.</b> Settled by the cheapest coach in the game: Common Goalkeeping at '
       + '15 &times; 0.70 = 10.5 shows in game as 10, and confirmed on a second class by a Rare Agent '
       + 'at 150 &times; 0.99 = 148.5 showing as 148. That rule is what lets a discounted price be run '
       + 'backwards to a unique base &mdash; it is how the scout bases and the Legendary Agent&rsquo;s '
       + '375 were recovered.',
-    '<b>Physios came off this page on 2026-09-08.</b> They were published here as carrying the '
-      + 'deepest discount in the game, 40% at Medical 5&#9733;. They carry none. That leaves the '
-      + 'Medical Centre showing two injury-shaped columns, which cannot both be right &mdash; its '
-      + 'panel is the one capture on this page still worth re-reading. Nothing priced depends on '
-      + 'the answer.',
+    '<b>The physio base prices are inferred, not read.</b> 50 and 100 coins come off the Physios '
+      + 'screen, but whether those are base prices or already-discounted ones is worked out rather '
+      + 'than seen: the Agents screen prints a discount line for a discount of just 1% and the Physios '
+      + 'screen prints none, so that account most likely has Medical unbuilt. If that is wrong, every '
+      + 'physio figure on this site is low. The Legendary 250 is separately soft &mdash; stated from '
+      + 'memory, and it is not known which account.',
     '<b>Managers are a whole item class nothing here tracks.</b> The Commercial Centre takes 25% off '
       + 'them and no capture, note or page says what they are.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');

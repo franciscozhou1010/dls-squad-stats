@@ -10,7 +10,7 @@
    Until it did, this site published one account's prices as if they were
    everybody's. A coach cost "63 gems" here because Francisco's Training Centre
    is 5-star, and nothing on screen said so. Six of the item classes the site
-   values are discounted by a building, and the discount runs from 1% to 30% —
+   values are discounted by a building, and the discount runs from 1% to 40% —
    large enough that a stranger reading a coach price was reading a number that
    was simply not theirs.
 
@@ -37,19 +37,26 @@ const FACILITY_CHECKED = '2026-08-30';
 /* `discounts` names the item class a column applies to; columns without it are
    real effects the site does not price. Values are indexed by level - 1. */
 const FACILITIES = [
-  /* Until 2026-09-08 the first column here was published as a physio PRICE
-     discount, and it was wrong. Francisco reads the panel's 40 as injury
-     probability, and the Physios screen agrees with him: it prints no discount
-     line and no struck-through number where the Agents screen prints both.
-     Physios are now priced as undiscounted and universal.
+  /* This column went out, came back, and went out again on 2026-09-08. It was
+     published as a physio PRICE discount, retracted that afternoon as injury
+     probability, then confirmed as a price discount after all when Francisco
+     re-read the panel. It IS a discount. The SECOND column is the injury one —
+     player injury probability — which is what the two-columns-both-about-injuries
+     confusion was.
 
-     That leaves one building with two injury-shaped ladders, which cannot both
-     be right — the Medical panel needs re-reading. Nothing on the site depends
-     on the answer, because neither column is wired to a price any more. */
+     The round trip is left in the record because it was not free: physios shipped
+     as undiscounted and universal for one deploy, and they are neither.
+
+     What made the retraction plausible is real and still needs an explanation.
+     The Physios purchase screen prints no discount line and no struck-through
+     price, where the Agents screen prints both at a discount of just 1%. The
+     likeliest reading is that the capture account has this building unbuilt, so
+     there was no discount to print — but that is an inference, and the physio
+     base prices rest on it. See data/packs.js. */
   { id: 'medical', name: 'Medical Centre', levels: 5,
     cols: [
-      { label: 'Injury probability', suffix: '% less', v: [10, 16, 22, 28, 40] },
-      { label: 'Injury chance',      suffix: '%',      v: [-5, -10, -15, -20, -30] }
+      { label: 'Physio price', discounts: 'physio', suffix: '% off', v: [10, 16, 22, 28, 40] },
+      { label: 'Player injury probability', suffix: '%', v: [-5, -10, -15, -20, -30] }
     ] },
 
   { id: 'recruitment', name: 'Recruitment Centre', levels: 5,
@@ -98,11 +105,10 @@ const FACILITY_DEFAULTS = {
    is a boost, which closed a long-standing open question: a boost price is
    universal, in the same class as the store's gem and coin tiers.
 
-   Physios joined this list on 2026-09-08, moving the other way — off a discount
-   ladder rather than onto one. See the Medical Centre note above. It is the more
-   useful direction: a universal price is worth more than an account-specific one,
-   because everybody can read it off this site and it needs no adjustment. */
-const FACILITY_UNDISCOUNTED = ['Physio', 'Form Boost', 'Dream Point Boost', 'gem tiers', 'coin tiers'];
+   Physios spent part of 2026-09-08 on this list and came back off it: the Medical
+   Centre does discount them, and by more than any other building discounts
+   anything. See the Medical Centre note above. */
+const FACILITY_UNDISCOUNTED = ['Form Boost', 'Dream Point Boost', 'gem tiers', 'coin tiers'];
 
 /* --- state ---------------------------------------------------------------
    One key, read through a try/catch because a private window throws on the
@@ -190,12 +196,12 @@ function facilityLevelLabel(f, lvl) {
 function facilityBannerHTML() {
   var L = facilityLevels();
   var mine = facilitiesAreDefault();
-  /* Only buildings that move a price the site publishes. Medical was here until
-     2026-09-08, when physios turned out to be undiscounted — a strip that names
-     a level no printed number depends on is worse than a shorter strip. */
+  /* Only buildings that move a price the site publishes. Medical qualifies: it
+     is the physio discount, and at 40% the deepest one in the game. */
   var shown = [
     { id: 'training',    label: 'Training' },
-    { id: 'recruitment', label: 'Recruitment' }
+    { id: 'recruitment', label: 'Recruitment' },
+    { id: 'medical',     label: 'Medical' }
   ].map(function (b) {
     var f = FACILITIES.filter(function (x) { return x.id === b.id; })[0];
     return '<span class="dls-facbar__lvl"><b>' + facilityLevelLabel(f, L[b.id]) + '</b>'

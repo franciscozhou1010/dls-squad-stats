@@ -1538,16 +1538,17 @@ function scorePassTrack(track) {
         + 'items this site has never priced, so they count as zero, and ' + pass.partial + ' more are '
         + 'scored on their priced option even where you would probably take the other. Every missing '
         + 'price can only push the figure up.'
-      /* C$64.05 over 18 tiers to C$65.56 over 21, measured 2026-09-08 by nulling
+      /* C$64.05 over 18 tiers to C$64.87 over 21, measured 2026-09-08 by nulling
          the seven new prices and re-running this same function. A snapshot: it
          will drift if a price is corrected, so it is dated rather than derived. */
       : '<b>The number is now a total, not a floor.</b> It was a floor for as long as physios and form '
         + 'boosts had no price; both landed on 2026-09-08 and all ' + PASS_TRACK.length + ' tiers score. '
         + 'Three tiers had been dark and three more were scored on whichever option happened to have a '
-        + 'price. Filling all seven gaps moved the figure by <b>C$1.51</b>, about 2% &mdash; so the '
+        + 'price. Filling all seven gaps moved the figure by <b>C$0.82</b>, close to 1% &mdash; so the '
         + 'floor had been very close to the truth, which was not knowable until the prices existed. '
         + 'That is the opposite of what happened on 2026-09-04, when scouts and Dream Point Boosts '
-        + 'roughly doubled it.'),
+        + 'roughly doubled it. Physios and form boosts are simply cheap: a Legendary Physio is 150 '
+        + 'coins on this account, about a fifth of a dollar.'),
     '<b>A second route lands ' + (skipClose ? 'close' : 'a long way off') + '.</b> The game sells a '
       + 'skipped tier for ' + PASS_SKIP_GEMS + ' gems, so it prices the full ' + PASS_TRACK.length
       + '-tier track at ' + num(skipGems) + ' gems &mdash; ' + money(skipCad) + '. The floor built from the '
@@ -1670,9 +1671,8 @@ function scorePassTrack(track) {
     tag.textContent = n ? '(' + n + ')' : '';
   });
 
-  /* Whose prices these are. Coaches, scouts and agents resolve through a facility
-     discount, so the page has to say which levels it used. Physios do not, and
-     stopped being listed here on 2026-09-08. */
+  /* Whose prices these are. Coaches, scouts, agents and physios all resolve
+     through a facility discount, so the page has to say which levels it used. */
   var facBar = document.getElementById('fac-bar');
   if (facBar) facBar.innerHTML = facilityBannerHTML();
 

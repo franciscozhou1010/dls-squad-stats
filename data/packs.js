@@ -60,23 +60,33 @@ const ITEM_PRICES = {
   /* Physios are bought with COINS. They are the only item class on this site that
      is, and the reason an ITEM_PRICES row carries a currency at all.
 
-     Read off the Physios screen 2026-09-08, and discounted by nothing. The site
-     claimed a 40% Medical Centre discount on them until that day, and it was
-     wrong on two independent grounds: the Physios card prints no discount line
-     and no struck-through number where the Agents card prints both, and Francisco
-     reads the Medical Centre's 40 as injury probability rather than as a price.
-     So these are universal prices, the same for every reader, in the same class
-     as the store's gem and coin tiers.
+     THE NUMBERS ARE READ. WHETHER THEY ARE BASES IS INFERRED.
 
-     They are also an order of magnitude smaller than the site assumed. A
-     Legendary Physio is 250 coins, about C$0.43 — not the expensive gem item
-     that made eight season pass tiers unscoreable. */
-  'Physio Common':     { base: 50,  cur: 'coins', disc: null, sure: true,
-                         note: 'Read off the Physios screen: 50 coins, no discount line. Recovers 10% squad energy.' },
-  'Physio Rare':       { base: 100, cur: 'coins', disc: null, sure: true,
-                         note: 'Read off the Physios screen: 100 coins, no discount line. Recovers 20% squad energy.' },
-  'Physio Legendary':  { base: 250, cur: 'coins', disc: null, sure: false,
-                         note: 'Stated by Francisco, not read — the card shows USE because he owns one. Recovers 50% energy and heals all active injuries.' },
+     50 and 100 come straight off the Physios screen. What is inferred is that
+     they are BASE prices rather than already-discounted ones — because the
+     Medical Centre does discount physios, by 10/16/22/28/40%, the deepest ladder
+     in the game.
+
+     The argument: on the same account, in the same session, the Agents card
+     prints a struck-through base and the line "1% Facility Discount" for a
+     discount of one percent. The Physios card prints neither. The game shows a
+     discount whenever there is one, so there was none — which puts that account's
+     Medical Centre at unbuilt, and makes 50/100 the undiscounted prices.
+
+     It also lands on clean numbers both ways: 50/100/250 as bases, and 30/60/150
+     as what the main account pays at 5 stars. If the inference is wrong the bases
+     are higher and every physio figure on this site is low, so all three rows are
+     flagged unsure until someone reads a physio price on an account with the
+     building actually built.
+
+     Legendary is separately soft: Francisco stated 250 rather than reading it,
+     and it is not known which of his two accounts he was remembering. */
+  'Physio Common':     { base: 50,  cur: 'coins', disc: 'physio', sure: false,
+                         note: '50 coins read off the Physios screen with no discount line, taken as the base because that account appears to have Medical unbuilt. Recovers 10% squad energy.' },
+  'Physio Rare':       { base: 100, cur: 'coins', disc: 'physio', sure: false,
+                         note: '100 coins read off the Physios screen with no discount line, taken as the base on the same reasoning as Common. Recovers 20% squad energy.' },
+  'Physio Legendary':  { base: 250, cur: 'coins', disc: 'physio', sure: false,
+                         note: 'Stated by Francisco, not read — the card shows USE because he owns one — and it is unknown which account he was remembering. Recovers 50% energy and heals all active injuries.' },
 
   /* Form Boosts, stated by Francisco 2026-09-08 rather than read off a screen.
      Undiscounted, so universal: the Training Centre moves how long a form boost
