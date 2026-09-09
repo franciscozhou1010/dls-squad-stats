@@ -47,12 +47,12 @@ const FACILITIES = [
      The round trip is left in the record because it was not free: physios shipped
      as undiscounted and universal for one deploy, and they are neither.
 
-     What made the retraction plausible is real and still needs an explanation.
-     The Physios purchase screen prints no discount line and no struck-through
-     price, where the Agents screen prints both at a discount of just 1%. The
-     likeliest reading is that the capture account has this building unbuilt, so
-     there was no discount to print — but that is an inference, and the physio
-     base prices rest on it. See data/packs.js. */
+     What made the retraction plausible turned out to be the key to the physio
+     prices rather than an argument against the discount. The Physios purchase
+     screen prints no discount line and no struck-through price, where the Agents
+     screen prints both at a discount of just 1% — because the capture account has
+     THIS building unbuilt, confirmed by Francisco. That is what makes the 50/100
+     coins on that screen base prices. See data/packs.js. */
   { id: 'medical', name: 'Medical Centre', levels: 5,
     cols: [
       { label: 'Physio price', discounts: 'physio', suffix: '% off', v: [10, 16, 22, 28, 40] },

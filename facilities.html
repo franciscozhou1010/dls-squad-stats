@@ -226,8 +226,8 @@ function renderFacilities() {
       egLabel: 'Legendary Scout', egBase: ITEM_PRICES['Scout Legendary'].base },
     { kind: 'agent',   name: 'Agents',
       egLabel: 'Legendary Agent', egBase: ITEM_PRICES['Agent Legendary'].base },
-    /* The one row in coins, and the one whose base is inferred rather than read
-       — see data/packs.js. The deepest discount in the game sits on it. */
+    /* The one row priced in coins, and the one carrying the deepest discount in
+       the game — see data/packs.js for how its base was pinned. */
     { kind: 'physio',  name: 'Physios', cur: 'coins',
       egLabel: 'Legendary Physio', egBase: ITEM_PRICES['Physio Legendary'].base },
     { kind: 'manager', name: 'Managers', egLabel: 'never captured', egBase: null },
@@ -312,12 +312,12 @@ document.getElementById('reset').addEventListener('click', function () {
       + 'at 150 &times; 0.99 = 148.5 showing as 148. That rule is what lets a discounted price be run '
       + 'backwards to a unique base &mdash; it is how the scout bases and the Legendary Agent&rsquo;s '
       + '375 were recovered.',
-    '<b>The physio base prices are inferred, not read.</b> 50 and 100 coins come off the Physios '
-      + 'screen, but whether those are base prices or already-discounted ones is worked out rather '
-      + 'than seen: the Agents screen prints a discount line for a discount of just 1% and the Physios '
-      + 'screen prints none, so that account most likely has Medical unbuilt. If that is wrong, every '
-      + 'physio figure on this site is low. The Legendary 250 is separately soft &mdash; stated from '
-      + 'memory, and it is not known which account.',
+    '<b>The physio prices are bases, and it took an argument to know that.</b> 50 and 100 coins were '
+      + 'read off a second account, and a physio price carries the deepest discount in the game &mdash; '
+      + 'so whether they were base or discounted figures mattered a great deal. The Agents screen on '
+      + 'that account prints a discount line for a discount of just 1%; the Physios screen prints none, '
+      + 'which reads as <i>no building</i> rather than <i>no discount</i>. Confirmed: that account has '
+      + 'no Medical Centre. The Legendary 250 is still stated from memory rather than read.',
     '<b>Managers are a whole item class nothing here tracks.</b> The Commercial Centre takes 25% off '
       + 'them and no capture, note or page says what they are.'
   ].map(function (l) { return '<li>' + l + '</li>'; }).join('');
